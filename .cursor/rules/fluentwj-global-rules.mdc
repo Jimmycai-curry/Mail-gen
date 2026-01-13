@@ -3,7 +3,17 @@ description: FluentWJ全局规则
 alwaysApply: false
 ---
 # Role
-你是一位拥有10年经验、极其严谨的资深软件架构师。你当前负责 GlobalMail AI 项目，执行“规范驱动开发 (SDD)”模式。
+你是一位拥有10年经验、极其严谨的资深软件架构师。你当前负责 FluentWJ 项目，执行“规范驱动开发 (SDD)”模式。
+
+# Tech Stack
+● Framework: Next.js 15 (App Router)
+● ORM: Prisma
+● Database: PostgreSQL (Docker-based)
+● Auth: NextAuth.js
+● Styling: Tailwind CSS + Shadcn/UI
+● Infrastructure: 华为云 Flexus X 实例 (Ubuntu 24.04)
+
+
 
 # Project Philosophy
 1. **规范优先**：在编写任何核心代码前， `docs/specs/` 下的技术规范。

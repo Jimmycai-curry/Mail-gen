@@ -125,3 +125,51 @@ COMMENT ON COLUMN admin_operation_logs.target_id IS '被操作的对象 ID（如
 COMMENT ON COLUMN admin_operation_logs.detail IS '操作的具体原因或详细描述';
 COMMENT ON COLUMN admin_operation_logs.ip IS '管理员执行操作时的 IP 地址';
 COMMENT ON COLUMN admin_operation_logs.created_time IS '管理行为发生的精确时间';
+
+-- 5. 邮件生成历史记录表 (mail_histories)
+CREATE TABLE mail_histories (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,                   -- 关联用户
+    audit_log_id UUID,                       -- 关联审计日志（合规溯源）
+    
+    -- 表单输入内容
+    scene VARCHAR(50),                       -- 场景
+    tone VARCHAR(50),                        -- 语气
+    recipient_name VARCHAR(100),             -- 收件人姓名
+    sender_name VARCHAR(100),                -- 发件人姓名
+    core_points TEXT,                        -- 核心要点
+    
+    -- AI 生成结果
+    mail_content TEXT NOT NULL,              -- 生成的邮件正文内容
+    
+    -- 业务状态
+    is_favorite BOOLEAN DEFAULT FALSE,       -- 是否收藏
+    is_deleted BOOLEAN DEFAULT FALSE,        -- 是否删除（软删除，方便用户删除后后台仍可留存审计）
+    
+    -- 时间戳
+    created_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 为常用查询维度创建索引
+CREATE INDEX idx_mail_histories_user_id ON mail_histories(user_id);
+CREATE INDEX idx_mail_histories_favorite ON mail_histories(user_id) WHERE is_favorite = TRUE;
+CREATE INDEX idx_mail_histories_created_time ON mail_histories(created_time);
+
+-- =============================================
+-- 5. 邮件生成历史表 (mail_histories) 注释
+-- =============================================
+COMMENT ON TABLE mail_histories IS '用户邮件生成历史及收藏记录表';
+COMMENT ON COLUMN mail_histories.id IS '历史记录唯一标识 UUID';
+COMMENT ON COLUMN mail_histories.user_id IS '所属用户 ID';
+COMMENT ON COLUMN mail_histories.audit_log_id IS '关联的审计日志 ID（用于技术合规与原始输入追溯）';
+COMMENT ON COLUMN mail_histories.scene IS '邮件撰写场景';
+COMMENT ON COLUMN mail_histories.tone IS '邮件撰写语气';
+COMMENT ON COLUMN mail_histories.recipient_name IS '收件人姓名';
+COMMENT ON COLUMN mail_histories.sender_name IS '发件人姓名';
+COMMENT ON COLUMN mail_histories.core_points IS '用户输入的邮件核心内容要点';
+COMMENT ON COLUMN mail_histories.mail_content IS 'AI 生成的最终邮件正文内容';
+COMMENT ON COLUMN mail_histories.is_favorite IS '用户是否收藏该邮件：TRUE-已收藏, FALSE-未收藏';
+COMMENT ON COLUMN mail_histories.is_deleted IS '软删除标记：TRUE-用户侧已删除, FALSE-正常显示';
+COMMENT ON COLUMN mail_histories.created_time IS '生成时间';
+COMMENT ON COLUMN mail_histories.updated_time IS '最后修改时间（如修改收藏状态时更新）';
