@@ -56,7 +56,7 @@ export function ResultViewer() {
             className="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200"
             title="点踩"
           >
-            <ThumbsDown size={20} className="rotate-180" />
+            <ThumbsUp size={20} className="rotate-180" />
           </button>
           
           <button
