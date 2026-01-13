@@ -10,6 +10,7 @@ import { Bolt } from "lucide-react";
 export function WritingForm() {
   // 表单状态管理
   const [scenario, setScenario] = useState("");
+  const [language, setLanguage] = useState("zh-CN"); // 新增：语言选择
   const [tone, setTone] = useState("formal");
   const [recipientName, setRecipientName] = useState("");
   const [recipientRole, setRecipientRole] = useState("");
@@ -30,6 +31,15 @@ export function WritingForm() {
     { value: "report", label: "工作汇报" },
     { value: "proposal", label: "项目提案" },
     { value: "notice", label: "正式公告" },
+  ];
+
+  // 语言选项
+  const languages = [
+    { value: "zh-CN", label: "中文" },
+    { value: "en-US", label: "English" },
+    { value: "zh-TW", label: "繁體中文" },
+    { value: "ja-JP", label: "日本語" },
+    { value: "ko-KR", label: "한국어" },
   ];
 
   // 处理表单提交
@@ -55,22 +65,43 @@ export function WritingForm() {
         </p>
       </header>
 
-      {/* 业务场景 */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-          业务场景
-        </label>
-        <select
-          value={scenario}
-          onChange={(e) => setScenario(e.target.value)}
-          className="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none px-4"
-        >
-          {scenarios.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+      {/* 业务场景和语言选择 - 并排布局，各占一半 */}
+      <div className="flex gap-4">
+        {/* 业务场景 */}
+        <div className="flex flex-col gap-2 flex-1">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            业务场景
+          </label>
+          <select
+            value={scenario}
+            onChange={(e) => setScenario(e.target.value)}
+            className="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none px-4"
+          >
+            {scenarios.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* 语言选择 */}
+        <div className="flex flex-col gap-2 flex-1">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            语言
+          </label>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none px-4"
+          >
+            {languages.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* 语气选择 */}
