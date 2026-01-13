@@ -28,7 +28,8 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
     <aside 
       // 动态设置宽度：展开时 256px (w-64)，收缩时 80px (w-20)
       // transition-all 添加平滑过渡动画
-      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-[#0d0d1c] text-white flex flex-col justify-between py-6 transition-all duration-300`}
+      // relative 为了让绝对定位的按钮相对于侧边栏定位
+      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-[#0d0d1c] text-white flex flex-col justify-between py-6 transition-all duration-300 relative`}
     >
       {/* Logo 区域 */}
       <div className="flex flex-col gap-8">
@@ -85,19 +86,8 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         </nav>
       </div>
 
-      {/* 底部区域：收缩按钮 + 用户信息 */}
+      {/* 底部区域：用户信息 */}
       <div className={`flex flex-col gap-3 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-        
-        {/* 收缩/展开按钮 */}
-        <button
-          onClick={toggleCollapse}
-          className={`flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white`}
-          title={isCollapsed ? '展开侧边栏' : '收缩侧边栏'} // 鼠标悬停时的提示文字
-        >
-          {/* 根据状态显示不同的图标方向 */}
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-        </button>
-
         {/* 用户信息卡片 - 收缩时只显示头像 */}
         <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3 overflow-hidden">
           {/* 用户头像 */}
@@ -117,6 +107,30 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
           )}
         </div>
       </div>
+
+      {/* 收缩/展开按钮 - 绝对定位在右侧边缘中间 */}
+      <button
+        onClick={toggleCollapse}
+        className={`
+          absolute right-0 top-1/2 -translate-y-1/2 
+          w-6 h-12 rounded-l-lg 
+          bg-white/10 hover:bg-white/20 
+          flex items-center justify-center 
+          transition-all duration-300 
+          text-slate-300 hover:text-white
+          border-l border-white/10
+          group
+        `}
+        title={isCollapsed ? '展开侧边栏' : '收缩侧边栏'} // 鼠标悬停时的提示文字
+      >
+        {/* 根据状态显示不同的图标方向 */}
+        <span className={`
+          ${isCollapsed ? 'rotate-180' : 'rotate-0'} 
+          transition-transform duration-300
+        `}>
+          <ChevronLeft size={16} />
+        </span>
+      </button>
     </aside>
   );
 }
