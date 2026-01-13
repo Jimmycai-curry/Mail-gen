@@ -39,3 +39,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# app/generated/prisma - Prisma 生成的代码需要提交到 Git，不要忽略

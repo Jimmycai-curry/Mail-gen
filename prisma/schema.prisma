@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model admin_operation_logs {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  admin_id     String    @db.Uuid
+  action_type  String    @db.VarChar(50)
+  target_id    String?   @db.VarChar(50)
+  detail       String?
+  ip           String?   @db.VarChar(45)
+  created_time DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model audit_logs {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String    @db.Uuid
+  user_phone        String?   @db.VarChar(20)
+  user_ip           String    @db.VarChar(45)
+  scene             String?   @db.VarChar(50)
+  tone              String?   @db.VarChar(50)
+  input_prompt      String
+  output_content    String
+  model_name        String?   @db.VarChar(50)
+  audit_token       String?
+  status            Int?      @default(1) @db.SmallInt
+  is_sensitive      Boolean?  @default(false)
+  external_audit_id String?   @db.VarChar(100)
+  created_time      DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([status, created_time], map: "idx_audit_logs_status_time")
+  @@index([user_id], map: "idx_audit_logs_user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model feedbacks {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String    @db.Uuid
+  log_id         String?   @db.Uuid
+  type           String    @db.VarChar(30)
+  content        String
+  status         Int?      @default(0) @db.SmallInt
+  admin_note     String?
+  processed_time DateTime? @db.Timestamptz(6)
+  created_time   DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([status], map: "idx_feedbacks_status")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model mail_histories {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String    @db.Uuid
+  audit_log_id   String?   @db.Uuid
+  scene          String?   @db.VarChar(50)
+  tone           String?   @db.VarChar(50)
+  recipient_name String?   @db.VarChar(100)
+  sender_name    String?   @db.VarChar(100)
+  core_points    String?
+  mail_content   String
+  is_favorite    Boolean?  @default(false)
+  is_deleted     Boolean?  @default(false)
+  created_time   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_time   DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([created_time], map: "idx_mail_histories_created_time")
+  @@index([user_id], map: "idx_mail_histories_user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone           String    @unique @db.VarChar(20)
+  password_hash   String
+  role            Int?      @default(1) @db.SmallInt
+  status          Int?      @default(1) @db.SmallInt
+  last_login_ip   String?   @db.VarChar(45)
+  last_login_time DateTime? @db.Timestamptz(6)
+  created_time    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_time    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([phone], map: "idx_users_phone")
+  @@index([role, status], map: "idx_users_role_status")
+}
