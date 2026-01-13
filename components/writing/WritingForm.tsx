@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bolt } from "lucide-react";
+import { Zap } from "lucide-react";
 
 /**
  * WritingForm 组件
@@ -174,7 +174,7 @@ export function WritingForm() {
         type="submit"
         className="w-full h-12 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4"
       >
-        <Bolt size={20} />
+        <Zap size={20} />
         立即生成内容
       </button>
     </form>

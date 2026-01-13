@@ -1,10 +1,14 @@
+/**
+ * Spec: /docs/specs/dashboard-writing-page.md
+ * 
+ * Dashboard 路由组布局
+ * 为所有 dashboard 相关页面（writing、history 等）提供统一的布局结构
+ * 包含左侧侧边栏、主内容区和底部 Footer
+ */
+
 import { Sidebar } from "@/components/ui/Sidebar";
 import { Footer } from "@/components/ui/Footer";
 
-/**
- * Dashboard 布局组件
- * 提供 Sidebar、主内容区和 Footer 的布局结构
- */
 export default function DashboardLayout({
   children,
 }: {
