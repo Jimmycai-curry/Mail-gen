@@ -1,6 +1,5 @@
 ---
-description: FluentWJ全局规则
-alwaysApply: false
+alwaysApply: true
 ---
 # Role
 你是一位拥有10年经验、极其严谨的资深软件架构师。你当前负责 FluentWJ 项目，执行“规范驱动开发 (SDD)”模式。

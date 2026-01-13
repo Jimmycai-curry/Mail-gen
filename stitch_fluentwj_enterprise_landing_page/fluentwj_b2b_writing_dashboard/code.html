@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FluentWJ B2B Writing Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0505d6",
+                        "background-light": "#f5f5f8",
+                        "background-dark": "#0f0f23",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "system-ui", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid white;
+        }
+        body {
+            font-family: 'Inter', "Microsoft YaHei", sans-serif;
+        }
+        .w-40-percent { width: 40%; }
+        .w-60-percent { width: 60%; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden h-screen flex flex-col">
+<div class="flex flex-1 overflow-hidden">
+<aside class="relative w-64 bg-[#0d0d1c] text-white flex flex-col justify-between py-6 transition-all duration-300">
+<button class="absolute -right-3 top-20 bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 z-10 shadow-md">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<div class="flex flex-col gap-8">
+<div class="px-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-white">mail</span>
+</div>
+<div class="flex flex-col overflow-hidden whitespace-nowrap">
+<h1 class="text-lg font-bold leading-tight">FluentWJ</h1>
+<p class="text-slate-400 text-xs font-normal">AI Writing Assistant</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 overflow-hidden">
+<a class="flex items-center gap-3 px-6 py-3 bg-white/10 border-r-4 border-primary whitespace-nowrap" href="#">
+<span class="material-symbols-outlined">edit_square</span>
+<span class="text-sm font-medium">撰写</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-sm font-medium">历史记录</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-colors whitespace-nowrap" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-sm font-medium">我的收藏</span>
+</a>
+</nav>
+</div>
+<div class="px-4">
+<div class="bg-white/5 rounded-xl p-4 flex items-center gap-3 overflow-hidden">
+<div class="w-10 h-10 rounded-full bg-cover bg-center border border-white/20 shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtomjlKAlPEzLdqqIEYZSFOMX_HIxMOjhyuSm72v0-CAZvtDAMTLXxj9FPEWQWLdweeh1wf7H0mpPqTZs7U6Oh7uLGtqlzQicd5uqlqpaPaQ9y6xAXweIyzsIdKCrYZEZAdZmMieV8eArCk_ZuIB30qdVXajfEcg0Qab8eawtX8wH4Ea8nqQVZsSyKV-JQBaOJxpkuatMnDEqMF6JAf-TIQWHYDXuxMKKHOxG3LJIl5e1RS_kGImuTSgmgnp0vgI3qExmbYTG6pUMI')"></div>
+<div class="flex flex-col overflow-hidden whitespace-nowrap">
+<p class="text-sm font-medium truncate">企业管理员</p>
+<p class="text-xs text-slate-400 truncate">Pro Account</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex overflow-hidden">
+<section class="w-40-percent overflow-y-auto border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-8">
+<div class="max-w-xl mx-auto">
+<header class="mb-8">
+<h2 class="text-2xl font-bold text-slate-900 dark:text-white">撰写需求</h2>
+<p class="text-slate-500 text-sm mt-1">请填写以下信息，AI 将为您生成专业的商务内容</p>
+</header>
+<div class="space-y-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">业务场景</label>
+<select class="w-full h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary">
+<option value="">请选择业务场景</option>
+<option value="email">商务邮件</option>
+<option value="report">工作汇报</option>
+<option value="proposal">项目提案</option>
+<option value="notice">正式公告</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">语气选择</label>
+<div class="flex gap-3 flex-wrap">
+<button class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium transition-all">正式</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700">友好</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700">紧急</button>
+<button class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700">幽默</button>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">收件人姓名</label>
+<input class="w-full h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary" placeholder="输入收件人姓名" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">收件人身份</label>
+<input class="w-full h-12 rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary" placeholder="输入收件人职位或背景 (如: 销售总监, 技术合作伙伴)" type="text"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">核心要点</label>
+<textarea class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-primary focus:border-primary resize-none p-4" placeholder="请简述您想表达的核心内容，多个要点请分行输入..." rows="6"></textarea>
+</div>
+<button class="w-full h-12 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4">
+<span class="material-symbols-outlined text-[20px]">bolt</span>
+                        立即生成内容
+                    </button>
+</div>
+</div>
+</section>
+<section class="w-60-percent bg-background-light dark:bg-background-dark p-8 flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider">您的专属邮件内容</h3>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200" title="复制">
+<span class="material-symbols-outlined text-[20px]">content_copy</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200" title="生成一个倒过来的大拇指">
+<span class="material-symbols-outlined text-[20px] rotate-180">thumb_up</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200" title="生成一个正的大拇指表示">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200" title="重新生成">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-200 group" title="收藏">
+<span class="material-symbols-outlined text-[20px] group-hover:text-red-500 transition-colors">favorite</span>
+</button>
+</div>
+</div>
+<div class="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 overflow-y-auto flex flex-col">
+<div class="prose dark:prose-invert max-w-none flex-1">
+<p class="text-slate-400 italic">点击左侧“立即生成”按钮开始撰写...</p>
+<div class="hidden">
+<h2 class="text-xl font-bold mb-4">关于下季度销售目标的会议邀约</h2>
+<p>尊敬的销售总监：</p>
+<p>您好！希望这封邮件时您正一切顺利。</p>
+<p>根据我们最新的业务分析，我想邀请您参加一个关于下季度销售目标的讨论会议。在本次会议中，我们将重点讨论以下几个核心要点：</p>
+<ul>
+<li>区域市场的扩张策略</li>
+<li>针对核心大客户的激励方案</li>
+<li>渠道合作伙伴的赋能计划</li>
+</ul>
+<p>期待与您共同探讨。顺颂商祺。</p>
+</div>
+</div>
+</div>
+<div class="px-2">
+<div class="flex items-center gap-2 text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 p-3 rounded-lg border border-slate-200/50 dark:border-slate-800/50">
+<span class="material-symbols-outlined text-[16px] text-primary/70">info</span>
+<p>由 FluentWJ 生成。AI 算法提供内容，仅供参考。请在发送前核实关键信息。</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+<footer class="h-10 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 text-[10px] text-slate-400">
+<div class="flex items-center gap-4">
+<span>© 2024 FluentWJ. All rights reserved.</span>
+<span class="h-3 w-[1px] bg-slate-200 dark:bg-slate-800"></span>
+<a class="hover:text-primary transition-colors" href="#">隐私政策</a>
+<a class="hover:text-primary transition-colors" href="#">服务协议</a>
+</div>
+<div class="flex items-center gap-4">
+<span>ICP备案号：京ICP备2023000000号-1</span>
+<span>算法备案号：FluentWJ-LLM-2024-001</span>
+</div>
+</footer>
+
+</body></html>

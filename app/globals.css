@@ -9,6 +9,14 @@
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
   --text-muted: #64748b;
+  
+  /* 登录页面专用颜色（设计稿配色） */
+  --login-primary: #0052D9;
+  --login-bg-light: #f5f5f8;
+  --login-bg-dark: #0f0f23;
+  --login-text-primary: #0c0c1d;
+  --login-text-secondary: #4545a1;
+  --login-border: #cdcdea;
 }
 
 /* 深色模式变量 */
@@ -69,4 +77,15 @@ body {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+/* Material Symbols 图标样式 */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+
+/* 登录页面字体优先级 */
+.font-display {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
