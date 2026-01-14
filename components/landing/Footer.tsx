@@ -61,12 +61,7 @@ export default function Footer() {
             © 2026 FluentWJ Enterprise. 版权所有。
           </p>
           <div className="mt-4 flex gap-6 md:mt-0">
-            <span className="material-symbols-outlined text-[#4568a1] dark:text-gray-500 cursor-pointer hover:text-primary transition-colors">
-              language
-            </span>
-            <span className="material-symbols-outlined text-[#4568a1] dark:text-gray-500 cursor-pointer hover:text-primary transition-colors">
-              shield
-            </span>
+            
           </div>
         </div>
       </div>

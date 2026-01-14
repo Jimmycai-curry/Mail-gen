@@ -17,6 +17,11 @@ export default function Navbar() {
     router.push('/login');
   };
 
+  // 处理语言切换
+  const handleLanguageChange = () => {
+    alert('语言切换功能开发中，敬请期待');
+  };
+
   // 处理导航链接点击
   const handleNavLinkClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,8 +67,17 @@ export default function Navbar() {
             </a> */}
           </div>
 
-          {/* 登录按钮 */}
+          {/* 登录按钮和语言切换 */}
           <div className="flex items-center gap-4">
+            {/* 语言切换图标 */}
+            <span 
+              className="material-symbols-outlined text-[#4568a1] dark:text-gray-500 cursor-pointer hover:text-primary transition-colors"
+              onClick={handleLanguageChange}
+            >
+              language
+            </span>
+            
+            {/* 登录按钮 */}
             <button
               onClick={handleLoginClick}
               className="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold tracking-wide hover:bg-primary/90 transition-all"
