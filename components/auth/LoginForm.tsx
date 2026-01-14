@@ -168,7 +168,7 @@ export default function LoginForm({ onSubmit, isLoading = false }: LoginFormProp
     alert('登录成功（演示模式）');
     
     // TODO: 后续对接真实登录 API，获取 token 并存储
-    router.push('/dashboard');
+    router.push('/dashboard/writing');
   };
 
   return (

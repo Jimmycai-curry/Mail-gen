@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react"; // 引入 useState 来管理收缩状态
-import { Mail, PenSquare, History, ChevronLeft, ChevronRight } from "lucide-react"; // 新增 ChevronRight 图标
+import { Mail, PenSquare, History, ChevronLeft, ChevronRight, Heart, HeartOff } from "lucide-react"; // 新增 ChevronRight 图标
 
 /**
  * Sidebar 组件
@@ -52,7 +52,7 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         <nav className="flex flex-col gap-1 overflow-hidden">
           {/* 撰写 - 激活状态 */}
           <a
-            href="/dashboard"
+            href="/dashboard/writing"
             className={`flex items-center border-r-4 whitespace-nowrap transition-colors ${
               // 根据收缩状态动态调整 padding 和 justify（居中对齐）
               isCollapsed ? 'justify-center px-0 py-3' : 'px-6 py-3 gap-3'

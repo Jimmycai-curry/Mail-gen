@@ -70,12 +70,12 @@ export default function Navbar() {
           {/* 登录按钮和语言切换 */}
           <div className="flex items-center gap-4">
             {/* 语言切换图标 */}
-            <span 
+            {/* <span 
               className="material-symbols-outlined text-[#4568a1] dark:text-gray-500 cursor-pointer hover:text-primary transition-colors"
               onClick={handleLanguageChange}
             >
               language
-            </span>
+            </span> */}
             
             {/* 登录按钮 */}
             <button
