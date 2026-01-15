@@ -35,7 +35,7 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
         {/* 卡片顶部：标题和收藏图标 */}
         <div className="flex justify-between items-start mb-1">
           <h3 className={`font-semibold text-sm ${
-            isSelected ? "text-blue-400" : "text-gray-800 dark:text-gray-100 group-hover:text-primary"
+            isSelected ? "text-blue-600" : "text-gray-800 dark:text-gray-100 group-hover:text-primary"
           }`}>
             {history.title}
           </h3>
