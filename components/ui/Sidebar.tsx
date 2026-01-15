@@ -29,7 +29,7 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
       // 动态设置宽度：展开时 256px (w-64)，收缩时 80px (w-20)
       // transition-all 添加平滑过渡动画
       // relative 为了让绝对定位的按钮相对于侧边栏定位
-      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-background-light dark:bg-[#0d0d1c] text-gray-800 dark:text-white flex flex-col justify-between py-6 transition-all duration-300 relative`}
+      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-background-light dark:bg-[#0d0d1c] text-gray-800 dark:text-white flex flex-col justify-between py-6 transition-all duration-300 relative border-r border-gray-200 dark:border-gray-700`}
     >
       {/* Logo 区域 */}
       <div className="flex flex-col gap-8">
@@ -114,11 +114,11 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         className={`
           absolute right-0 top-1/2 -translate-y-1/2 
           w-6 h-12 rounded-l-lg 
-          bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10
+          bg-blue-600 dark:bg-white/5 hover:bg-blue-700 dark:hover:bg-white/10
           flex items-center justify-center 
           transition-all duration-300 
-          text-slate-300 dark:text-gray-400 hover:text-white
-          border-l border-white/10 dark:border-white/20
+          text-black dark:text-gray-400 hover:text-white
+          border border-gray-200 dark:border-gray-700
           group
         `}
         title={isCollapsed ? '展开侧边栏' : '收缩侧边栏'} // 鼠标悬停时的提示文字
