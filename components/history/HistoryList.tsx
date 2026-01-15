@@ -62,7 +62,7 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-background-dark/50">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
       {/* 顶部区域：标题和搜索筛选 */}
       <div className="p-6 border-b border-gray-200 dark:border-gray-800">
         <h1 className="text-2xl font-bold mb-6 tracking-tight">历史记录</h1>

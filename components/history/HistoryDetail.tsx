@@ -93,13 +93,13 @@ export function HistoryDetail({ detail }: HistoryDetailProps) {
 
                 {/* 需求信息列表 */}
                 <div className="space-y-5">
-                  {/* 发送者/接收者 */}
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">发送者 / 接收者</p>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                      {detail.senderName} → {detail.recipientName}
-                    </p>
-                  </div>
+{/* 发送者/接收者 */}
+          <div>
+            <p className="text-xs text-gray-400 mb-1">发送者 / 接收者</p>
+            <p className="text-sm font-medium text-gray-800 dark:text-blue-300">
+              {detail.senderName} → {detail.recipientName}
+            </p>
+          </div>
 
                   {/* 语气风格 */}
                   <div>
@@ -108,7 +108,7 @@ export function HistoryDetail({ detail }: HistoryDetailProps) {
                       {detail.tone.split(",").map((style, index) => (
                         <span
                           key={index}
-                          className="px-2 py-0.5 bg-primary/10 text-primary text-[11px] rounded"
+                          className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[11px] rounded"
                         >
                           {style.trim()}
                         </span>
