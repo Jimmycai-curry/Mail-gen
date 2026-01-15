@@ -1,5 +1,5 @@
 // Spec: /docs/specs/login-backend.md
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { loginWithCode, loginWithPassword } from '@/services/auth.service'
 import { validatePhone, validatePassword, validateCode } from '@/utils/validation'
 import { withErrorHandler } from '@/utils/error'
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const { phone, code, password, mode } = body
 
     if (!phone || !mode) {
-      return Response.json(
+      return NextResponse.json(
         {
           success: false,
           message: '请输入手机号'
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     const phoneValidation = validatePhone(phone)
     if (!phoneValidation.isValid) {
-      return Response.json(
+      return NextResponse.json(
         {
           success: false,
           message: phoneValidation.error || '手机号格式错误'
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     if (mode === 'code') {
       if (!code) {
-        return Response.json(
+        return NextResponse.json(
           {
             success: false,
             message: '请输入验证码'
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
       const codeValidation = validateCode(code)
       if (!codeValidation.isValid) {
-        return Response.json(
+        return NextResponse.json(
           {
             success: false,
             message: codeValidation.error || '验证码格式错误'
@@ -59,10 +59,25 @@ export async function POST(request: NextRequest) {
 
       const result = await loginWithCode(phone, code, ip)
 
-      return Response.json(result)
+      // 创建响应并设置安全的 Cookie
+      const response = NextResponse.json(result)
+
+      if (result.success && result.token) {
+        // 设置 HttpOnly Cookie，防止 XSS 攻击窃取 Token
+        response.cookies.set('auth_token', result.token, {
+          httpOnly: true,  // 禁止 JavaScript 读取 Cookie，防止 XSS 攻击
+          secure: process.env.NODE_ENV === 'production',  // 生产环境必须使用 HTTPS
+          sameSite: 'strict',  // 防止 CSRF 攻击
+          maxAge: 60 * 60 * 24,  // 1 天有效期（与 JWT 过期时间一致）
+          path: '/',  // 在整个域名下有效
+        })
+        console.log('[Login] Cookie 已安全设置:', { httpOnly: true, sameSite: 'strict' })
+      }
+
+      return response
     } else if (mode === 'password') {
       if (!password) {
-        return Response.json(
+        return NextResponse.json(
           {
             success: false,
             message: '请输入密码'
@@ -73,7 +88,7 @@ export async function POST(request: NextRequest) {
 
       const passwordValidation = validatePassword(password)
       if (!passwordValidation.isValid) {
-        return Response.json(
+        return NextResponse.json(
           {
             success: false,
             message: passwordValidation.error || '密码格式错误'
@@ -84,9 +99,24 @@ export async function POST(request: NextRequest) {
 
       const result = await loginWithPassword(phone, password, ip)
 
-      return Response.json(result)
+      // 创建响应并设置安全的 Cookie
+      const response = NextResponse.json(result)
+
+      if (result.success && result.token) {
+        // 设置 HttpOnly Cookie，防止 XSS 攻击窃取 Token
+        response.cookies.set('auth_token', result.token, {
+          httpOnly: true,  // 禁止 JavaScript 读取 Cookie，防止 XSS 攻击
+          secure: process.env.NODE_ENV === 'production',  // 生产环境必须使用 HTTPS
+          sameSite: 'strict',  // 防止 CSRF 攻击
+          maxAge: 60 * 60 * 24,  // 1 天有效期（与 JWT 过期时间一致）
+          path: '/',  // 在整个域名下有效
+        })
+        console.log('[Login] Cookie 已安全设置:', { httpOnly: true, sameSite: 'strict' })
+      }
+
+      return response
     } else {
-      return Response.json(
+      return NextResponse.json(
         {
           success: false,
           message: '无效的登录模式'
