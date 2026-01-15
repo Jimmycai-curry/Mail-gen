@@ -98,6 +98,16 @@ body {
   background-size: 24px 24px;
 }
 
+/* 管理后台网格背景（灰色点） */
+.admin-grid-pattern {
+  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .admin-grid-pattern {
+  background-image: radial-gradient(#1e293b 1px, transparent 1px);
+}
+
 /* Mockup容器 */
 .mockup-container {
   aspect-ratio: 16 / 10;

@@ -18,7 +18,7 @@ import {
 } from '@/services/user.service'
 import { generateToken } from '@/utils/jwt'
 import { ValidationError, UnauthorizedError } from '@/utils/error'
-import { LoginResult, SetPasswordResult, UpdatePasswordResult } from '@/types/auth'
+import { LoginResult, SetPasswordResult, UpdatePasswordResult, UserRole } from '@/types/auth'
 import { JWTPayload } from '@/types/auth'
 
 /**
@@ -102,20 +102,23 @@ export async function loginWithCode(
  * 2. 查询用户
  * 3. 验证密码
  * 4. 检查用户状态
- * 5. 更新登录信息
- * 6. 生成JWT Token
+ * 5. (可选) 验证管理员角色
+ * 6. 更新登录信息
+ * 7. 生成JWT Token
  *
  * @param phone - 用户手机号
  * @param password - 用户密码
  * @param ip - 用户IP地址
+ * @param requireAdmin - 是否要求管理员角色（默认false）
  * @returns 登录结果
  */
 export async function loginWithPassword(
   phone: string,
   password: string,
-  ip: string
+  ip: string,
+  requireAdmin: boolean = false
 ): Promise<LoginResult> {
-  console.log('[AuthService] 密码登录请求:', { phone, ip })
+  console.log('[AuthService] 密码登录请求:', { phone, ip, requireAdmin })
 
   const user = await getUserByPhone(phone)
 
@@ -136,6 +139,12 @@ export async function loginWithPassword(
   }
 
   checkUserStatus(user)
+
+  // 如果要求管理员权限，检查用户角色
+  if (requireAdmin && user.role !== UserRole.ADMIN) {
+    console.log('[AuthService] 非管理员尝试访问后台:', { userId: user.id, role: user.role })
+    throw new UnauthorizedError('手机号或密码错误')
+  }
 
   await updateLoginInfo(user.id, ip)
 
