@@ -35,13 +35,13 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
         {/* 卡片顶部：标题和收藏图标 */}
         <div className="flex justify-between items-start mb-1">
           <h3 className={`font-semibold text-sm ${
-            isSelected ? "text-primary" : "text-gray-800 dark:text-gray-200 group-hover:text-primary"
+            isSelected ? "text-blue-400" : "text-gray-800 dark:text-gray-100 group-hover:text-primary"
           }`}>
             {history.title}
           </h3>
           {/* 收藏图标：实心爱心（已收藏）或空心爱心（未收藏） */}
           {history.isFavorite ? (
-            <Heart className="w-5 h-5 text-primary fill-primary" />
+            <Heart className="w-5 h-5 text-red-500 fill-red-500" />
           ) : (
             <Heart className="w-5 h-5 text-gray-300 hover:text-primary" />
           )}

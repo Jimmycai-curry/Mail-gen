@@ -71,7 +71,7 @@ export function HistoryDetail({ detail }: HistoryDetailProps) {
             className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title={detail.isFavorite ? "取消收藏" : "添加收藏"}
           >
-            <Heart className={`w-4 h-4 ${detail.isFavorite ? "fill-primary text-primary" : "text-gray-300"}`} />
+            <Heart className={`w-4 h-4 ${detail.isFavorite ? "fill-red-500 text-red-500" : "text-gray-300"}`} />
             {detail.isFavorite ? "已收藏" : "添加收藏"}
           </button>
         </div>

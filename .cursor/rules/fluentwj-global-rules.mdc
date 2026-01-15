@@ -47,6 +47,8 @@ alwaysApply: true
   - 必须从 Request Header 提取真实的 `user_ip` 进行合规审计。
 
 
+
+
 # Coding Standards
 - **Strict Typing**: 严禁使用 `any`。必须在 `types/` 目录或 Service 内部定义接口。
 - **Error Handling**: 统一使用全局错误处理机制。Service 层应抛出业务异常，由 API 层捕获并返回格式化的 JSON。
