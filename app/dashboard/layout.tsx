@@ -22,7 +22,7 @@ export default function DashboardLayout({
 
   // 根据当前路径设置激活的导航项
   // history 页面激活 'history'，其他页面激活 'writing'
-  const activeNav = pathname.includes('/history') ? 'history' : 'writing';
+  const activeNav = pathname?.includes('/history') ? 'history' : 'writing';
 
   return (
     <div className="flex flex-1 overflow-hidden h-screen">
