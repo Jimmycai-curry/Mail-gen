@@ -1,7 +1,7 @@
 "use client";
 
 import { HistoryListProps, HistoryItem } from "@/types/history";
-import { Search, Filter, Heart, Calendar } from "lucide-react";
+import { Search, Filter, Heart, Calendar, Trash2 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { FilterDropdown } from "./FilterDropdown";
@@ -28,6 +28,10 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
     showOnlyFavorites: false,
     quickFilter: 'today'
   });
+
+  // 删除确认弹窗状态管理
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // 控制弹窗显示/隐藏
+  const [historyToDelete, setHistoryToDelete] = useState<HistoryItem | null>(null); // 存储待删除的历史记录
 
   // 当quickFilter为today时，自动填充日期
   React.useEffect(() => {
@@ -168,7 +172,7 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
   const handleApply = async () => {
     // 这里将连接到后端API获取筛选后的数据
     setIsFilterOpen(false);
-    
+
     try {
       const filteredHistories = await getFilteredHistories();
       // 这里可以添加状态更新逻辑，将筛选后的数据设置到组件状态中
@@ -176,6 +180,46 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
     } catch (error) {
       console.error('Failed to apply filters:', error);
     }
+  };
+
+  /**
+   * 处理删除按钮点击
+   * 打开确认弹窗，不直接删除
+   */
+  const handleDeleteClick = (history: HistoryItem, event: React.MouseEvent) => {
+    // 阻止事件冒泡，避免触发卡片点击事件
+    event.stopPropagation();
+    // 设置待删除的历史记录
+    setHistoryToDelete(history);
+    // 打开确认弹窗
+    setIsDeleteModalOpen(true);
+  };
+
+  /**
+   * 确认删除操作
+   * 用户点击弹窗中的确认按钮后调用
+   */
+  const handleConfirmDelete = () => {
+    if (historyToDelete) {
+      // TODO: 这里将来调用后端删除 API
+      console.log('删除历史记录:', historyToDelete.id, historyToDelete.title);
+      // 暂时只打印日志，等后端 API 做好后再实现实际删除
+    }
+    // 关闭弹窗
+    setIsDeleteModalOpen(false);
+    // 清空待删除的记录
+    setHistoryToDelete(null);
+  };
+
+  /**
+   * 取消删除操作
+   * 用户点击弹窗中的取消按钮后调用
+   */
+  const handleCancelDelete = () => {
+    // 关闭弹窗
+    setIsDeleteModalOpen(false);
+    // 清空待删除的记录
+    setHistoryToDelete(null);
   };
 
   /**
@@ -219,54 +263,116 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
           {history.preview}
         </p>
 
-        {/* 创建时间 */}
-        <div className="flex items-center text-[11px] text-gray-400">
-          <Calendar className="w-3 h-3 mr-1" />
-          {history.createdAt}
+        {/* 创建时间和删除按钮 */}
+        <div className="flex items-center justify-between text-[11px] text-gray-400">
+          {/* 左侧：创建时间 */}
+          <div className="flex items-center">
+            <Calendar className="w-3 h-3 mr-1" />
+            {history.createdAt}
+          </div>
+          {/* 右侧：删除图标 - 和右上角的爱心垂直对齐 */}
+          <Trash2
+            className="w-4 h-4 text-gray-300 hover:text-red-500 cursor-pointer transition-colors"
+            onClick={(event) => handleDeleteClick(history, event)}
+          />
         </div>
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-      {/* 顶部区域：标题和搜索筛选 */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold mb-6 tracking-tight">历史记录</h1>
+    <>
+      {/* 主容器 */}
+      <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+        {/* 顶部区域：标题和搜索筛选 */}
+        <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+          <h1 className="text-2xl font-bold mb-6 tracking-tight">历史记录</h1>
 
-        {/* 搜索框和筛选按钮 */}
-        <div className="flex gap-2">
-          {/* 搜索框 */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="搜索历史记录"
-              className="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
-              // 功能待实现：暂无搜索逻辑
-            />
-          </div>
+          {/* 搜索框和筛选按钮 */}
+          <div className="flex gap-2">
+            {/* 搜索框 */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="搜索历史记录"
+                className="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
+                // 功能待实现：暂无搜索逻辑
+              />
+            </div>
 
-          {/* 筛选按钮和下拉框 */}
-          <div ref={filterDropdownRef}>
-            <FilterDropdown
-              isOpen={isFilterOpen}
-              onToggle={handleFilterClick}
-              filterState={filterState}
-              onFilterChange={handleDateChange}
-              onQuickFilter={handleQuickFilter}
-              onFavoriteToggle={handleFavoriteToggle}
-              onReset={handleReset}
-              onApply={handleApply}
-            />
+            {/* 筛选按钮和下拉框 */}
+            <div ref={filterDropdownRef}>
+              <FilterDropdown
+                isOpen={isFilterOpen}
+                onToggle={handleFilterClick}
+                filterState={filterState}
+                onFilterChange={handleDateChange}
+                onQuickFilter={handleQuickFilter}
+                onFavoriteToggle={handleFavoriteToggle}
+                onReset={handleReset}
+                onApply={handleApply}
+              />
+            </div>
           </div>
+        </div>
+
+        {/* 历史记录列表：可滚动区域 */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-3">
+          {histories.map((history) => renderCard(history))}
         </div>
       </div>
 
-      {/* 历史记录列表：可滚动区域 */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-3">
-        {histories.map((history) => renderCard(history))}
-      </div>
-    </div>
+      {/* 删除确认弹窗 - 磨砂玻璃效果 */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* 背景模糊层 - 磨砂玻璃效果 */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={handleCancelDelete}
+          />
+
+          {/* 弹窗主体 */}
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-in fade-in zoom-in-95 duration-200">
+            {/* 警告图标 */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <Trash2 className="w-8 h-8 text-red-500" />
+              </div>
+            </div>
+
+            {/* 标题 */}
+            <h3 className="text-xl font-bold text-center mb-2 text-gray-900 dark:text-white">
+              确认删除
+            </h3>
+
+            {/* 提示信息 */}
+            <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-6">
+              你确定要删除这条历史记录吗？<br />
+              删除后无法恢复。
+            </p>
+
+            {/* 按钮组 */}
+            <div className="flex gap-3">
+              {/* 取消按钮 */}
+              <button
+                onClick={handleCancelDelete}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                取消
+              </button>
+
+              {/* 确认按钮 - 红色 */}
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
+              >
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
