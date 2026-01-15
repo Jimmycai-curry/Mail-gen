@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react"; // 引入 useState 来管理收缩状态
-import { Mail, PenSquare, History, ChevronLeft, ChevronRight } from "lucide-react"; // 新增 ChevronRight 图标
+import { Mail, PenSquare, History, ChevronLeft, ChevronRight, Heart, HeartOff } from "lucide-react"; // 新增 ChevronRight 图标
 
 /**
  * Sidebar 组件
@@ -29,7 +29,7 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
       // 动态设置宽度：展开时 256px (w-64)，收缩时 80px (w-20)
       // transition-all 添加平滑过渡动画
       // relative 为了让绝对定位的按钮相对于侧边栏定位
-      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-[#0d0d1c] text-white flex flex-col justify-between py-6 transition-all duration-300 relative`}
+      className={`sidebar ${isCollapsed ? 'w-20' : 'w-64'} bg-background-light dark:bg-[#0d0d1c] text-gray-800 dark:text-white flex flex-col justify-between py-6 transition-all duration-300 relative border-r border-gray-200 dark:border-gray-700`}
     >
       {/* Logo 区域 */}
       <div className="flex flex-col gap-8">
@@ -52,14 +52,14 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         <nav className="flex flex-col gap-1 overflow-hidden">
           {/* 撰写 - 激活状态 */}
           <a
-            href="/dashboard"
+            href="/dashboard/writing"
             className={`flex items-center border-r-4 whitespace-nowrap transition-colors ${
               // 根据收缩状态动态调整 padding 和 justify（居中对齐）
               isCollapsed ? 'justify-center px-0 py-3' : 'px-6 py-3 gap-3'
             } ${
               activeNav === 'writing'
-                ? 'bg-white/10 border-white text-white'
-                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                ? 'bg-white/10 border-white text-gray-800 dark:text-white'
+                : 'text-slate-400 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-white/5 border-transparent'
             }`}
           >
             <PenSquare size={20} />
@@ -75,8 +75,8 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
               isCollapsed ? 'justify-center px-0 py-3' : 'px-6 py-3 gap-3'
             } ${
               activeNav === 'history'
-                ? 'bg-white/10 border-white text-white'
-                : 'text-slate-400 hover:text-white hover:bg-white/5 border-transparent'
+                ? 'bg-white/10 border-white text-gray-800 dark:text-white'
+                : 'text-slate-400 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-white/5 border-transparent'
             }`}
           >
             <History size={20} />
@@ -114,11 +114,11 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         className={`
           absolute right-0 top-1/2 -translate-y-1/2 
           w-6 h-12 rounded-l-lg 
-          bg-white/10 hover:bg-white/20 
+          bg-blue-600 dark:bg-white/5 hover:bg-blue-700 dark:hover:bg-white/10
           flex items-center justify-center 
           transition-all duration-300 
-          text-slate-300 hover:text-white
-          border-l border-white/10
+          text-black dark:text-gray-400 hover:text-white
+          border border-gray-200 dark:border-gray-700
           group
         `}
         title={isCollapsed ? '展开侧边栏' : '收缩侧边栏'} // 鼠标悬停时的提示文字

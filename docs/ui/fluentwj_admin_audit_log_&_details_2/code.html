@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FluentWJ Admin Audit Log &amp; Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0054db",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1723",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Persistent Left Sidebar -->
+<aside class="w-64 bg-primary dark:bg-background-dark border-r border-white/10 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+<span class="material-symbols-outlined text-white">bolt</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-tight">FluentWJ Admin</h1>
+<p class="text-white/60 text-xs font-medium uppercase tracking-wider">Console</p>
+</div>
+</div>
+<nav class="mt-4 px-4 flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">概览</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white bg-white/15 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px] active-fill">manage_search</span>
+<span class="text-sm font-medium">审计日志</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+<span class="text-sm font-medium">用户管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+<span class="text-sm font-medium">安全设置</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<div class="bg-white/5 rounded-xl p-4 border border-white/10">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-10 rounded-full border-2 border-primary ring-2 ring-white/20 overflow-hidden bg-white/10" data-alt="Admin user avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnxdZbz4pTkFye96sCxD0j8RPgKpxIvWBKXPMV-Bqigo3ZXvzpFgH3IEt0SF975JMvY_V2qLQ4vdEtR1MuiN2B5B1iP38vzrZAP85t5y1AjIdMliJXAsG2NPUn5DvspUvXnrPM_dqwbQIWBVUVOEQj_SpheOeIWAaMeFCGeUuKMOJkECvmprGtHctf369M8ESKN2-IfW5yMUVmbsmL44mJ4HmnmFC9vLgn6R6MaDL8L-BRJbbdbPldb8JPhqJgvzqmQMdYwvJeRPDg');"></div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-semibold truncate">Admin User</p>
+<p class="text-white/50 text-[10px] uppercase font-bold">Super Admin</p>
+</div>
+</div>
+<button class="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">logout</span>
+                        退出登录
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<!-- Header Section -->
+<header class="bg-white dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 px-8 py-6 flex flex-wrap justify-between items-center gap-4">
+<div>
+<h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">审计日志</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">监控和审计平台生成的所有 AI 内容</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-[20px]">file_download</span>
+                        导出日志
+                    </button>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all">
+                        刷新数据
+                    </button>
+</div>
+</header>
+<!-- Search & Filters -->
+<section class="p-8 pb-0">
+<div class="flex flex-col md:flex-row gap-4 items-center">
+<div class="flex-1 w-full">
+<label class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 focus:ring-primary focus:border-primary text-sm transition-all" placeholder="搜索手机号、IP 或模型名称..." type="text"/>
+</label>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                            所有状态 <span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                            最近 24 小时 <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Audit Log Table -->
+<section class="flex-1 p-8 overflow-auto custom-scrollbar">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">生成时间</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">用户手机号</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">客户端 IP</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">底层模型</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">审核状态</th>
+<th class="px-6 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group">
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">2023-10-24 14:20:05</td>
+<td class="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">138****0000</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">192.168.1.1</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary dark:bg-primary/20">DeepSeek-V3</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/20">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                        通过
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+</td>
+</tr>
+<tr class="bg-slate-50 dark:bg-slate-800/30 ring-1 ring-primary/20 ring-inset">
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">2023-10-24 14:18:22</td>
+<td class="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">159****1234</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">210.12.45.67</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary dark:bg-primary/20">DeepSeek-V3</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+<span class="size-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                        违规拦截
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group">
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">2023-10-24 14:15:10</td>
+<td class="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">133****8888</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">114.92.10.33</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20">GPT-4</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/20">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                        通过
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group">
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">2023-10-24 14:12:45</td>
+<td class="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">186****5566</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">221.212.1.5</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary dark:bg-primary/20">DeepSeek-V3</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/20">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                        通过
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer group">
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-medium whitespace-nowrap">2023-10-24 14:10:01</td>
+<td class="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">177****9900</td>
+<td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono">183.15.22.10</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary dark:bg-primary/20">DeepSeek-V3</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
+<span class="size-1.5 rounded-full bg-red-500"></span>
+                                        违规拦截
+                                    </span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">chevron_right</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Detail Slide-over Panel -->
+<div class="absolute inset-y-0 right-0 w-[420px] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col z-30 translate-x-0 transition-transform duration-300">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+<div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">审计详情</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">ID: REC-9921-X20</p>
+</div>
+<button class="size-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-[20px] text-slate-500">close</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+<!-- Prompt Section -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">chat_bubble</span>
+                                用户原始输入
+                            </h4>
+<span class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-500 font-bold uppercase">Prompt</span>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800">
+<p class="text-sm leading-relaxed text-slate-700 dark:text-slate-300">请帮我写一段关于量子物理的介绍，特别是关于量子纠缠的通俗解释，用于给小学生做科普分享。</p>
+</div>
+</section>
+<!-- AI Result Section -->
+<section>
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-green-500 text-[18px]">smart_toy</span>
+                                AI 生成结果
+                            </h4>
+<span class="text-[10px] bg-green-500/10 dark:bg-green-500/20 px-2 py-0.5 rounded text-green-600 font-bold uppercase">Output</span>
+</div>
+<div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-800 border-l-4 border-l-green-500">
+<p class="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                                想象你有两枚“魔法硬币”，它们之间有一种神奇的联系。当你抛起其中一枚，它落下来是正面；哪怕另一枚硬币在宇宙的另一端，它落下来也一定是反面... 这就是量子纠缠！就像是双胞胎之间的心灵感应。
+                            </p>
+</div>
+</section>
+<!-- Metadata Section -->
+<section>
+<h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-indigo-500 text-[18px]">security</span>
+                            安全元数据
+                        </h4>
+<div class="space-y-3">
+<div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+<span class="text-xs text-slate-500">客户端归属地</span>
+<span class="text-xs font-semibold text-slate-900 dark:text-slate-100">浙江 杭州</span>
+</div>
+<div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+<span class="text-xs text-slate-500">敏感词命中</span>
+<span class="text-xs font-semibold text-green-600 bg-green-500/10 px-2 py-0.5 rounded">无</span>
+</div>
+<div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+<span class="text-xs text-slate-500">内容合规分</span>
+<span class="text-xs font-semibold text-slate-900 dark:text-slate-100">0.99</span>
+</div>
+<div class="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+<span class="text-xs text-slate-500">审核接口 ID</span>
+<span class="text-xs font-mono text-slate-400">audit-v3-9921-prod</span>
+</div>
+</div>
+</section>
+</div>
+<div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex gap-3">
+<button class="flex-1 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-all">加入白名单</button>
+<button class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-red-500/20 transition-all">标记违规</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

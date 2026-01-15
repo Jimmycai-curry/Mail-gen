@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0054db",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1723",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .dark .grid-pattern {
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0c121d] dark:text-slate-200 antialiased">
+<!-- Main Container -->
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden grid-pattern">
+<!-- Top Branding / Logo Area -->
+<div class="mb-8 flex flex-col items-center">
+<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-3xl">mail</span>
+</div>
+</div>
+<!-- Login Card -->
+<div class="w-full max-w-[440px] px-6">
+<div class="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1a2332] p-8 shadow-sm">
+<!-- Header -->
+<div class="mb-8 text-center">
+<h1 class="text-2xl font-bold tracking-tight text-[#0c121d] dark:text-white">管理后台系统</h1>
+<p class="mt-2 text-sm text-slate-500 dark:text-slate-400">请使用管理员账号登录以确保访问安全</p>
+</div>
+<!-- Login Form -->
+<form action="#" class="space-y-5" method="POST">
+<!-- Account Input -->
+<div class="space-y-2">
+<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            账号
+                        </label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400 text-[20px]">person</span>
+<input class="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-10 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="请输入管理员手机号" type="text"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-2">
+<label class="text-sm font-medium leading-none">
+                            密码
+                        </label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400 text-[20px]">lock</span>
+<input class="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-10 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" placeholder="请输入密码" type="password"/>
+<button class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<!-- CAPTCHA Input -->
+<div class="space-y-2">
+<label class="text-sm font-medium leading-none">
+                            验证码
+                        </label>
+<div class="flex gap-3">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 text-slate-400 text-[20px]">verified_user</span>
+<input class="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-10 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" placeholder="请输入验证码" type="text"/>
+</div>
+<div class="h-11 w-28 cursor-pointer overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+<img alt="Security CAPTCHA display for authentication" class="h-full w-full object-cover opacity-80" data-alt="Abstract security graphical captcha code pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe0dB-J7AgSDkot02alEDa5EA-s0SGF_kt_83h6VXTkTjWZfUzD0Glm2ma2I35zeFh9NhKRrTg1hEBVAqbdVCiJMOoCm9HtUuKbdBkrmHCSf-3Wh_bMZv9JnHNb5T6ur9ODPQd4YIMgUr3q5GkDL6yEasS8e2HjpoUEZxtYCSkPJqZ3yI1_b9WNx0Og1ezmsX2Wn2T5WxwoGGyR3vymxStyTQVuDy9amJRNp8wJhByq6RgOHTPELdCmEFy-1435oEZbtpMmucQC12C"/>
+</div>
+</div>
+</div>
+<!-- Options -->
+<div class="flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+<span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">记住我</span>
+</label>
+<a class="text-sm font-medium text-primary hover:underline underline-offset-4" href="#">忘记密码？</a>
+</div>
+<!-- Submit Button -->
+<button class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full mt-2" type="submit">
+                        安全登录
+                    </button>
+</form>
+</div>
+</div>
+<!-- Audit Footer -->
+<footer class="mt-12 text-center text-xs text-slate-400 dark:text-slate-500 tracking-wider">
+<div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4">
+<span>© 2026 FluentWJ 管理系统</span>
+<span class="hidden sm:inline">|</span>
+<span>仅限授权人员访问</span>
+<span class="hidden sm:inline">|</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">gavel</span>
+                    系统已开启全面审计
+                </span>
+</div>
+</footer>
+</div>
+</body></html>

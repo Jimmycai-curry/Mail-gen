@@ -89,3 +89,49 @@ body {
 .font-display {
   font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
+
+/* ========== 落地页样式 ========== */
+
+/* 网格背景图案 */
+.grid-pattern {
+  background-image: radial-gradient(#0052D91a 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Mockup容器 */
+.mockup-container {
+  aspect-ratio: 16 / 10;
+  display: flex;
+  background: #fff;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+/* Mockup侧边栏 */
+.mockup-sidebar {
+  width: 40%;
+  border-right: 1px solid #e6ebf4;
+  padding: 1rem;
+  background: #fcfdfe;
+}
+
+/* Mockup主内容区 */
+.mockup-main {
+  width: 60%;
+  padding: 1.5rem;
+  background: #ffffff;
+}
+
+/* 深色模式下的Mockup样式 */
+.dark .mockup-container {
+  background: #1f2937;
+}
+
+.dark .mockup-sidebar {
+  background: #1f2937;
+  border-right-color: #374151;
+}
+
+.dark .mockup-main {
+  background: #111827;
+}
