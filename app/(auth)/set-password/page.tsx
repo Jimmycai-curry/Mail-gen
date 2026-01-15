@@ -51,8 +51,10 @@ export default function SetPasswordPage() {
       const result = await response.json();
 
       if (result.success) {
+        // 设置密码成功后，清除 localStorage（现在使用 Cookie 存储 token）
         localStorage.removeItem("auth_token");
-        router.push("/login");
+        // 直接跳转到 dashboard，不需要重新登录
+        router.push("/dashboard");
       } else {
         alert(result.message || "设置密码失败");
       }
