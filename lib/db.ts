@@ -1,49 +1,50 @@
-import { PrismaClient } from '@/app/generated/prisma/client'
+import { PrismaClient } from '@/lib/prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 
-/**
- * Prisma Client 单例模式
- * 
- * 为什么需要单例？
- * - Next.js 开发模式会热重载，每次重载都会创建新的 Prisma Client
- * - 多个 Client 实例会导致数据库连接池耗尽
- * - 使用全局变量缓存 Client 实例，确保整个应用只有一个实例
- */
-
-// 定义全局类型（用于存储 Prisma Client）
+// 使用独立变量缓存 Prisma 实例，避免覆盖全局对象
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+  prisma?: PrismaClient
 }
 
-/**
- * 导出 Prisma Client 实例
- * 
- * 使用方式：
- * ```typescript
- * import { prisma } from '@/lib/db'
- * 
- * const users = await prisma.users.findMany()
- * ```
- */
-export const prisma = 
-  globalForPrisma.prisma ?? 
+const databaseUrl = process.env.DATABASE_URL
+const useAccelerate =
+  Boolean(databaseUrl) &&
+  (databaseUrl?.startsWith('prisma+postgres://') || databaseUrl?.startsWith('prisma://'))
+const useAdapter =
+  Boolean(databaseUrl) &&
+  (databaseUrl?.startsWith('postgresql://') || databaseUrl?.startsWith('postgres://'))
+const adapter =
+  useAdapter && databaseUrl
+    ? new PrismaPg(
+        new Pool({
+          connectionString: databaseUrl
+        })
+      )
+    : undefined
+
+export const prisma =
+  globalForPrisma.prisma ??
   new PrismaClient({
-    // 开发环境打印所有查询日志，生产环境只打印错误
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    // Prisma Postgres/Accelerate 场景需要提供 accelerateUrl
+    ...(useAccelerate && databaseUrl ? { accelerateUrl: databaseUrl } : {}),
+    // 本地 PostgreSQL 使用 adapter 直连
+    ...(adapter ? { adapter } : {})
   })
 
-// 在开发环境缓存 Prisma Client 实例（热重载时复用）
 if (process.env.NODE_ENV !== 'production') {
+  // 开发环境复用单例，避免热重载创建多连接
   globalForPrisma.prisma = prisma
 }
 
-// ✅ 优雅关闭数据库连接（应用退出时调用）
 export const disconnect = async () => {
-    await prisma.$disconnect()
+  await prisma.$disconnect()
 }
 
-// ✅ 监听进程退出事件，自动关闭连接
 if (typeof window === 'undefined') {
-process.on('beforeExit', async () => {
+  // Node.js 进程退出前释放连接
+  process.on('beforeExit', async () => {
     await disconnect()
-})
+  })
 }

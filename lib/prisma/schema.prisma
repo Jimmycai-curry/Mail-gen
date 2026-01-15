@@ -81,7 +81,7 @@ model mail_histories {
 model users {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   phone           String    @unique @db.VarChar(20)
-  password_hash   String?   // 改为可选,新用户首次验证码登录时可为空,后续强制设置密码
+  password_hash   String? // 改为可选,新用户首次验证码登录时可为空,后续强制设置密码
   role            Int?      @default(1) @db.SmallInt
   status          Int?      @default(1) @db.SmallInt
   last_login_ip   String?   @db.VarChar(45)

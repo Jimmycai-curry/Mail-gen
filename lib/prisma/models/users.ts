@@ -210,7 +210,7 @@ export type usersGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type UsersGroupByOutputType = {
   id: string
   phone: string
-  password_hash: string
+  password_hash: string | null
   role: number | null
   status: number | null
   last_login_ip: string | null
@@ -245,7 +245,7 @@ export type usersWhereInput = {
   NOT?: Prisma.usersWhereInput | Prisma.usersWhereInput[]
   id?: Prisma.UuidFilter<"users"> | string
   phone?: Prisma.StringFilter<"users"> | string
-  password_hash?: Prisma.StringFilter<"users"> | string
+  password_hash?: Prisma.StringNullableFilter<"users"> | string | null
   role?: Prisma.IntNullableFilter<"users"> | number | null
   status?: Prisma.IntNullableFilter<"users"> | number | null
   last_login_ip?: Prisma.StringNullableFilter<"users"> | string | null
@@ -257,7 +257,7 @@ export type usersWhereInput = {
 export type usersOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  password_hash?: Prisma.SortOrder
+  password_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   last_login_ip?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -272,7 +272,7 @@ export type usersWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.usersWhereInput | Prisma.usersWhereInput[]
   OR?: Prisma.usersWhereInput[]
   NOT?: Prisma.usersWhereInput | Prisma.usersWhereInput[]
-  password_hash?: Prisma.StringFilter<"users"> | string
+  password_hash?: Prisma.StringNullableFilter<"users"> | string | null
   role?: Prisma.IntNullableFilter<"users"> | number | null
   status?: Prisma.IntNullableFilter<"users"> | number | null
   last_login_ip?: Prisma.StringNullableFilter<"users"> | string | null
@@ -284,7 +284,7 @@ export type usersWhereUniqueInput = Prisma.AtLeast<{
 export type usersOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   phone?: Prisma.SortOrder
-  password_hash?: Prisma.SortOrder
+  password_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
   last_login_ip?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -304,7 +304,7 @@ export type usersScalarWhereWithAggregatesInput = {
   NOT?: Prisma.usersScalarWhereWithAggregatesInput | Prisma.usersScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"users"> | string
   phone?: Prisma.StringWithAggregatesFilter<"users"> | string
-  password_hash?: Prisma.StringWithAggregatesFilter<"users"> | string
+  password_hash?: Prisma.StringNullableWithAggregatesFilter<"users"> | string | null
   role?: Prisma.IntNullableWithAggregatesFilter<"users"> | number | null
   status?: Prisma.IntNullableWithAggregatesFilter<"users"> | number | null
   last_login_ip?: Prisma.StringNullableWithAggregatesFilter<"users"> | string | null
@@ -316,7 +316,7 @@ export type usersScalarWhereWithAggregatesInput = {
 export type usersCreateInput = {
   id?: string
   phone: string
-  password_hash: string
+  password_hash?: string | null
   role?: number | null
   status?: number | null
   last_login_ip?: string | null
@@ -328,7 +328,7 @@ export type usersCreateInput = {
 export type usersUncheckedCreateInput = {
   id?: string
   phone: string
-  password_hash: string
+  password_hash?: string | null
   role?: number | null
   status?: number | null
   last_login_ip?: string | null
@@ -340,7 +340,7 @@ export type usersUncheckedCreateInput = {
 export type usersUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   last_login_ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -352,7 +352,7 @@ export type usersUpdateInput = {
 export type usersUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   last_login_ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -364,7 +364,7 @@ export type usersUncheckedUpdateInput = {
 export type usersCreateManyInput = {
   id?: string
   phone: string
-  password_hash: string
+  password_hash?: string | null
   role?: number | null
   status?: number | null
   last_login_ip?: string | null
@@ -376,7 +376,7 @@ export type usersCreateManyInput = {
 export type usersUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   last_login_ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -388,7 +388,7 @@ export type usersUpdateManyMutationInput = {
 export type usersUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.StringFieldUpdateOperationsInput | string
-  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   last_login_ip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,7 +501,7 @@ export type $usersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     phone: string
-    password_hash: string
+    password_hash: string | null
     role: number | null
     status: number | null
     last_login_ip: string | null

@@ -101,40 +101,46 @@ export default function LoginForm({ onSubmit, isLoading = false }: LoginFormProp
       alert(phoneValidation.error);
       return;
     }
-
+    
     setIsGettingCode(true);
 
-    // TODO: 后续对接真实的短信验证码 API
-    // try {
-    //   await fetch('/api/auth/send-code', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ phone: formData.phone }),
-    //   });
-    // } catch (error) {
-    //   console.error('发送验证码失败:', error);
-    //   setIsGettingCode(false);
-    //   return;
-    // }
-
-    // 模拟发送成功，启动倒计时
-    setCountdown(60);
-    alert('验证码已发送（演示模式）');
+    try {
+      const response = await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        alert(result.message || '发送验证码失败');
+        setIsGettingCode(false);
+        return;
+      }
+      
+      // 发送成功，启动倒计时
+      setCountdown(60);
+    } catch (error) {
+      console.error('发送验证码失败:', error);
+      alert('发送验证码失败，请稍后重试');
+      setIsGettingCode(false);
+    }
   };
 
   /**
    * 提交表单
    */
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
+    
     // 1. 验证手机号
     const phoneValidation = validatePhone(formData.phone);
     if (!phoneValidation.isValid) {
       alert(phoneValidation.error);
       return;
     }
-
+    
     // 2. 根据登录模式验证验证码或密码
     if (loginMode === 'code') {
       const codeValidation = validateCode(formData.code || '');
@@ -149,26 +155,53 @@ export default function LoginForm({ onSubmit, isLoading = false }: LoginFormProp
         return;
       }
     }
-
+    
     // 3. 验证协议勾选
     const agreementValidation = validateAgreement(formData.agreed);
     if (!agreementValidation.isValid) {
       alert(agreementValidation.error);
       return;
     }
-
+    
     // 4. 如果父组件提供了 onSubmit 回调，调用它
     if (onSubmit) {
       onSubmit(formData, loginMode);
       return;
     }
-
-    // 5. 默认行为：控制台输出并跳转到工作台（演示模式）
-    console.log('登录信息:', { ...formData, mode: loginMode });
-    alert('登录成功（演示模式）');
     
-    // TODO: 后续对接真实登录 API，获取 token 并存储
-    router.push('/dashboard/writing');
+    // 5. 默认行为：调用真实登录 API
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: formData.phone,
+          code: formData.code,
+          password: formData.password,
+          mode: loginMode
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        alert(result.message || '登录失败');
+        return;
+      }
+      
+      // 存储 token 到 localStorage
+      localStorage.setItem('auth_token', result.token);
+      
+      // 检查是否需要设置密码
+      if (result.needsPasswordSetup) {
+        router.push('/set-password');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      console.error('登录失败:', error);
+      alert('登录失败，请稍后重试');
+    }
   };
 
   return (
@@ -296,7 +329,7 @@ export default function LoginForm({ onSubmit, isLoading = false }: LoginFormProp
                   className="flex items-center justify-center pr-[15px] text-[#4545a1] dark:text-white/60 cursor-pointer hover:text-[#0052D9] transition-colors"
                 >
                   <span className="material-symbols-outlined">
-                    {showPassword ? 'visibility_off' : 'visibility'}
+                    {showPassword ? 'visibility' : 'visibility_off'}
                   </span>
                 </button>
               </div>
