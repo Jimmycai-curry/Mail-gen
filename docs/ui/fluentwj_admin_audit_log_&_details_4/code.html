@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FluentWJ Admin - 反馈管理</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0052D9",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1723",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .frosted-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .frosted-glass {
+            background: rgba(15, 23, 35, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full relative">
+<aside class="w-64 bg-primary dark:bg-background-dark border-r border-white/10 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+<span class="material-symbols-outlined text-white">feedback</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-tight">FluentWJ Admin</h1>
+<p class="text-white/60 text-xs font-medium uppercase tracking-wider">Console</p>
+</div>
+</div>
+<nav class="mt-4 px-4 flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">概览</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">manage_search</span>
+<span class="text-sm font-medium">审计日志</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white bg-white/15 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px] active-fill">rate_review</span>
+<span class="text-sm font-medium">反馈管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+<span class="text-sm font-medium">用户管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+<span class="text-sm font-medium">安全设置</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<div class="bg-white/5 rounded-xl p-4 border border-white/10">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-10 rounded-full border-2 border-primary ring-2 ring-white/20 overflow-hidden bg-white/10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnxdZbz4pTkFye96sCxD0j8RPgKpxIvWBKXPMV-Bqigo3ZXvzpFgH3IEt0SF975JMvY_V2qLQ4vdEtR1MuiN2B5B1iP38vzrZAP85t5y1AjIdMliJXAsG2NPUn5DvspUvXnrPM_dqwbQIWBVUVOEQj_SpheOeIWAaMeFCGeUuKMOJkECvmprGtHctf369M8ESKN2-IfW5yMUVmbsmL44mJ4HmnmFC9vLgn6R6MaDL8L-BRJbbdbPldb8JPhqJgvzqmQMdYwvJeRPDg'); background-size: cover;"></div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-semibold truncate">管理员</p>
+<p class="text-white/50 text-[10px] uppercase font-bold">超级管理员</p>
+</div>
+</div>
+<button class="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">logout</span>
+                    退出登录
+                </button>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col relative overflow-hidden filter blur-[2px]">
+<header class="bg-white dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 px-8 pt-8 pb-0">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">反馈管理</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">查看并处理来自用户的意见、投诉与举报</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-[20px]">file_download</span>
+                        导出报表
+                    </button>
+</div>
+</div>
+<div class="flex gap-8 border-b border-transparent">
+<button class="pb-4 px-1 border-b-2 border-primary text-primary text-sm font-bold flex items-center gap-2">
+                    待处理
+                    <span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full ring-2 ring-white dark:ring-slate-900">8</span>
+</button>
+<button class="pb-4 px-1 border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 text-sm font-medium">
+                    已处理
+                </button>
+</div>
+</header>
+<section class="p-8 pb-4">
+<div class="flex flex-col md:flex-row gap-4 items-center">
+<div class="flex-1 w-full">
+<label class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 focus:ring-primary focus:border-primary text-sm transition-all" placeholder="搜索关键词、用户名或内容摘要..." type="text"/>
+</label>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                        反馈类型 <span class="material-symbols-outlined text-[18px]">filter_list</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                        提交日期 <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+</button>
+</div>
+</div>
+</section>
+<section class="flex-1 px-8 pb-8 overflow-auto custom-scrollbar">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">用户</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">反馈类型</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">内容摘要</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">提交日期</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">张</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">张三 (ID: 8821)</span>
+<span class="text-[10px] text-slate-500">138****0001</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-red-100 text-red-600 dark:bg-red-900/30">投诉</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-1 max-w-md">生成结果中包含了一些明显不实的信息，建议加强模型对事实性内容的审核...</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 14:20</td>
+<td class="px-6 py-4 text-center">
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all">处理</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">L</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">李晓明</span>
+<span class="text-[10px] text-slate-500">159****1234</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-orange-100 text-orange-600 dark:bg-orange-900/30">举报</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-1 max-w-md">某用户生成的图片涉及侵犯版权内容，请后台管理员核实该账号的行为...</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 13:45</td>
+<td class="px-6 py-4 text-center">
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all">处理</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">W</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-slate-900 dark:text-white">Wang_01</span>
+<span class="text-[10px] text-slate-500">133****8888</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-600 dark:bg-blue-900/30">建议</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-1 max-w-md">希望能增加对 DeepSeek-R1 模型的支持，目前已有的模型推理速度很快但逻辑性稍逊...</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 12:10</td>
+<td class="px-6 py-4 text-center">
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all">处理</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+<div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
+<div class="relative w-full max-w-2xl frosted-glass border border-white/20 dark:border-slate-800/50 rounded-2xl shadow-2xl overflow-hidden">
+<div class="px-8 py-6 border-b border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary font-bold">rate_review</span>
+</div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">处理反馈</h3>
+</div>
+<button class="text-slate-400 hover:text-slate-600 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8 space-y-6">
+<div class="space-y-3">
+<label class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">chat_bubble</span>
+                        用户原始反馈
+                    </label>
+<div class="p-4 bg-slate-50/50 dark:bg-slate-800/50 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+<p class="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                            生成结果中包含了一些明显不实的信息，建议加强模型对事实性内容的审核。我在使用 GPT-4 模型进行法律条文查询时，出现了引用不存在条款的情况。
+                        </p>
+</div>
+</div>
+<div class="space-y-3">
+<label class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">edit_note</span>
+                        管理员处理备注
+                    </label>
+<textarea class="w-full bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm focus:ring-primary focus:border-primary transition-all placeholder:text-slate-400" placeholder="请输入处理意见或回复内容..." rows="5"></textarea>
+</div>
+</div>
+<div class="px-8 py-6 bg-slate-50/30 dark:bg-slate-900/30 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center justify-end gap-3">
+<button class="px-6 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all">
+                    取消
+                </button>
+<button class="px-6 py-2.5 bg-primary hover:bg-[#0047BD] text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                    标记为已处理
+                </button>
+</div>
+</div>
+</div>
+</div>
+
+</body></html>

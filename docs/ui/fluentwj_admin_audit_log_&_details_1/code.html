@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FluentWJ Admin - 操作日志</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0052D9",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1723",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="w-64 bg-primary dark:bg-background-dark border-r border-white/10 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 rounded-lg bg-white/20 flex items-center justify-center backdrop-blur-sm">
+<span class="material-symbols-outlined text-white">security</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-bold leading-tight">FluentWJ Admin</h1>
+<p class="text-white/60 text-xs font-medium uppercase tracking-wider">Console</p>
+</div>
+</div>
+<nav class="mt-4 px-4 flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">概览</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white bg-white/15 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px] active-fill">history_edu</span>
+<span class="text-sm font-medium">操作日志</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">rate_review</span>
+<span class="text-sm font-medium">反馈管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+<span class="text-sm font-medium">用户管理</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/10 rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[22px]">verified_user</span>
+<span class="text-sm font-medium">安全设置</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<div class="bg-white/5 rounded-xl p-4 border border-white/10">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-10 rounded-full border-2 border-primary ring-2 ring-white/20 overflow-hidden bg-white/10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnxdZbz4pTkFye96sCxD0j8RPgKpxIvWBKXPMV-Bqigo3ZXvzpFgH3IEt0SF975JMvY_V2qLQ4vdEtR1MuiN2B5B1iP38vzrZAP85t5y1AjIdMliJXAsG2NPUn5DvspUvXnrPM_dqwbQIWBVUVOEQj_SpheOeIWAaMeFCGeUuKMOJkECvmprGtHctf369M8ESKN2-IfW5yMUVmbsmL44mJ4HmnmFC9vLgn6R6MaDL8L-BRJbbdbPldb8JPhqJgvzqmQMdYwvJeRPDg'); background-size: cover;"></div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-semibold truncate">管理员</p>
+<p class="text-white/50 text-[10px] uppercase font-bold">超级管理员</p>
+</div>
+</div>
+<button class="w-full py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">logout</span>
+                    退出登录
+                </button>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-6">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">操作日志</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">系统管理员的操作记录将永久保存用于审计目的，不可修改或删除。</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-all">
+<span class="material-symbols-outlined text-[20px]">file_download</span>
+                        导出日志
+                    </button>
+</div>
+</div>
+</header>
+<section class="p-8 pb-4">
+<div class="flex flex-col md:flex-row gap-4 items-center">
+<div class="flex-1 w-full">
+<label class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-4 text-slate-400">person_search</span>
+<input class="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 focus:ring-primary focus:border-primary text-sm transition-all" placeholder="通过管理员账号搜索..." type="text"/>
+</label>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                        操作类型 <span class="material-symbols-outlined text-[18px]">filter_alt</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300">
+                        2023-10-01 ~ 2023-10-31 <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</button>
+</div>
+</div>
+</section>
+<section class="flex-1 px-8 pb-8 overflow-auto custom-scrollbar">
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse table-fixed">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+<th class="w-40 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">管理员账号</th>
+<th class="w-32 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">操作行为</th>
+<th class="w-32 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">目标 ID</th>
+<th class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">详细描述</th>
+<th class="w-40 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">IP 地址</th>
+<th class="w-48 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">操作时间</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">admin_panel_settings</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">admin_root</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-red-100 text-red-600 dark:bg-red-900/30">封禁用户</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono text-slate-500">USR_99210</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="违规发布虚假广告信息，经多次警告无效，执行永久封禁。">违规发布虚假广告信息，经多次警告无效，执行永久封禁。</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 font-mono">182.16.4.122</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 14:20:15</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">account_circle</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">chen_manager</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-orange-100 text-orange-600 dark:bg-orange-900/30">修改敏感词</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono text-slate-500">DIC_004</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="更新词库，增加 12 个金融类违禁关键词。">更新词库，增加 12 个金融类违禁关键词。</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 font-mono">110.42.18.55</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 13:45:02</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">account_circle</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">support_01</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-600 dark:bg-blue-900/30">处理反馈</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono text-slate-500">FBK_8832</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="已核实用户反馈的支付延迟问题，并手动补发积分。">已核实用户反馈的支付延迟问题，并手动补发积分。</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 font-mono">221.192.1.8</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 12:10:44</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">admin_panel_settings</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">admin_root</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-purple-100 text-purple-600 dark:bg-purple-900/30">配置变更</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono text-slate-500">SYS_CONF</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="修改 API 频率限制，从 1000次/分钟 调整为 2000次/分钟。">修改 API 频率限制，从 1000次/分钟 调整为 2000次/分钟。</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 font-mono">182.16.4.122</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 11:32:19</td>
+</tr>
+<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">account_circle</span>
+<span class="text-sm font-semibold text-slate-900 dark:text-white">support_02</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-600 dark:bg-blue-900/30">处理反馈</span>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="text-xs font-mono text-slate-500">FBK_8841</span>
+</td>
+<td class="px-6 py-4">
+<p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="答复用户关于新功能的咨询建议。">答复用户关于新功能的咨询建议。</p>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500 font-mono">58.21.33.102</td>
+<td class="px-6 py-4 text-sm text-slate-500 whitespace-nowrap">2023-10-24 10:05:55</td>
+</tr>
+</tbody>
+</table>
+<div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<p class="text-xs text-slate-500">显示第 1 到 5 条，共 1,280 条审计日志</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold text-slate-400 cursor-not-allowed">上一页</button>
+<button class="px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-colors">下一页</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+
+</body></html>
