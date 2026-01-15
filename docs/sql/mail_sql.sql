@@ -1,3 +1,4 @@
+-- Spec: /docs/specs/login-backend.md
 -- 开启 UUID 支持（PostgreSQL 13+ 通常已内置，但显式开启更稳妥）
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -5,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone VARCHAR(20) UNIQUE NOT NULL,       -- 手机号（实名基础）
-    password_hash TEXT NOT NULL,             -- 加密存储的密码
+    password_hash TEXT,                      -- 加密存储的密码（首次验证码登录可为空）
     role SMALLINT DEFAULT 1,                 -- 0: 管理员(admin), 1: 普通用户(user)
     status SMALLINT DEFAULT 1,               -- 0: 封禁(banned), 1: 正常(normal)
     last_login_ip VARCHAR(45),               -- 记录最后登录IP（备案审计需要）

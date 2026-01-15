@@ -133,3 +133,32 @@ export function formatPhoneDisplay(phone: string): string {
 export function sanitizePhone(phone: string): string {
   return phone.replace(/[\s-]/g, '');
 }
+
+/**
+ * 验证确认密码是否与新密码一致
+ * @param password - 新密码
+ * @param confirmPassword - 确认密码
+ * @returns 验证结果对象
+ *
+ * 规则：
+ * - 确认密码不能为空
+ * - 确认密码必须与新密码完全一致
+ */
+export function validateConfirmPassword(password: string, confirmPassword: string): ValidationResult {
+  // 检查确认密码是否为空
+  if (!confirmPassword) {
+    return { isValid: false, error: '请再次输入密码' };
+  }
+
+  // 检查新密码是否为空（这种情况下应该先提示输入新密码）
+  if (!password) {
+    return { isValid: false, error: '请先输入新密码' };
+  }
+
+  // 检查两次密码是否一致
+  if (password !== confirmPassword) {
+    return { isValid: false, error: '两次输入的密码不一致' };
+  }
+
+  return { isValid: true };
+}
