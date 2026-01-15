@@ -2,6 +2,10 @@
 
 import { HistoryListProps, HistoryItem } from "@/types/history";
 import { Search, Filter, Heart, Calendar } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { FilterDropdown } from "./FilterDropdown";
+import { HistoryService } from "@/services/historyService";
 
 /**
  * Spec: /docs/specs/history-page.md
@@ -11,6 +15,169 @@ import { Search, Filter, Heart, Calendar } from "lucide-react";
  * 展示历史记录的标题、预览内容、创建时间和收藏状态
  */
 export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryListProps) {
+  // 筛选状态管理
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterState, setFilterState] = useState<{
+    startDate: string;
+    endDate: string;
+    showOnlyFavorites: boolean;
+    quickFilter: 'all' | 'today' | 'week' | 'month' | 'year';
+  }>({
+    startDate: '',
+    endDate: '',
+    showOnlyFavorites: false,
+    quickFilter: 'today'
+  });
+
+  // 当quickFilter为today时，自动填充日期
+  React.useEffect(() => {
+    if (filterState.quickFilter === 'today') {
+      const today = new Date();
+      const startDate = format(startOfDay(today), 'yyyy-MM-dd');
+      const endDate = format(endOfDay(today), 'yyyy-MM-dd');
+      
+      setFilterState(prev => ({
+        ...prev,
+        startDate,
+        endDate
+      }));
+    }
+  }, [filterState.quickFilter]);
+
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * 处理筛选按钮点击
+   */
+  const handleFilterClick = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  /**
+   * 处理点击外部关闭下拉框
+   */
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+      setIsFilterOpen(false);
+    }
+  };
+
+  // 添加和移除点击事件监听器
+  useEffect(() => {
+    if (isFilterOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isFilterOpen]);
+
+  /**
+   * 处理日期选择
+   */
+  const handleDateChange = (field: string, value: any) => {
+    setFilterState(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  /**
+   * 处理快捷筛选选项
+   */
+  const handleQuickFilter = (option: 'today' | 'week' | 'month' | 'year') => {
+    const today = new Date();
+    let startDate = '';
+    let endDate = '';
+
+    switch (option) {
+      case 'today':
+        startDate = format(startOfDay(today), 'yyyy-MM-dd');
+        endDate = format(endOfDay(today), 'yyyy-MM-dd');
+        break;
+      case 'week':
+        startDate = format(startOfWeek(today), 'yyyy-MM-dd');
+        endDate = format(endOfWeek(today), 'yyyy-MM-dd');
+        break;
+      case 'month':
+        startDate = format(startOfMonth(today), 'yyyy-MM-dd');
+        endDate = format(endOfMonth(today), 'yyyy-MM-dd');
+        break;
+      case 'year':
+        startDate = format(subDays(today, 365), 'yyyy-MM-dd');
+        endDate = format(endOfDay(today), 'yyyy-MM-dd');
+        break;
+    }
+
+    setFilterState(prev => ({
+      ...prev,
+      startDate,
+      endDate,
+      quickFilter: option
+    }));
+  };
+
+  /**
+   * 处理收藏筛选切换
+   */
+  const handleFavoriteToggle = () => {
+    setFilterState(prev => ({
+      ...prev,
+      showOnlyFavorites: !prev.showOnlyFavorites
+    }));
+  };
+
+  /**
+   * 获取筛选后的历史记录数据
+   * 连接到后端API获取筛选后的数据
+   */
+  const getFilteredHistories = async () => {
+    try {
+      const filters = {
+        startDate: filterState.startDate,
+        endDate: filterState.endDate,
+        showOnlyFavorites: filterState.showOnlyFavorites,
+        quickFilter: filterState.quickFilter as 'all' | 'today' | 'week' | 'month' | undefined
+      };
+      
+      const filteredHistories = await HistoryService.getHistories(filters);
+      return filteredHistories;
+    } catch (error) {
+      console.error('Failed to fetch filtered histories:', error);
+      // 出错时返回原始数据
+      return histories;
+    }
+  };
+
+  /**
+   * 重置筛选条件
+   */
+  const handleReset = () => {
+    setFilterState({
+      startDate: '',
+      endDate: '',
+      showOnlyFavorites: false,
+      quickFilter: 'all'
+    });
+  };
+
+  /**
+   * 应用筛选条件
+   */
+  const handleApply = async () => {
+    // 这里将连接到后端API获取筛选后的数据
+    setIsFilterOpen(false);
+    
+    try {
+      const filteredHistories = await getFilteredHistories();
+      // 这里可以添加状态更新逻辑，将筛选后的数据设置到组件状态中
+      // 例如：setHistories(filteredHistories);
+    } catch (error) {
+      console.error('Failed to apply filters:', error);
+    }
+  };
+
   /**
    * 渲染单个历史记录卡片
    * @param history - 历史记录数据
@@ -80,10 +247,19 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
             />
           </div>
 
-          {/* 筛选按钮 */}
-          <button className="p-2.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-500 hover:bg-gray-200 transition-colors">
-            <Filter className="w-5 h-5" />
-          </button>
+          {/* 筛选按钮和下拉框 */}
+          <div ref={filterDropdownRef}>
+            <FilterDropdown
+              isOpen={isFilterOpen}
+              onToggle={handleFilterClick}
+              filterState={filterState}
+              onFilterChange={handleDateChange}
+              onQuickFilter={handleQuickFilter}
+              onFavoriteToggle={handleFavoriteToggle}
+              onReset={handleReset}
+              onApply={handleApply}
+            />
+          </div>
         </div>
       </div>
 

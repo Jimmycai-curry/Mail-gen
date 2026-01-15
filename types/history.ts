@@ -58,7 +58,6 @@ export interface HistoryListProps {
   /** 选择记录的回调函数 */
   onSelectHistory: (id: string) => void;
 }
-
 /**
  * 历史记录详情组件 Props
  */
@@ -66,3 +65,4 @@ export interface HistoryDetailProps {
   /** 当前选中的详情数据（可选，支持空状态） */
   detail?: HistoryDetail | null;
 }
+
