@@ -49,7 +49,19 @@
 
 ---
 
-### 4. 登录日志
+### 4. 重置密码（忘记密码）
+用户通过手机号 + 验证码重置密码（无需登录）。
+
+**核心功能**：
+- 验证码校验（从Redis读取）
+- 用户存在性检查（用户必须存在）
+- 用户状态检查（封禁判断）
+- 更新密码（bcrypt哈希）
+- 删除已使用的验证码
+
+---
+
+### 5. 登录日志
 记录每次登录尝试，用于安全审计。
 
 **核心功能**：
@@ -186,6 +198,43 @@
 
 ---
 
+### 4. 重置密码流程
+
+```
+客户端发送 POST /api/auth/reset-password
+  ↓
+[API层] 参数校验
+  ├─ 验证请求体格式（phone, code, newPassword, confirmPassword必填）
+  └─ 验证各字段格式
+  ↓
+[Service层] 验证码校验
+  ├─ 从Redis读取验证码（sms_code:{phone}）
+  ├─ 验证码不存在 → 返回 401（验证码过期）
+  ├─ 验证码不匹配 → 返回 401（验证码错误）
+  └─ 验证码正确
+  ↓
+[Service层] 用户查询
+  ├─ 从数据库查询用户（prisma.users.findUnique({ phone })）
+  ├─ 用户不存在 → 返回 401（该手机号未注册）
+  └─ 用户存在
+  ↓
+[Service层] 用户状态检查
+  ├─ 检查 status 字段（1=正常，0=封禁）
+  ├─ status !== 1 → 返回 403（账户被封禁）
+  └─ 用户正常
+  ↓
+[Service层] 更新密码
+  ├─ 使用 bcrypt.hash() 加密新密码
+  └─ 更新数据库 password_hash 字段
+  ↓
+[Service层] 清理验证码
+  └─ 删除Redis中的验证码（sms_code:{phone}）
+  ↓
+返回成功响应
+```
+
+---
+
 ## 接口定义
 
 ### 1. 数据类型定义
@@ -207,6 +256,16 @@ export interface LoginRequest {
   code?: string       // 验证码（验证码登录时使用）
   password?: string   // 密码（密码登录时使用）
   mode: 'code' | 'password'  // 登录模式
+}
+
+/**
+ * 重置密码请求（忘记密码场景，通过验证码）
+ */
+export interface ResetPasswordRequest {
+  phone: string           // 手机号
+  code: string            // 短信验证码
+  newPassword: string     // 新密码（6-20位）
+  confirmPassword: string // 确认密码
 }
 
 /**
@@ -244,6 +303,11 @@ export interface LoginResult {
   token?: string
 }
 
+export interface ResetPasswordResult {
+  success: boolean
+  message: string
+}
+
 /**
  * 登录日志记录
  */
@@ -255,6 +319,12 @@ export interface LoginLog {
   status: 'success' | 'failed'
   failureReason?: string  // 失败原因（可选）
   loginTime: Date
+}
+```
+
+export interface ResetPasswordResult {
+  success: boolean
+  message: string
 }
 ```
 
@@ -346,6 +416,47 @@ Content-Type: application/json
 {
   "success": false,
   "message": "手机号或密码错误"
+}
+```
+
+---
+
+#### 2.3 POST /api/auth/reset-password
+
+**请求**：
+```http
+POST /api/auth/reset-password
+Content-Type: application/json
+
+{
+  "phone": "13800138000",
+  "code": "123456",
+  "newPassword": "new_password_123",
+  "confirmPassword": "new_password_123"
+}
+```
+
+**响应（成功）**：
+```json
+{
+  "success": true,
+  "message": "密码重置成功"
+}
+```
+
+**响应（失败 - 验证码错误）**：
+```json
+{
+  "success": false,
+  "message": "验证码错误或已过期"
+}
+```
+
+**响应（失败 - 用户不存在）**：
+```json
+{
+  "success": false,
+  "message": "该手机号未注册"
 }
 ```
 
@@ -451,7 +562,45 @@ export async function loginWithPassword(
 
 ---
 
-### 3. 辅助函数
+### 3. resetPasswordService.ts
+
+**函数签名**：
+```typescript
+/**
+ * 重置密码（忘记密码场景）
+ * 
+ * @param phone - 用户手机号
+ * @param code - 短信验证码
+ * @param newPassword - 新密码
+ * @param confirmPassword - 确认密码
+ * @returns 重置结果
+ */
+export async function resetPasswordWithCode(
+  phone: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<ResetPasswordResult>
+```
+
+**实现逻辑**：
+```typescript
+// 1. 验证密码一致性
+// 2. 验证密码格式（6-20位）
+// 3. 从Redis读取验证码（sms_code:{phone}）
+// 4. 验证码不存在 → 返回错误（验证码过期）
+// 5. 验证码不匹配 → 返回错误（验证码错误）
+// 6. 查询用户（prisma.users.findUnique）
+// 7. 用户不存在 → 返回错误（该手机号未注册）
+// 8. 检查用户状态（status !== 1 → 封禁）
+// 9. 更新密码（bcrypt.hash + prisma.users.update）
+// 10. 删除Redis中的验证码
+// 11. 返回成功响应
+```
+
+---
+
+### 4. 辅助函数
 
 **generateCode()** - 生成6位随机验证码：
 ```typescript

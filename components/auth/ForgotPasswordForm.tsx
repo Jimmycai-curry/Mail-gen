@@ -90,28 +90,37 @@ export default function ForgotPasswordForm({
 
     setIsGettingCode(true);
 
-    // TODO: 后续对接真实的短信验证码 API
-    // try {
-    //   await fetch('/api/auth/send-code', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ phone: formData.phone }),
-    //   });
-    // } catch (error) {
-    //   console.error('发送验证码失败:', error);
-    //   setIsGettingCode(false);
-    //   return;
-    // }
+    try {
+      // 调用真实后端API发送验证码
+      const response = await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
 
-    // 模拟发送成功,启动倒计时
-    setCountdown(60);
-    alert("验证码已发送(演示模式)");
+      const result = await response.json();
+
+      if (!result.success) {
+        // 发送失败，显示错误信息
+        alert(result.message || '验证码发送失败');
+        setIsGettingCode(false);
+        return;
+      }
+
+      // 发送成功，启动倒计时
+      setCountdown(60);
+      alert(result.message || '验证码已发送');
+    } catch (error) {
+      console.error('发送验证码失败:', error);
+      alert('网络错误，请稍后重试');
+      setIsGettingCode(false);
+    }
   };
 
   /**
    * 提交表单
    */
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     // 1. 验证手机号
@@ -151,12 +160,34 @@ export default function ForgotPasswordForm({
       return;
     }
 
-    // 6. 默认行为:控制台输出并跳转(演示模式)
-    console.log("重置密码信息:", formData);
-    alert("密码重置成功(演示模式)");
+    try {
+      // 6. 调用真实后端API重置密码
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: formData.phone,
+          code: formData.code,
+          newPassword: formData.newPassword,
+          confirmPassword: formData.confirmPassword,
+        }),
+      });
 
-    // TODO: 后续对接真实 API,提交重置请求
-    router.push("/login");
+      const result = await response.json();
+
+      if (!result.success) {
+        // 重置失败，显示错误信息
+        alert(result.message || '密码重置失败');
+        return;
+      }
+
+      // 7. 重置成功，提示并跳转到登录页
+      alert(result.message || '密码重置成功');
+      router.push("/login");
+    } catch (error) {
+      console.error('重置密码失败:', error);
+      alert('网络错误，请稍后重试');
+    }
   };
 
   return (

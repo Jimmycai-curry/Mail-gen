@@ -18,7 +18,7 @@ import {
 } from '@/services/user.service'
 import { generateToken } from '@/utils/jwt'
 import { ValidationError, UnauthorizedError } from '@/utils/error'
-import { LoginResult, SetPasswordResult, UpdatePasswordResult, UserRole } from '@/types/auth'
+import { LoginResult, SetPasswordResult, UpdatePasswordResult, ResetPasswordResult, UserRole } from '@/types/auth'
 import { JWTPayload } from '@/types/auth'
 
 /**
@@ -254,6 +254,76 @@ export async function changePassword(
   return {
     success: true,
     message: '密码修改成功'
+  }
+}
+
+/**
+ * 重置密码（忘记密码场景，通过验证码）
+ *
+ * 核心流程:
+ * 1. 验证手机号格式
+ * 2. 从Redis验证验证码
+ * 3. 查询用户（用户必须存在）
+ * 4. 检查用户状态
+ * 5. 更新密码
+ * 6. 删除Redis验证码
+ *
+ * @param phone - 用户手机号
+ * @param code - 短信验证码
+ * @param newPassword - 新密码
+ * @param confirmPassword - 确认密码
+ * @returns 重置结果
+ */
+export async function resetPasswordWithCode(
+  phone: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string
+): Promise<ResetPasswordResult> {
+  console.log('[AuthService] 重置密码请求:', { phone })
+
+  // 1. 验证密码一致性
+  if (newPassword !== confirmPassword) {
+    throw new ValidationError('两次输入的密码不一致')
+  }
+
+  // 2. 验证密码格式
+  if (newPassword.length < 6) {
+    throw new ValidationError('密码长度不能少于6位')
+  }
+
+  if (newPassword.length > 20) {
+    throw new ValidationError('密码长度不能超过20位')
+  }
+
+  // 3. 验证验证码
+  const isValidCode = await verifyCode(phone, code)
+  if (!isValidCode) {
+    console.log('[AuthService] 验证码验证失败')
+    throw new UnauthorizedError('验证码错误或已过期')
+  }
+
+  // 4. 查询用户（找回密码场景，用户必须存在）
+  const user = await getUserByPhone(phone)
+  if (!user) {
+    console.log('[AuthService] 用户不存在')
+    throw new UnauthorizedError('该手机号未注册')
+  }
+
+  // 5. 检查用户状态
+  checkUserStatus(user)
+
+  // 6. 更新密码
+  await setPassword(user.id, newPassword)
+
+  // 7. 删除已使用的验证码
+  await consumeCode(phone)
+
+  console.log('[AuthService] 密码重置成功:', { userId: user.id })
+
+  return {
+    success: true,
+    message: '密码重置成功'
   }
 }
 
