@@ -53,17 +53,83 @@ export default function AuditLogDetailPanel({
   };
 
   /**
-   * 处理白名单操作（仅 UI）
+   * 处理审核通过操作（真实业务逻辑）
    */
-  const handleWhitelist = () => {
-    alert("白名单功能开发中...");
+  const handleMarkPassed = async () => {
+    if (!confirm(`确定要将此审计日志标记为通过吗？\n\n日志ID: ${log.id}\n用户手机号: ${log.userPhone}`)) {
+      return;
+    }
+
+    try {
+      // 获取 Token
+      const token = localStorage.getItem("auth_token");
+      
+      if (!token) {
+        alert("未找到认证 Token，请重新登录");
+        return;
+      }
+
+      // 调用标记通过 API
+      const response = await fetch(`/api/admin/audit-logs/${log.id}/mark-passed`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        alert("标记通过成功！");
+        onClose(); // 关闭详情面板
+        window.location.reload(); // 刷新页面显示最新状态
+      } else {
+        alert(`标记失败: ${result.error || '未知错误'}`);
+      }
+    } catch (error: any) {
+      console.error("[AuditLogDetail] 标记通过失败:", error);
+      alert(`标记失败: ${error.message}`);
+    }
   };
 
   /**
-   * 处理标记违规操作（仅 UI）
+   * 处理标记违规操作（真实业务逻辑）
    */
-  const handleMarkViolation = () => {
-    alert("标记违规功能开发中...");
+  const handleMarkViolation = async () => {
+    if (!confirm(`确定要将此审计日志标记为违规吗？\n\n日志ID: ${log.id}\n用户手机号: ${log.userPhone}`)) {
+      return;
+    }
+
+    try {
+      // 获取 Token
+      const token = localStorage.getItem("auth_token");
+      
+      if (!token) {
+        alert("未找到认证 Token，请重新登录");
+        return;
+      }
+
+      // 调用标记违规 API
+      const response = await fetch(`/api/admin/audit-logs/${log.id}/mark-violation`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.code === 200) {
+        alert("标记违规成功！");
+        onClose(); // 关闭详情面板
+        window.location.reload(); // 刷新页面显示最新状态
+      } else {
+        alert(`标记失败: ${result.error || '未知错误'}`);
+      }
+    } catch (error: any) {
+      console.error("[AuditLogDetail] 标记违规失败:", error);
+      alert(`标记失败: ${error.message}`);
+    }
   };
 
   // ========== 渲染 ==========
@@ -88,10 +154,10 @@ export default function AuditLogDetailPanel({
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 shrink-0">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              审计详情
+              记录详情
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-              ID: {log.id.slice(0, 13)}...
+              ID: {log.id}
             </p>
           </div>
           <button
@@ -167,11 +233,11 @@ export default function AuditLogDetailPanel({
                   安全元数据
                 </h4>
                 <div className="space-y-3">
-                  {/* 客户端归属地 */}
+                  {/* IP地址 */}
                   <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs text-slate-500">客户端归属地</span>
+                    <span className="text-xs text-slate-500">IP地址</span>
                     <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
-                      {log.ipLocation || "未知地区"}
+                      {log.userIp || "-"}
                     </span>
                   </div>
 
@@ -189,11 +255,11 @@ export default function AuditLogDetailPanel({
                     </span>
                   </div>
 
-                  {/* 内容合规分 */}
+                  {/* 用户手机号 */}
                   <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
-                    <span className="text-xs text-slate-500">内容合规分</span>
+                    <span className="text-xs text-slate-500">用户手机号</span>
                     <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
-                      {log.complianceScore?.toFixed(2) || "N/A"}
+                      {log.userPhone || "-"}
                     </span>
                   </div>
 
@@ -235,10 +301,10 @@ export default function AuditLogDetailPanel({
             {/* 底部操作按钮 */}
             <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex gap-3 shrink-0">
               <button
-                onClick={handleWhitelist}
-                className="flex-1 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                onClick={handleMarkPassed}
+                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-green-500/20 transition-all"
               >
-                加入白名单
+                审核通过
               </button>
               <button
                 onClick={handleMarkViolation}

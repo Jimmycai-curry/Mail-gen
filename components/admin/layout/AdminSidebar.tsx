@@ -43,10 +43,10 @@ const NAV_ITEMS: NavItem[] = [
     href: "/admin/feedback",
   },
   {
-    id: "operations",
+    id: "operation-logs",
     label: "操作日志",
-    icon: "settings_suggest",
-    href: "/admin/operations",
+    icon: "history_edu",
+    href: "/admin/operation-logs",
   },
 ];
 

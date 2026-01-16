@@ -59,22 +59,41 @@ export default function AuditLogTable({
 
   /**
    * 获取状态徽章样式
+   * 0 = 审核拦截（后台手动标记）
+   * 1 = 审核通过
+   * 2 = 系统拦截（AI自动识别）
    */
   const getStatusBadge = (status: number) => {
     if (status === 1) {
-      // 通过
+      // 审核通过
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-500/10 text-green-600 border border-green-500/20">
           <span className="size-1.5 rounded-full bg-green-500"></span>
           通过
         </span>
       );
-    } else {
-      // 违规拦截
+    } else if (status === 0) {
+      // 审核拦截（后台手动标记）
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-600 border border-red-500/20">
           <span className="size-1.5 rounded-full bg-red-500 animate-pulse"></span>
-          违规拦截
+          审核拦截
+        </span>
+      );
+    } else if (status === 2) {
+      // 系统拦截（AI自动识别）
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-500/10 text-orange-600 border border-orange-500/20">
+          <span className="size-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+          系统拦截
+        </span>
+      );
+    } else {
+      // 未知状态
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-500/10 text-slate-600 border border-slate-500/20">
+          <span className="size-1.5 rounded-full bg-slate-500"></span>
+          未知
         </span>
       );
     }

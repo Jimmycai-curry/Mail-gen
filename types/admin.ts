@@ -137,6 +137,49 @@ export interface AuditLogListResponse {
 
 // 审计日志状态枚举
 export enum AuditLogStatus {
-  BLOCKED = 0,   // 违规拦截
-  PASSED = 1,    // 审核通过
+  MANUAL_BLOCKED = 0,   // 审核拦截（后台手动标记）
+  PASSED = 1,           // 审核通过
+  SYSTEM_BLOCKED = 2,   // 系统识别拦截（AI自动拦截）
+}
+
+// ============ 操作日志相关类型 ============
+
+// 操作日志列表项
+export interface OperationLog {
+  id: string                    // 日志 UUID
+  adminAccount: string          // 管理员账号（手机号，已脱敏，如 "138****0000"）
+  actionType: string            // 操作类型（如 "BAN_USER"）
+  targetId: string | null       // 目标ID（如 "USR_99210"）
+  detail: string | null         // 操作详情描述
+  ip: string | null             // 管理员操作IP
+  createdTime: string           // ISO 时间字符串
+}
+
+// 操作日志查询参数
+export interface OperationLogQueryParams {
+  page?: number                 // 页码（从 1 开始）
+  pageSize?: number             // 每页数量
+  keyword?: string              // 搜索关键词（管理员账号）
+  actionType?: string           // 筛选操作类型
+  startDate?: string            // 开始时间（ISO 格式）
+  endDate?: string              // 结束时间（ISO 格式）
+}
+
+// 操作日志列表响应数据
+export interface OperationLogListResponse {
+  list: OperationLog[]          // 操作日志列表
+  total: number                 // 总数量
+}
+
+// 操作类型枚举（对应设计稿中的彩色标签）
+export enum ActionType {
+  BAN_USER = 'BAN_USER',                          // 封禁用户（红色）
+  UNBAN_USER = 'UNBAN_USER',                      // 解封用户（绿色）
+  UPDATE_SENSITIVE_WORDS = 'UPDATE_SENSITIVE_WORDS', // 修改敏感词（橙色）
+  PROCESS_FEEDBACK = 'PROCESS_FEEDBACK',          // 处理反馈（蓝色）
+  CONFIG_CHANGE = 'CONFIG_CHANGE',                // 配置变更（紫色）
+  CREATE_USER = 'CREATE_USER',                    // 创建用户（绿色）
+  DELETE_USER = 'DELETE_USER',                    // 删除用户（红色）
+  UPDATE_USER = 'UPDATE_USER',                    // 修改用户（蓝色）
+  EXPORT_OPERATION_LOGS = 'EXPORT_OPERATION_LOGS', // 导出操作日志
 }

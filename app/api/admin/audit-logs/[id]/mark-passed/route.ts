@@ -1,11 +1,30 @@
 // Spec: /docs/specs/admin-audit-logs.md
-// 说明: 管理后台审计日志API - 详情查询
-// GET /api/admin/audit-logs/:id - 获取审计日志详情
+// 说明: 管理后台审计日志API - 标记通过
+// PUT /api/admin/audit-logs/:id/mark-passed - 标记审计日志为通过
 
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/utils/jwt'
-import { getAuditLogDetail } from '@/services/audit.service'
+import { markAuditLogAsPassed } from '@/services/audit.service'
 import { NotFoundError } from '@/utils/error'
+
+/**
+ * 从请求头提取真实IP地址
+ * 优先级: x-forwarded-for > x-real-ip > unknown
+ */
+function getClientIP(req: NextRequest): string {
+  const forwarded = req.headers.get('x-forwarded-for')
+  const realIp = req.headers.get('x-real-ip')
+  
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  
+  if (realIp) {
+    return realIp
+  }
+  
+  return 'unknown'
+}
 
 /**
  * 验证管理员权限
@@ -42,17 +61,17 @@ async function verifyAdmin(req: NextRequest) {
     )
   }
 
-  return { payload }
+  return { payload, ip: getClientIP(req) }
 }
 
 /**
- * GET /api/admin/audit-logs/:id
- * 获取审计日志详情
+ * PUT /api/admin/audit-logs/:id/mark-passed
+ * 标记审计日志为通过
  * 
  * URL参数:
  * - id: 审计日志UUID
  */
-export async function GET(
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -63,10 +82,12 @@ export async function GET(
       return auth // 返回错误响应
     }
 
+    const { payload, ip } = auth
+
     // 获取审计日志ID（Next.js 15 中 params 是 Promise）
     const { id } = await params
     
-    console.log('[API] 获取审计日志详情，ID:', id)
+    console.log('[API] 标记审计日志为通过，ID:', id)
 
     // ID格式验证（UUID格式）
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -78,15 +99,16 @@ export async function GET(
       )
     }
 
-    // 调用 Service 层获取审计日志详情
-    const detail = await getAuditLogDetail(id)
+    // 调用 Service 层标记为通过
+    const updatedLog = await markAuditLogAsPassed(id, payload.userId, ip)
 
     return NextResponse.json({
       code: 200,
-      data: detail
+      message: '已成功标记为通过',
+      data: updatedLog
     })
   } catch (error: any) {
-    console.error('[API] 获取审计日志详情失败:', error)
+    console.error('[API] 标记审计日志为通过失败:', error)
 
     if (error instanceof NotFoundError) {
       return NextResponse.json(

@@ -12,15 +12,13 @@ import {
 } from '@/types/admin'
 
 /**
- * 手机号脱敏处理
- * 将中间4位替换为星号
+ * 手机号处理（现在返回完整手机号）
  * 
  * @param phone - 原始手机号
- * @returns 脱敏后的手机号（如 "138****0000"）
+ * @returns 完整手机号
  */
-function maskPhone(phone: string | null): string {
-  if (!phone || phone.length !== 11) return phone || '-'
-  return phone.slice(0, 3) + '****' + phone.slice(7)
+function formatPhone(phone: string | null): string {
+  return phone || '-'
 }
 
 /**
@@ -139,10 +137,10 @@ export async function getAuditLogs(params: AuditLogQueryParams): Promise<AuditLo
 
   console.log('[AuditService] 查询结果:', { total, count: logs.length })
 
-  // 转换数据格式并脱敏
+  // 转换数据格式（显示完整手机号）
   const list: AuditLog[] = logs.map(log => ({
     id: log.id,
-    userPhone: maskPhone(log.user_phone),
+    userPhone: formatPhone(log.user_phone),
     userIp: log.user_ip,
     modelName: log.model_name,
     status: log.status ?? 1,
@@ -190,10 +188,10 @@ export async function getAuditLogDetail(id: string): Promise<AuditLogDetail> {
 
   console.log('[AuditService] 日志详情查询成功:', { id, status: log.status })
 
-  // 构建详情数据
+  // 构建详情数据（显示完整手机号）
   const detail: AuditLogDetail = {
     id: log.id,
-    userPhone: maskPhone(log.user_phone),
+    userPhone: formatPhone(log.user_phone),
     userIp: log.user_ip,
     modelName: log.model_name,
     status: log.status ?? 1,
@@ -282,11 +280,18 @@ export async function exportAuditLogs(
   const header = '日志ID,用户手机号,客户端IP,底层模型,审核状态,生成时间,用户输入,AI输出\n'
 
   const rows = logs.map(log => {
-    const statusName = log.status === 1 ? '通过' : '违规拦截'
+    // 状态映射：0=审核拦截（手动）, 1=通过, 2=系统拦截
+    let statusName = '通过'
+    if (log.status === 0) {
+      statusName = '审核拦截'
+    } else if (log.status === 2) {
+      statusName = '系统拦截'
+    }
+    
     const createdTime = log.created_time 
       ? new Date(log.created_time).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) 
       : ''
-    const maskedPhone = maskPhone(log.user_phone)
+    const phone = formatPhone(log.user_phone)
     const modelName = log.model_name || '-'
     
     // CSV 字段中的特殊字符处理（逗号、换行符、引号）
@@ -299,7 +304,7 @@ export async function exportAuditLogs(
 
     return [
       log.id,
-      maskedPhone,
+      phone,
       log.user_ip,
       modelName,
       statusName,
@@ -325,4 +330,122 @@ export async function exportAuditLogs(
   console.log('[AuditService] 审计日志导出成功:', { count })
 
   return csv
+}
+
+/**
+ * 标记审计日志为违规
+ * 
+ * @param id - 审计日志 ID
+ * @param adminId - 操作管理员 ID
+ * @param adminIp - 操作管理员 IP
+ * @returns 更新后的审计日志
+ */
+export async function markAuditLogAsViolation(
+  id: string,
+  adminId: string,
+  adminIp: string
+) {
+  console.log('[AuditService] 标记审计日志为违规:', { id, adminId })
+
+  // 检查审计日志是否存在
+  const log = await prisma.audit_logs.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      user_phone: true,
+      status: true,
+    }
+  })
+
+  if (!log) {
+    throw new NotFoundError('审计日志不存在')
+  }
+
+  // 更新审计日志状态为违规（0=违规拦截）
+  const updatedLog = await prisma.audit_logs.update({
+    where: { id },
+    data: {
+      status: 0,
+      is_sensitive: true,
+    },
+    select: {
+      id: true,
+      status: true,
+      is_sensitive: true,
+    }
+  })
+
+  // 记录操作日志到 admin_operation_logs
+  await prisma.admin_operation_logs.create({
+    data: {
+      admin_id: adminId,
+      action_type: 'MARK_VIOLATION',
+      target_id: id,
+      detail: `手动标记审计日志为违规，用户手机号: ${log.user_phone}`,
+      ip: adminIp,
+    }
+  })
+
+  console.log('[AuditService] 审计日志标记成功:', { id, status: updatedLog.status })
+
+  return updatedLog
+}
+
+/**
+ * 标记审计日志为通过
+ * 
+ * @param id - 审计日志 ID
+ * @param adminId - 操作管理员 ID
+ * @param adminIp - 操作管理员 IP
+ * @returns 更新后的审计日志
+ */
+export async function markAuditLogAsPassed(
+  id: string,
+  adminId: string,
+  adminIp: string
+) {
+  console.log('[AuditService] 标记审计日志为通过:', { id, adminId })
+
+  // 检查审计日志是否存在
+  const log = await prisma.audit_logs.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      user_phone: true,
+      status: true,
+    }
+  })
+
+  if (!log) {
+    throw new NotFoundError('审计日志不存在')
+  }
+
+  // 更新审计日志状态为通过（1=审核通过）
+  const updatedLog = await prisma.audit_logs.update({
+    where: { id },
+    data: {
+      status: 1,
+      is_sensitive: false,
+    },
+    select: {
+      id: true,
+      status: true,
+      is_sensitive: true,
+    }
+  })
+
+  // 记录操作日志到 admin_operation_logs
+  await prisma.admin_operation_logs.create({
+    data: {
+      admin_id: adminId,
+      action_type: 'MARK_PASSED',
+      target_id: id,
+      detail: `手动标记审计日志为通过，用户手机号: ${log.user_phone}`,
+      ip: adminIp,
+    }
+  })
+
+  console.log('[AuditService] 审计日志标记通过成功:', { id, status: updatedLog.status })
+
+  return updatedLog
 }

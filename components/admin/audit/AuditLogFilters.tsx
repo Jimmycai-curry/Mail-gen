@@ -159,7 +159,11 @@ export default function AuditLogFilters({
                 ? "所有状态"
                 : statusFilter === 1
                 ? "通过"
-                : "违规拦截"}
+                : statusFilter === 0
+                ? "审核拦截"
+                : statusFilter === 2
+                ? "系统拦截"
+                : "未知"}
               <span className="material-symbols-outlined text-[18px]">
                 expand_more
               </span>
@@ -184,7 +188,13 @@ export default function AuditLogFilters({
                   onClick={() => handleStatusChange(0)}
                   className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
-                  违规拦截
+                  审核拦截
+                </button>
+                <button
+                  onClick={() => handleStatusChange(2)}
+                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  系统拦截
                 </button>
               </div>
             )}
