@@ -38,8 +38,11 @@
   --color-border-color: var(--border-color);
   --color-text-muted: var(--text-muted);
   
-  --font-sans: 'Inter', system-ui, 'Microsoft YaHei', sans-serif;
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
+  
+  /* 管理后台专用字体 */
+  --font-admin: 'IBM Plex Sans', 'Noto Sans SC', sans-serif;
   
   /* 自定义宽度类 */
   --spacing-w-40-percent: 40%;
