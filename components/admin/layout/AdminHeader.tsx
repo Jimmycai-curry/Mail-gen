@@ -13,24 +13,39 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import type { BreadcrumbItem } from "@/types/admin";
 
 interface AdminHeaderProps {
-  breadcrumbs?: BreadcrumbItem[];  // 面包屑导航数据
+  breadcrumbs?: BreadcrumbItem[];  // 面包屑导航数据（可选）
 }
 
 export default function AdminHeader({ breadcrumbs }: AdminHeaderProps) {
   // 搜索框输入状态
   const [searchQuery, setSearchQuery] = useState("");
+  const pathname = usePathname();
   
-  // 默认面包屑：控制台 / 概览
-  const defaultBreadcrumbs: BreadcrumbItem[] = [
-    { label: "控制台" },
-    { label: "概览" },
-  ];
+  // 根据路由自动生成面包屑导航
+  const getAutoBreadcrumbs = (): BreadcrumbItem[] => {
+    const baseBreadcrumb = { label: "控制台" };
+    
+    if (pathname === "/admin/dashboard") {
+      return [baseBreadcrumb, { label: "概览" }];
+    } else if (pathname === "/admin/users") {
+      return [baseBreadcrumb, { label: "用户管理" }];
+    } else if (pathname === "/admin/audit") {
+      return [baseBreadcrumb, { label: "审计日志" }];
+    } else if (pathname === "/admin/feedback") {
+      return [baseBreadcrumb, { label: "反馈管理" }];
+    } else if (pathname === "/admin/operations") {
+      return [baseBreadcrumb, { label: "操作日志" }];
+    }
+    
+    return [baseBreadcrumb, { label: "概览" }];
+  };
 
-  // 使用传入的面包屑或默认值
-  const currentBreadcrumbs = breadcrumbs || defaultBreadcrumbs;
+  // 使用传入的面包屑或自动生成
+  const currentBreadcrumbs = breadcrumbs || getAutoBreadcrumbs();
 
   /**
    * 处理搜索提交
