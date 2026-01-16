@@ -649,5 +649,352 @@ model users {
 
 ---
 
-**最后更新**: 2025-01-13
-**下一步**: 开始实现 `utils/validation.ts` 和 `components/auth/LoginForm.tsx`
+---
+
+## 后端实现规范
+
+### 1. 登录 API 接口规范
+
+**文件路径**: `app/api/auth/login/route.ts`
+
+**功能**: 提供验证码登录和密码登录接口，返回安全的 Cookie
+
+#### 接口定义
+
+```typescript
+// POST /api/auth/login
+interface LoginRequest {
+  phone: string;       // 手机号（11位数字）
+  code?: string;       // 验证码（验证码登录时使用）
+  password?: string;   // 密码（密码登录时使用）
+  mode: 'code' | 'password';  // 登录模式
+}
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  user?: {
+    id: string;
+    phone: string;
+    role: number;
+  };
+  token?: string;                    // JWT Token
+  needsPasswordSetup?: boolean;      // 是否需要设置密码（首次验证码登录）
+}
+```
+
+#### Cookie 安全配置（必须）
+
+登录成功后必须设置安全的 HttpOnly Cookie：
+
+```typescript
+response.cookies.set('auth_token', result.token, {
+  httpOnly: true,  // 禁止 JavaScript 读取 Cookie，防止 XSS 攻击
+  secure: process.env.NODE_ENV === 'production',  // 生产环境必须使用 HTTPS
+  sameSite: 'strict',  // 防止 CSRF 攻击
+  maxAge: 60 * 60 * 24,  // 1 天有效期（与 JWT 过期时间一致）
+  path: '/',  // 在整个域名下有效
+})
+```
+
+**安全特性说明**:
+- `httpOnly: true` - JavaScript 无法读取 Cookie，防止 XSS 攻击窃取 Token
+- `secure: true` - 生产环境强制 HTTPS 传输，防止中间人攻击
+- `sameSite: 'strict'` - 防止 CSRF 跨站请求伪造攻击
+
+#### 验证流程
+
+1. **参数验证**
+   - 检查手机号格式（1开头，第二位3-9，共11位）
+   - 检查验证码格式（6位数字）或密码格式（6-20位）
+   - 检查登录模式是否有效
+
+2. **业务逻辑**
+   - 验证码登录：验证 Redis 中的验证码，验证失败抛出 `UnauthorizedError`
+   - 密码登录：使用 bcrypt 验证密码哈希，验证失败抛出 `UnauthorizedError`
+   - 用户不存在：抛出 `UnauthorizedError`（统一错误提示）
+   - 用户状态检查：验证用户是否被封禁，被封禁抛出 `ForbiddenError`
+
+3. **登录成功**
+   - 生成 JWT Token（包含 userId, phone, role）
+   - 设置 HttpOnly Cookie
+   - 更新用户登录信息（last_login_ip, last_login_time）
+   - 返回用户信息和 Token
+
+#### 错误处理
+
+所有错误必须通过 `withErrorHandler` 包装，返回统一的 JSON 格式：
+
+```typescript
+{
+  success: false,
+  message: '错误描述',
+  error: {
+    code: 'ERROR_CODE',
+    details?: '详细错误信息（仅开发环境）'
+  }
+}
+```
+
+---
+
+### 2. 中间件（Middleware）规范
+
+**文件路径**: `middleware.ts`
+
+**功能**: 保护路由，验证用户登录状态
+
+#### 路由分类
+
+```typescript
+// 受保护的路由列表（需要登录才能访问）
+const PROTECTED_ROUTES = ['/dashboard', '/settings']
+
+// 公开的路由列表（无需登录即可访问）
+const PUBLIC_ROUTES = ['/login', '/set-password']
+```
+
+#### 验证逻辑
+
+```typescript
+export async function middleware(request: NextRequest) {
+  const { pathname } = new URL(request.url)
+
+  // 1. 统一获取 Token，避免重复代码
+  const token = request.cookies.get('auth_token')?.value
+
+  // 2. 公开路由直接放行，不检查 Token
+  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
+    return NextResponse.next()
+  }
+
+  // 3. 受保护路由需要验证 Token
+  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+    if (!token) {
+      // 未登录，重定向到登录页，并保存原始路径
+      const url = new URL('/login', request.url)
+      url.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // 验证 Token 有效性
+    const payload = await verifyToken(token)
+    if (!payload) {
+      // Token 无效或过期，重定向到登录页
+      const url = new URL('/login', request.url)
+      url.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // Token 有效，允许访问
+    return NextResponse.next()
+  }
+
+  // 4. 根路由处理：已登录用户跳转到 Dashboard
+  if (pathname === '/') {
+    if (token) {
+      const payload = await verifyToken(token)
+      if (payload) {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    }
+  }
+
+  // 5. 其他情况放行
+  return NextResponse.next()
+}
+```
+
+**注意事项**:
+- Token 只获取一次，避免重复代码
+- 受保护路由必须验证 Token 有效性
+- 公开路由（如 `/set-password`）不检查 Token
+- 重定向时保留原始路径（redirect 参数）
+
+---
+
+### 3. 设置密码接口规范
+
+**文件路径**: `app/api/auth/set-password/route.ts`
+
+**功能**: 首次登录后设置密码，设置成功后直接进入 dashboard
+
+#### 接口定义
+
+```typescript
+// POST /api/auth/set-password
+// 需要认证：Bearer Token（来自登录接口返回的 Token）
+interface SetPasswordRequest {
+  password: string;        // 新密码（6-20位）
+  confirmPassword: string;  // 确认密码
+}
+
+interface SetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+```
+
+#### 业务逻辑
+
+1. **Token 验证**
+   - 从 `Authorization` 头获取 Token（格式：`Bearer xxx`）
+   - 验证 Token 有效性
+   - Token 无效或过期返回 401
+
+2. **参数验证**
+   - 检查密码和确认密码是否为空
+   - 检查密码长度（6-20位）
+   - 检查两次密码是否一致
+
+3. **密码设置**
+   - 调用 `setPasswordAfterLogin` Service
+   - 使用 bcrypt 加密密码（salt=10）
+   - 更新数据库中的 `password_hash` 字段
+
+4. **登录保持**
+   - 设置密码后，用户 Token 仍然有效
+   - 前端清除 localStorage 中的旧 Token（现在使用 Cookie）
+   - 直接跳转到 `/dashboard`，不需要重新登录
+
+#### 前端处理
+
+```typescript
+// app/(auth)/set-password/page.tsx
+if (result.success) {
+  // 设置密码成功后，清除 localStorage
+  localStorage.removeItem("auth_token");
+  // 直接跳转到 dashboard，不需要重新登录
+  router.push("/dashboard");
+} else {
+  alert(result.message || "设置密码失败");
+}
+```
+
+**重要**: 设置密码后**不需要**重新登录，因为用户已经处于登录状态。
+
+---
+
+### 4. 登录流程完整图
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  用户访问登录页面                                           │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  选择登录模式：验证码登录 / 密码登录                       │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+              ┌─────────────┴─────────────┐
+              ↓                           ↓
+    验证码登录流程                 密码登录流程
+              ↓                           ↓
+    1. 输入手机号                1. 输入手机号
+    2. 点击"获取验证码"            2. 输入密码
+    3. 输入验证码                3. 点击"登录"
+    4. 点击"登录"
+              ↓                           ↓
+    ┌─────────────┴─────────────┐
+              ↓
+    调用 POST /api/auth/login
+              ↓
+    ┌─────────────────────────────┐
+    │  后端验证逻辑              │
+    └─────────────────────────────┘
+              ↓
+    ┌─────────────┬─────────────┐
+    ↓                           ↓
+验证码登录                  密码登录
+    ↓                           ↓
+- 验证 Redis 验证码          - 验证密码哈希
+- 查询/创建用户              - 查询用户
+- 检查用户状态              - 检查用户状态
+- 生成 JWT Token             - 生成 JWT Token
+- 设置 HttpOnly Cookie       - 设置 HttpOnly Cookie
+- 更新登录信息              - 更新登录信息
+              ↓                           ↓
+              └─────────────┬─────────────┘
+                          ↓
+              ┌─────────────────────────────┐
+              │  返回登录成功响应          │
+              │  { success, user, token }  │
+              └─────────────────────────────┘
+                          ↓
+              ┌─────────────────────────────┐
+              │  判断是否需要设置密码       │
+              │  needsPasswordSetup?       │
+              └─────────────────────────────┘
+                    ↓           ↓
+                 YES           NO
+                    ↓           ↓
+        跳转到 /set-password  跳转到 /dashboard
+                    ↓
+        输入新密码和确认密码
+                    ↓
+        调用 POST /api/auth/set-password
+                    ↓
+        验证 Token（已登录）
+                    ↓
+        设置密码（bcrypt 加密）
+                    ↓
+        密码设置成功
+                    ↓
+        清除 localStorage（旧 Token）
+                    ↓
+        跳转到 /dashboard ✓
+```
+
+---
+
+### 5. 安全规范总结
+
+#### Cookie 安全（必须遵守）
+
+| 配置项 | 值 | 作用 |
+|--------|-----|------|
+| httpOnly | true | 防止 XSS 攻击窃取 Token |
+| secure | true (生产) | 强制 HTTPS 传输 |
+| sameSite | strict | 防止 CSRF 跨站请求伪造 |
+| maxAge | 86400 (1天) | Token 有效期 |
+| path | / | 全站有效 |
+
+#### JWT Token 安全
+
+- 使用 `HS256` 算法签名
+- Payload 包含：userId, phone, role
+- Secret 至少 32 字符
+- 过期时间：1 天
+
+#### 密码安全
+
+- 使用 bcrypt 加密（salt=10）
+- 密码长度：6-20 位
+- 不在日志中记录明文密码
+- 密码错误返回统一提示："手机号或密码错误"
+
+#### 验证码安全
+
+- 6 位数字随机验证码
+- 有效期：5 分钟（Redis TTL=300）
+- 冷却时间：60 秒
+- 每日限制：10 次
+- 使用后立即删除（一次性）
+
+---
+
+### 6. 错误码规范
+
+| 错误码 | HTTP 状态 | 场景 | 提示信息 |
+|--------|-----------|------|---------|
+| VALIDATION_ERROR | 400 | 参数验证失败 | 具体字段错误提示 |
+| UNAUTHORIZED | 401 | 未授权访问 | "手机号或密码错误" / "验证码错误或已过期" |
+| FORBIDDEN | 403 | 用户被封禁 | "您的账户已被封禁，请联系管理员" |
+| NOT_FOUND | 404 | 资源不存在 | "用户不存在" |
+| RATE_LIMIT | 429 | 请求过于频繁 | "操作过于频繁，请稍后再试" |
+| INTERNAL_SERVER_ERROR | 500 | 服务器错误 | "系统繁忙，请稍后再试" |
+
+---
+
+**最后更新**: 2025-01-15
+**更新内容**: 添加完整的登录后端规范，包括 API、Middleware、设置密码流程
