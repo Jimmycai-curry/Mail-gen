@@ -93,7 +93,7 @@
   │   └─ prisma.admin_operation_logs.findMany() - 获取分页数据
   ├─ 计算偏移量: skip = (page - 1) * pageSize
   ├─ 按 created_time DESC 排序
-  ├─ 手机号脱敏处理（中间4位替换为星号）
+  ├─ 获取管理员手机号（完整显示，不脱敏）
   └─ 返回 { list: OperationLog[], total: number }
   ↓
 [API层] 返回 JSON 响应
@@ -143,7 +143,7 @@
   ├─ 生成 CSV 内容
   │   ├─ 表头: 日志ID,管理员账号,操作类型,目标ID,详细描述,IP地址,操作时间
   │   ├─ 数据行: 逐行拼接
-  │   ├─ 手机号脱敏
+  │   ├─ 管理员账号完整显示（不脱敏）
   │   ├─ 操作类型中文转换（BAN_USER → 封禁用户）
   │   └─ UTF-8 BOM 编码（\uFEFF）
   ├─ 记录操作日志到 admin_operation_logs
@@ -186,7 +186,7 @@
     "list": [
       {
         "id": "uuid",
-        "adminAccount": "138****0000",
+        "adminAccount": "13800138000",
         "actionType": "BAN_USER",
         "targetId": "USR_99210",
         "detail": "违规发布虚假广告信息，经多次警告无效，执行永久封禁。",
@@ -229,7 +229,7 @@
 **CSV 格式**:
 ```csv
 日志ID,管理员账号,操作类型,目标ID,详细描述,IP地址,操作时间
-uuid-1234,138****0000,封禁用户,USR_99210,违规发布虚假广告信息,182.16.4.122,2023-10-24 14:20:05
+uuid-1234,13800138000,封禁用户,USR_99210,违规发布虚假广告信息,182.16.4.122,2023-10-24 14:20:05
 ```
 
 **错误响应**:
@@ -258,7 +258,7 @@ model admin_operation_logs {
 ```
 
 **说明**:
-- `admin_id` 通过 JOIN `users` 表获取管理员手机号
+- `admin_id` 通过 JOIN `users` 表获取管理员手机号（完整显示，不脱敏）
 - `action_type` 存储操作类型（BAN_USER, UNBAN_USER 等）
 - `target_id` 存储被操作对象的ID
 - `detail` 存储操作详情描述
@@ -427,16 +427,16 @@ where: {
 }
 ```
 
-### 4. 数据脱敏
+### 4. 数据显示
 
-手机号脱敏统一使用工具函数：
+管理员账号（手机号）完整显示，不进行脱敏处理：
 ```typescript
-function maskPhone(phone: string): string {
-  if (!phone || phone.length !== 11) return phone
-  return phone.slice(0, 3) + '****' + phone.slice(7)
-}
-// 示例: "13800138000" → "138****8000"
+// 直接显示完整手机号
+const adminAccount = adminPhone || '-';
+// 示例: "13800138000"（完整显示）
 ```
+
+**说明**: 操作日志用于内部审计，需要完整记录管理员信息，因此不进行脱敏。
 
 ---
 
@@ -500,7 +500,7 @@ function maskPhone(phone: string): string {
 - [ ] 分页组件显示正确的总数和页码
 - [ ] 表格正确显示操作日志信息
 - [ ] 操作类型徽章正确显示且颜色符合设计稿
-- [ ] 管理员账号正确脱敏显示
+- [ ] 管理员账号完整显示（不脱敏）
 
 ### 2. 搜索功能
 - [ ] 输入管理员账号能搜索到对应日志
@@ -519,7 +519,7 @@ function maskPhone(phone: string): string {
 - [ ] CSV 文件格式正确
 - [ ] 中文内容显示正常（UTF-8 BOM）
 - [ ] 导出数据与当前筛选一致
-- [ ] 管理员账号在导出文件中正确脱敏
+- [ ] 管理员账号在导出文件中完整显示
 - [ ] 超过10,000条时显示错误提示
 
 ### 5. 权限控制
@@ -537,7 +537,7 @@ function maskPhone(phone: string): string {
 
 ## 备注
 
-1. **管理员账号脱敏**: 所有展示和导出的手机号必须脱敏（中间4位星号）
+1. **管理员账号显示**: 管理员账号（手机号）完整显示，不脱敏（用于内部审计）
 2. **操作类型映射**: 前端需要将 `action_type` 英文值转换为中文显示
 3. **权限校验**: 所有 API 必须验证管理员权限（role = 0）
 4. **操作日志记录**: 导出操作必须记录到 admin_operation_logs 表

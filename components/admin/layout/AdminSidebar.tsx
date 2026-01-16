@@ -39,7 +39,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     id: "feedback",
     label: "反馈管理",
-    icon: "forum",
+    icon: "rate_review",
     href: "/admin/feedback",
   },
   {

@@ -13,16 +13,6 @@ import { prisma } from '@/lib/db';
 import type { OperationLogQueryParams, OperationLog } from '@/types/admin';
 
 /**
- * 手机号脱敏处理
- * @param phone - 11位手机号
- * @returns 脱敏后的手机号（如 "138****8000"）
- */
-function maskPhone(phone: string | null): string {
-  if (!phone || phone.length !== 11) return phone || '-';
-  return phone.slice(0, 3) + '****' + phone.slice(7);
-}
-
-/**
  * 操作类型转换为中文显示
  * @param actionType - 操作类型英文值
  * @returns 中文显示名称
@@ -132,13 +122,13 @@ export async function getOperationLogs(
 
   const adminMap = new Map(admins.map((admin) => [admin.id, admin.phone]));
 
-  // 数据转换：获取管理员手机号并脱敏
+  // 数据转换：获取管理员手机号（完整显示，不脱敏）
   const list: OperationLog[] = logs.map((log) => {
     const adminPhone = adminMap.get(log.admin_id) || null;
 
     return {
       id: log.id,
-      adminAccount: maskPhone(adminPhone),
+      adminAccount: adminPhone || '-', // 完整显示管理员账号
       actionType: log.action_type,
       targetId: log.target_id,
       detail: log.detail,
@@ -235,7 +225,7 @@ export async function exportOperationLogs(
   // CSV 数据行
   for (const log of logs) {
     const adminPhone = adminMap.get(log.admin_id) || '-';
-    const maskedPhone = maskPhone(adminPhone);
+    // 完整显示管理员账号，不脱敏
     const actionLabel = getActionTypeLabel(log.action_type);
     const createdTime = log.created_time
       ? new Date(log.created_time).toLocaleString('zh-CN', { hour12: false })
@@ -254,7 +244,7 @@ export async function exportOperationLogs(
     rows.push(
       [
         log.id,
-        maskedPhone,
+        adminPhone, // 完整显示管理员账号
         actionLabel,
         log.target_id || '-',
         csvEscape(log.detail),

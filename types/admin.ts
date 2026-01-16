@@ -147,7 +147,7 @@ export enum AuditLogStatus {
 // 操作日志列表项
 export interface OperationLog {
   id: string                    // 日志 UUID
-  adminAccount: string          // 管理员账号（手机号，已脱敏，如 "138****0000"）
+  adminAccount: string          // 管理员账号（手机号，完整显示）
   actionType: string            // 操作类型（如 "BAN_USER"）
   targetId: string | null       // 目标ID（如 "USR_99210"）
   detail: string | null         // 操作详情描述
@@ -182,4 +182,76 @@ export enum ActionType {
   DELETE_USER = 'DELETE_USER',                    // 删除用户（红色）
   UPDATE_USER = 'UPDATE_USER',                    // 修改用户（蓝色）
   EXPORT_OPERATION_LOGS = 'EXPORT_OPERATION_LOGS', // 导出操作日志
+  EXPORT_FEEDBACKS = 'EXPORT_FEEDBACKS',          // 导出反馈数据
+}
+
+// ============ 反馈管理相关类型 ============
+
+// 反馈类型枚举
+export enum FeedbackType {
+  COMPLAINT = 'COMPLAINT',     // 投诉
+  REPORT = 'REPORT',           // 举报
+  SUGGESTION = 'SUGGESTION',   // 建议
+}
+
+// 反馈状态枚举
+export enum FeedbackStatus {
+  PENDING = 0,      // 待处理
+  PROCESSED = 1,    // 已处理
+}
+
+// 反馈列表项
+export interface FeedbackListItem {
+  id: string                    // 反馈 UUID
+  userId: string                // 用户 ID
+  userName: string              // 用户姓名（从 users 表 JOIN）
+  userPhone: string             // 脱敏手机号（如 "138****0001"）
+  type: string                  // 反馈类型：'COMPLAINT', 'REPORT', 'SUGGESTION'
+  content: string               // 反馈内容
+  status: number                // 状态：0=待处理, 1=已处理
+  adminNote: string | null      // 管理员备注
+  processedTime: string | null  // 处理时间（ISO 格式）
+  createdTime: string           // 提交时间（ISO 格式）
+  logId: string | null          // 关联的审计日志 ID（可选）
+}
+
+// 反馈详情（继承列表项）
+export interface FeedbackDetail extends FeedbackListItem {
+  // 详情可能包含更多信息，当前与列表项相同
+}
+
+// 反馈查询参数
+export interface FeedbackQueryParams {
+  page?: number            // 页码（从 1 开始）
+  pageSize?: number        // 每页数量
+  keyword?: string         // 搜索关键词（用户名/手机号/反馈内容）
+  type?: string            // 反馈类型筛选（'COMPLAINT', 'REPORT', 'SUGGESTION'）
+  status?: number          // 状态筛选（0=待处理, 1=已处理）
+  startDate?: string       // 开始时间（ISO 格式）
+  endDate?: string         // 结束时间（ISO 格式）
+}
+
+// 反馈列表响应数据
+export interface FeedbackListResponse {
+  list: FeedbackListItem[]  // 反馈列表
+  total: number             // 总数量
+}
+
+// 处理反馈数据
+export interface ProcessFeedbackData {
+  adminNote?: string        // 管理员备注（可选）
+}
+
+// 反馈类型映射（用于前端展示）
+export const FeedbackTypeLabel: Record<string, string> = {
+  COMPLAINT: '投诉',
+  REPORT: '举报',
+  SUGGESTION: '建议',
+}
+
+// 反馈类型颜色映射（用于前端徽章样式）
+export const FeedbackTypeColor: Record<string, string> = {
+  COMPLAINT: 'bg-red-100 text-red-600 dark:bg-red-900/30',
+  REPORT: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30',
+  SUGGESTION: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30',
 }

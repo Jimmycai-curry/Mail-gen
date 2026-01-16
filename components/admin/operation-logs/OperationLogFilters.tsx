@@ -11,7 +11,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { OperationLogQueryParams } from "@/types/admin";
 
 interface OperationLogFiltersProps {
@@ -28,6 +28,10 @@ export default function OperationLogFilters({
   const [keyword, setKeyword] = useState(currentFilters.keyword || "");
   const [actionType, setActionType] = useState(currentFilters.actionType || "");
   const [dateRange, setDateRange] = useState<string>("");
+  
+  // 日期输入框的引用
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
 
   // ========== 搜索防抖 ==========
 
@@ -113,7 +117,7 @@ export default function OperationLogFilters({
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 focus:ring-[#0052D9] focus:border-[#0052D9] text-sm transition-all"
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-12 pr-4 py-3 focus:ring-[#0052D9] focus:border-[#0052D9] text-sm text-slate-900 dark:text-white placeholder:text-slate-400 transition-all"
               placeholder="通过管理员账号搜索..."
             />
           </label>
@@ -143,17 +147,92 @@ export default function OperationLogFilters({
           </div>
 
           {/* 日期范围筛选 */}
-          <div className="relative">
-            <input
-              type="text"
-              value={dateRange}
-              onChange={(e) => handleDateRangeChange(e.target.value)}
-              className="appearance-none flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 pr-10 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-              placeholder="选择日期范围"
-            />
-            <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">
-              calendar_month
-            </span>
+          <div className="flex items-center gap-2">
+            {/* 开始日期 */}
+            <div className="relative">
+              <input
+                ref={startDateRef}
+                type="date"
+                value={dateRange.split(' ~ ')[0] || ''}
+                onChange={(e) => {
+                  const newStart = e.target.value;
+                  const currentEnd = dateRange.split(' ~ ')[1] || '';
+                  if (newStart && currentEnd) {
+                    handleDateRangeChange(`${newStart} ~ ${currentEnd}`);
+                  } else if (newStart) {
+                    setDateRange(newStart);
+                  }
+                }}
+                className="pl-4 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (startDateRef.current) {
+                    // 尝试使用 showPicker (现代浏览器)
+                    try {
+                      (startDateRef.current as any).showPicker?.();
+                    } catch {
+                      // 回退到 click 方法
+                      startDateRef.current.focus();
+                      startDateRef.current.click();
+                    }
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0052D9] transition-colors cursor-pointer z-10"
+                title="选择开始日期"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  calendar_month
+                </span>
+              </button>
+            </div>
+
+            <span className="text-slate-400">~</span>
+
+            {/* 结束日期 */}
+            <div className="relative">
+              <input
+                ref={endDateRef}
+                type="date"
+                value={dateRange.split(' ~ ')[1] || ''}
+                onChange={(e) => {
+                  const newEnd = e.target.value;
+                  const currentStart = dateRange.split(' ~ ')[0] || '';
+                  if (currentStart && newEnd) {
+                    handleDateRangeChange(`${currentStart} ~ ${newEnd}`);
+                  } else if (newEnd) {
+                    setDateRange(newEnd);
+                  }
+                }}
+                className="pl-4 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (endDateRef.current) {
+                    // 尝试使用 showPicker (现代浏览器)
+                    try {
+                      (endDateRef.current as any).showPicker?.();
+                    } catch {
+                      // 回退到 click 方法
+                      endDateRef.current.focus();
+                      endDateRef.current.click();
+                    }
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0052D9] transition-colors cursor-pointer z-10"
+                title="选择结束日期"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  calendar_month
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* 快速选择按钮（可选） */}
