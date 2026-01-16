@@ -5,7 +5,6 @@ import { Search, Filter, Heart, Calendar, Trash2 } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import { FilterDropdown } from "./FilterDropdown";
-import { HistoryService } from "@/services/historyService";
 
 /**
  * Spec: /docs/specs/history-page.md
@@ -14,7 +13,7 @@ import { HistoryService } from "@/services/historyService";
  * 历史记录列表，包含搜索框、筛选按钮和卡片列表
  * 展示历史记录的标题、预览内容、创建时间和收藏状态
  */
-export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryListProps) {
+export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, isLoading, error }: HistoryListProps) {
   // 筛选状态管理
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterState, setFilterState] = useState<{
@@ -132,27 +131,6 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
     }));
   };
 
-  /**
-   * 获取筛选后的历史记录数据
-   * 连接到后端API获取筛选后的数据
-   */
-  const getFilteredHistories = async () => {
-    try {
-      const filters = {
-        startDate: filterState.startDate,
-        endDate: filterState.endDate,
-        showOnlyFavorites: filterState.showOnlyFavorites,
-        quickFilter: filterState.quickFilter as 'all' | 'today' | 'week' | 'month' | undefined
-      };
-      
-      const filteredHistories = await HistoryService.getHistories(filters);
-      return filteredHistories;
-    } catch (error) {
-      console.error('Failed to fetch filtered histories:', error);
-      // 出错时返回原始数据
-      return histories;
-    }
-  };
 
   /**
    * 重置筛选条件
@@ -168,17 +146,23 @@ export function HistoryList({ histories, selectedId, onSelectHistory }: HistoryL
 
   /**
    * 应用筛选条件
+   * 通过 props 回调函数通知父组件
    */
-  const handleApply = async () => {
-    // 这里将连接到后端API获取筛选后的数据
+  const handleApply = () => {
+    // 关闭筛选下拉框
     setIsFilterOpen(false);
 
-    try {
-      const filteredHistories = await getFilteredHistories();
-      // 这里可以添加状态更新逻辑，将筛选后的数据设置到组件状态中
-      // 例如：setHistories(filteredHistories);
-    } catch (error) {
-      console.error('Failed to apply filters:', error);
+    // 构建筛选参数
+    const filters = {
+      startDate: filterState.startDate,
+      endDate: filterState.endDate,
+      showOnlyFavorites: filterState.showOnlyFavorites,
+      quickFilter: filterState.quickFilter as 'all' | 'today' | 'week' | 'month' | undefined
+    };
+
+    // 通过回调函数通知父组件
+    if (onFilterChange) {
+      onFilterChange(filters);
     }
   };
 

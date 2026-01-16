@@ -57,6 +57,12 @@ export interface HistoryListProps {
   selectedId?: string | null;
   /** 选择记录的回调函数 */
   onSelectHistory: (id: string) => void;
+  /** 筛选变更回调函数 */
+  onFilterChange?: (filters: any) => void;
+  /** 加载状态 */
+  isLoading?: boolean;
+  /** 错误信息 */
+  error?: string | null;
 }
 /**
  * 历史记录详情组件 Props
@@ -66,3 +72,86 @@ export interface HistoryDetailProps {
   detail?: HistoryDetail | null;
 }
 
+/**
+ * 历史记录列表请求参数
+ * 用于 GET /api/history 接口的查询参数
+ */
+export interface GetHistoriesRequest {
+  /** 页码，默认 1 */
+  page?: number;
+  /** 每页数量，默认 20，最大 100 */
+  pageSize?: number;
+  /** 开始日期，格式 YYYY-MM-DD */
+  startDate?: string;
+  /** 结束日期，格式 YYYY-MM-DD */
+  endDate?: string;
+  /** 是否仅显示收藏 */
+  showOnlyFavorites?: boolean;
+  /** 快捷筛选选项 */
+  quickFilter?: 'all' | 'today' | 'week' | 'month';
+}
+
+/**
+ * 历史记录列表响应
+ * GET /api/history 接口的响应格式
+ */
+export interface GetHistoriesResponse {
+  success: boolean;
+  data: {
+    /** 历史记录列表 */
+    list: HistoryItem[];
+    /** 总记录数 */
+    total: number;
+    /** 当前页码 */
+    page: number;
+    /** 每页数量 */
+    pageSize: number;
+  };
+}
+
+/**
+ * 搜索历史记录请求参数
+ * 用于 POST /api/history/search 接口
+ */
+export interface SearchHistoriesRequest {
+  /** 搜索关键词（必填，至少2个字符） */
+  keyword: string;
+  /** 页码，默认 1 */
+  page?: number;
+  /** 每页数量，默认 20 */
+  pageSize?: number;
+  /** 开始日期，格式 YYYY-MM-DD */
+  startDate?: string;
+  /** 结束日期，格式 YYYY-MM-DD */
+  endDate?: string;
+  /** 是否仅显示收藏 */
+  showOnlyFavorites?: boolean;
+}
+
+/**
+ * 切换收藏状态请求参数
+ * 用于 PUT /api/history/[id]/favorite 接口
+ */
+export interface ToggleFavoriteRequest {
+  /** 目标收藏状态（可选，不传则切换） */
+  isFavorite?: boolean;
+}
+
+/**
+ * 切换收藏状态响应
+ */
+export interface ToggleFavoriteResponse {
+  success: boolean;
+  data: {
+    id: string;
+    isFavorite: boolean;
+  };
+}
+
+/**
+ * 删除历史记录响应
+ */
+export interface DeleteHistoryResponse {
+  success: boolean;
+  message: string;
+}
