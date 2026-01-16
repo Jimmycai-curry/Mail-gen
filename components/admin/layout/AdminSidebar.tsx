@@ -33,7 +33,7 @@ const NAV_ITEMS: NavItem[] = [
   {
     id: "audit",
     label: "审计日志",
-    icon: "verified_user",
+    icon: "manage_search",
     href: "/admin/audit",
   },
   {

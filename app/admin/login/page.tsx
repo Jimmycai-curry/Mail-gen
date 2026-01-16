@@ -16,7 +16,7 @@ import Link from "next/link";
 
 export default function AdminLoginPage() {
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden admin-grid-pattern bg-[#f5f6f8] dark:bg-[#0f1723]">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden admin-grid-pattern bg-white dark:bg-[#0f1723]">
       {/* Logo 区域 */}
       <div className="mb-8 flex flex-col items-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0054db] text-white shadow-lg shadow-[#0054db]/20">

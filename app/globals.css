@@ -101,14 +101,16 @@ body {
   background-size: 24px 24px;
 }
 
-/* 管理后台网格背景（灰色点） */
+/* 管理后台网格背景（响应主题） */
 .admin-grid-pattern {
-  background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-  background-size: 24px 24px;
+  /* 浅色模式下不显示网格，保持纯白背景 */
+  background-image: none;
 }
 
 .dark .admin-grid-pattern {
+  /* 深色模式下显示深色网格点 */
   background-image: radial-gradient(#1e293b 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Mockup容器 */

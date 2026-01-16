@@ -93,3 +93,50 @@ export enum UserStatus {
   BANNED = 0,     // 已封禁
   NORMAL = 1,     // 正常
 }
+
+// ============ 审计日志相关类型 ============
+
+// 审计日志列表项
+export interface AuditLog {
+  id: string
+  userPhone: string        // 脱敏手机号（如 "138****0000"）
+  userIp: string           // 客户端 IP
+  modelName: string | null // 底层模型（如 "DeepSeek-V3"）
+  status: number           // 审核状态：1=通过, 0=违规拦截
+  createdTime: string      // ISO 时间字符串
+}
+
+// 审计日志详情（继承列表项，增加更多字段）
+export interface AuditLogDetail extends AuditLog {
+  inputPrompt: string      // 用户输入
+  outputContent: string    // AI 生成结果
+  scene: string | null     // 场景类型
+  tone: string | null      // 语气风格
+  isSensitive: boolean     // 是否敏感内容
+  externalAuditId: string | null  // 外部审计 ID
+  // 扩展字段（从 IP 解析或计算）
+  ipLocation?: string      // IP 归属地（如 "浙江 杭州"）
+  complianceScore?: number // 内容合规分（0.0-1.0）
+}
+
+// 审计日志查询参数
+export interface AuditLogQueryParams {
+  page?: number            // 页码（从 1 开始）
+  pageSize?: number        // 每页数量
+  keyword?: string         // 搜索关键词（手机号/IP/模型名称）
+  status?: number          // 状态筛选（0=违规拦截, 1=通过）
+  startDate?: string       // 开始时间（ISO 格式）
+  endDate?: string         // 结束时间（ISO 格式）
+}
+
+// 审计日志列表响应数据
+export interface AuditLogListResponse {
+  list: AuditLog[]         // 审计日志列表
+  total: number            // 总数量
+}
+
+// 审计日志状态枚举
+export enum AuditLogStatus {
+  BLOCKED = 0,   // 违规拦截
+  PASSED = 1,    // 审核通过
+}

@@ -139,7 +139,7 @@ export default function AdminLoginForm({ onSubmit, isLoading = false }: AdminLog
                   setFormData({ ...formData, phone: value });
                 }}
                 placeholder="请输入管理员手机号"
-                className="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-10 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0054db] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-[#0c121d] dark:text-white"
+                className="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-transparent px-10 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0054db] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 text-[#0c121d] dark:text-white"
               />
             </div>
           </div>
@@ -160,7 +160,7 @@ export default function AdminLoginForm({ onSubmit, isLoading = false }: AdminLog
                   setFormData({ ...formData, password: e.target.value })
                 }
                 placeholder="请输入密码"
-                className="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-10 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0054db] focus-visible:ring-offset-2 pr-12 text-[#0c121d] dark:text-white"
+                className="flex h-11 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-transparent px-10 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0054db] focus-visible:ring-offset-2 pr-12 text-[#0c121d] dark:text-white"
               />
               <button
                 type="button"

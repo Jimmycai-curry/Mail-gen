@@ -114,7 +114,7 @@ export default function AdminHeader({ breadcrumbs }: AdminHeaderProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+            className="bg-slate-100 dark:bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm text-slate-900 dark:text-white w-64 focus:ring-2 focus:ring-primary/20 transition-all outline-none placeholder:text-slate-400"
             placeholder="搜索功能或数据..."
           />
         </form>
