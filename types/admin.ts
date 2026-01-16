@@ -19,7 +19,27 @@ export interface DashboardStats {
   todayBlocked: StatCardData;  // 今日拦截
 }
 
-// 最新注册用户信息
+// Dashboard 统计数据（Service 层返回的原始数据）
+export interface DashboardStatsData {
+  totalUsers: number;              // 总用户数
+  lastMonthUsers: number;          // 上月同期用户数
+  todayNewUsers: number;           // 今日新增用户数
+  yesterdayNewUsers: number;       // 昨日新增用户数
+  todayGenerations: number;        // 今日生成量（audit_logs 总数）
+  yesterdayGenerations: number;    // 昨日生成量
+  todayBlocked: number;            // 今日拦截数（status = 2）
+  yesterdayBlocked: number;        // 昨日拦截数
+  todayBlockRate: number;          // 今日拦截率（百分比）
+  yesterdayBlockRate: number;      // 昨日拦截率（百分比）
+}
+
+// 用户增长趋势数据点
+export interface UserGrowthDataPoint {
+  date: string;   // 日期，格式 "YYYY-MM-DD"
+  count: number;  // 当日新增用户数
+}
+
+// 最新注册用户信息（旧版本，保留兼容性）
 export interface LatestUser {
   id: string;              // 用户 ID
   name: string;            // 用户姓名
@@ -28,6 +48,22 @@ export interface LatestUser {
   registeredAt: string;    // 注册时间，如 "2023-10-30 14:23"
   lastLogin: string;       // 最后登录时间，如 "2 分钟前"
   status: 'normal' | 'disabled';  // 用户状态：正常或已禁用
+}
+
+// 最新注册用户数据（基于数据库实际字段）
+export interface LatestUserData {
+  id: string;                    // 用户 UUID
+  phone: string;                 // 手机号（完整显示）
+  status: number;                // 状态：0=封禁, 1=正常
+  created_time: Date;            // 注册时间
+  last_login_time: Date | null;  // 最后登录时间
+}
+
+// Dashboard 完整响应数据
+export interface DashboardResponse {
+  stats: DashboardStatsData;          // 统计数据
+  growthTrend: UserGrowthDataPoint[]; // 用户增长趋势（30天）
+  latestUsers: LatestUserData[];      // 最新注册用户（最多10条）
 }
 
 // 侧边栏导航菜单项

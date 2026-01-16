@@ -368,3 +368,229 @@ export async function getUserStats() {
 
   return stats
 }
+
+/**
+ * 获取 Dashboard 统计数据
+ * Spec: /docs/specs/admin-dashboard.md (待创建)
+ * 
+ * @returns Dashboard 统计数据（包含总用户量、今日新增、今日生成量、今日拦截等）
+ */
+export async function getDashboardStats() {
+  console.log('[AdminService] 获取 Dashboard 统计数据')
+
+  // 计算时间范围
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+  const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000)
+  const yesterdayEnd = new Date(todayEnd.getTime() - 24 * 60 * 60 * 1000)
+  
+  // 上月同期（用于对比总用户量增长）
+  const lastMonthToday = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), 23, 59, 59, 999)
+
+  // 并行查询所有统计数据
+  const [
+    totalUsers,
+    lastMonthUsers,
+    todayNewUsers,
+    yesterdayNewUsers,
+    todayGenerations,
+    yesterdayGenerations,
+    todayBlocked,
+    yesterdayBlocked,
+  ] = await Promise.all([
+    // 1. 总用户数
+    prisma.users.count(),
+    
+    // 2. 上月同期用户数（用于计算增长率）
+    prisma.users.count({
+      where: {
+        created_time: {
+          lte: lastMonthToday
+        }
+      }
+    }),
+    
+    // 3. 今日新增用户数
+    prisma.users.count({
+      where: {
+        created_time: {
+          gte: todayStart,
+          lte: todayEnd
+        }
+      }
+    }),
+    
+    // 4. 昨日新增用户数
+    prisma.users.count({
+      where: {
+        created_time: {
+          gte: yesterdayStart,
+          lte: yesterdayEnd
+        }
+      }
+    }),
+    
+    // 5. 今日生成量（audit_logs 总数）
+    prisma.audit_logs.count({
+      where: {
+        created_time: {
+          gte: todayStart,
+          lte: todayEnd
+        }
+      }
+    }),
+    
+    // 6. 昨日生成量
+    prisma.audit_logs.count({
+      where: {
+        created_time: {
+          gte: yesterdayStart,
+          lte: yesterdayEnd
+        }
+      }
+    }),
+    
+    // 7. 今日拦截数（status = 2，系统拦截）
+    prisma.audit_logs.count({
+      where: {
+        created_time: {
+          gte: todayStart,
+          lte: todayEnd
+        },
+        status: 2  // 系统拦截
+      }
+    }),
+    
+    // 8. 昨日拦截数
+    prisma.audit_logs.count({
+      where: {
+        created_time: {
+          gte: yesterdayStart,
+          lte: yesterdayEnd
+        },
+        status: 2  // 系统拦截
+      }
+    }),
+  ])
+
+  // 计算拦截率（百分比）
+  const todayBlockRate = todayGenerations > 0 
+    ? (todayBlocked / todayGenerations) * 100 
+    : 0
+  const yesterdayBlockRate = yesterdayGenerations > 0 
+    ? (yesterdayBlocked / yesterdayGenerations) * 100 
+    : 0
+
+  const stats = {
+    totalUsers,
+    lastMonthUsers,
+    todayNewUsers,
+    yesterdayNewUsers,
+    todayGenerations,
+    yesterdayGenerations,
+    todayBlocked,
+    yesterdayBlocked,
+    todayBlockRate,
+    yesterdayBlockRate,
+  }
+
+  console.log('[AdminService] Dashboard 统计数据:', stats)
+
+  return stats
+}
+
+/**
+ * 获取用户增长趋势数据
+ * Spec: /docs/specs/admin-dashboard.md (待创建)
+ * 
+ * @param days - 查询天数（默认 30 天）
+ * @returns 用户增长趋势数据点数组
+ */
+export async function getUserGrowthTrend(days: number = 30) {
+  console.log(`[AdminService] 获取用户增长趋势数据（近 ${days} 天）`)
+
+  // 计算起始日期
+  const endDate = new Date()
+  endDate.setHours(23, 59, 59, 999)
+  
+  const startDate = new Date(endDate)
+  startDate.setDate(startDate.getDate() - (days - 1))
+  startDate.setHours(0, 0, 0, 0)
+
+  // 查询所有在时间范围内的用户
+  const users = await prisma.users.findMany({
+    where: {
+      created_time: {
+        gte: startDate,
+        lte: endDate
+      }
+    },
+    select: {
+      created_time: true
+    },
+    orderBy: {
+      created_time: 'asc'
+    }
+  })
+
+  // 按日期分组统计
+  const dateCountMap = new Map<string, number>()
+  
+  // 初始化所有日期为 0
+  for (let i = 0; i < days; i++) {
+    const date = new Date(startDate)
+    date.setDate(date.getDate() + i)
+    const dateStr = date.toISOString().split('T')[0]
+    dateCountMap.set(dateStr, 0)
+  }
+
+  // 统计每天的用户数
+  users.forEach(user => {
+    if (user.created_time) {
+      const dateStr = new Date(user.created_time).toISOString().split('T')[0]
+      const currentCount = dateCountMap.get(dateStr) || 0
+      dateCountMap.set(dateStr, currentCount + 1)
+    }
+  })
+
+  // 转换为数组格式
+  const trendData = Array.from(dateCountMap.entries()).map(([date, count]) => ({
+    date,
+    count
+  }))
+
+  console.log(`[AdminService] 用户增长趋势数据点数量: ${trendData.length}`)
+
+  return trendData
+}
+
+/**
+ * 获取最新注册用户列表
+ * Spec: /docs/specs/admin-dashboard.md (待创建)
+ * 
+ * @param limit - 返回数量限制（默认 10 条）
+ * @returns 最新注册用户数据数组
+ */
+export async function getLatestUsers(limit: number = 10) {
+  console.log(`[AdminService] 获取最新注册用户（限制 ${limit} 条）`)
+
+  // 查询最新注册的用户
+  const users = await prisma.users.findMany({
+    select: {
+      id: true,
+      phone: true,
+      status: true,
+      created_time: true,
+      last_login_time: true
+    },
+    orderBy: {
+      created_time: 'desc'
+    },
+    take: limit
+  })
+
+  console.log(`[AdminService] 查询到最新用户数量: ${users.length}`)
+
+  return users
+}
