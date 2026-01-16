@@ -37,6 +37,16 @@ export interface UpdatePasswordRequest {
 }
 
 /**
+ * 重置密码请求（忘记密码场景，通过验证码）
+ */
+export interface ResetPasswordRequest {
+  phone: string           // 手机号
+  code: string            // 短信验证码
+  newPassword: string     // 新密码（6-20位）
+  confirmPassword: string // 确认密码
+}
+
+/**
  * 通用API响应格式
  */
 export interface ApiResponse<T = unknown> {
@@ -89,6 +99,14 @@ export interface UpdatePasswordResponse {
 }
 
 /**
+ * 重置密码响应
+ */
+export interface ResetPasswordResponse {
+  success: boolean
+  message: string
+}
+
+/**
  * 获取当前用户响应
  */
 export interface GetCurrentUserResponse {
@@ -132,6 +150,14 @@ export interface SetPasswordResult {
  * 修改密码Service层返回类型
  */
 export interface UpdatePasswordResult {
+  success: boolean
+  message: string
+}
+
+/**
+ * 重置密码Service层返回类型
+ */
+export interface ResetPasswordResult {
   success: boolean
   message: string
 }

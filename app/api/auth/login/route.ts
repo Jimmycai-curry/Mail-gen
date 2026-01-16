@@ -8,9 +8,9 @@ import { LoginRequest } from '@/types/auth'
 
 export async function POST(request: NextRequest) {
   return withErrorHandler(async () => {
-    const body = await request.json() as LoginRequest
+    const body = await request.json() as LoginRequest & { isAdmin?: boolean }
 
-    const { phone, code, password, mode } = body
+    const { phone, code, password, mode, isAdmin = false } = body
 
     if (!phone || !mode) {
       return NextResponse.json(
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const result = await loginWithPassword(phone, password, ip)
+      const result = await loginWithPassword(phone, password, ip, isAdmin)
 
       // 创建响应并设置安全的 Cookie
       const response = NextResponse.json(result)

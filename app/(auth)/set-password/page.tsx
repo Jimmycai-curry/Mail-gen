@@ -89,7 +89,7 @@ export default function SetPasswordPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="请输入新密码（6-20位）"
+                  placeholder="请输入新密码（8-20位）"
                   className="flex w-full min-w-0 flex-1 border-none bg-transparent h-14 placeholder:text-[#4545a1]/60 dark:placeholder:text-white/30 p-[15px] text-base font-normal focus:ring-0 focus:outline-none"
                 />
                 <button
