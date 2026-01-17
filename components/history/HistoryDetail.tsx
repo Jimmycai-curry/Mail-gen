@@ -9,7 +9,22 @@ import { Copy, Heart, FileText, Info } from "lucide-react";
  * HistoryDetail 组件
  * 历史记录详情展示，包含工具栏、输入需求详情和 AI 生成结果
  */
-export function HistoryDetail({ detail }: HistoryDetailProps) {
+export function HistoryDetail({ detail, isLoading = false }: HistoryDetailProps) {
+  // 加载状态：显示加载动画
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full bg-background-light dark:bg-background-dark">
+        <div className="text-center">
+          {/* 加载动画 */}
+          <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            加载中...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // 空状态：没有选中历史记录时显示
   if (!detail) {
     return (

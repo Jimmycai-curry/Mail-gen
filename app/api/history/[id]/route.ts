@@ -1,0 +1,93 @@
+// Spec: /docs/specs/history-page.md
+// 说明: 历史记录详情 API 路由
+// 提供 GET /api/history/[id] 接口，从 Cookie 读取 JWT Token 进行认证
+
+import { NextRequest } from 'next/server'
+import { authenticateRequest } from '@/utils/auth'
+import { withErrorHandler } from '@/utils/error'
+import { HistoryService } from '@/services/historyService'
+
+/**
+ * 获取历史记录详情
+ * GET /api/history/[id]
+ * 
+ * 认证方式:
+ * - 从 Cookie 中读取 auth_token
+ * - 验证 Token 有效性
+ * - 提取 userId 查询对应用户的数据
+ * 
+ * 路径参数:
+ * - id: 历史记录 UUID（例如：550e8400-e29b-41d4-a716-446655440000）
+ * 
+ * 响应格式:
+ * ```json
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "id": "550e8400-e29b-41d4-a716-446655440000",
+ *     "senderName": "市场部 张伟",
+ *     "recipientName": "极光科技 卢经理",
+ *     "tone": "专业严谨,诚恳礼貌",
+ *     "scene": "商业合作伙伴年度邀请",
+ *     "corePoints": ["要点1", "要点2"],
+ *     "mailContent": "完整的邮件内容...",
+ *     "isFavorite": true,
+ *     "createdAt": "2025-01-15 14:30"
+ *   }
+ * }
+ * ```
+ * 
+ * 错误响应:
+ * - 401: 未登录或 Token 无效
+ * - 404: 历史记录不存在或无权访问
+ * - 500: 服务器错误
+ * 
+ * @example
+ * 请求示例：
+ * GET /api/history/550e8400-e29b-41d4-a716-446655440000
+ * Cookie: auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ * 
+ * 响应示例：
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "id": "550e8400-e29b-41d4-a716-446655440000",
+ *     "senderName": "市场部 张伟",
+ *     "recipientName": "极光科技 卢经理",
+ *     ...
+ *   }
+ * }
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return withErrorHandler(async () => {
+    console.log('[HistoryDetail API] 收到获取历史记录详情请求')
+
+    // 1. 认证：从 Cookie 读取 Token 并验证
+    const user = await authenticateRequest(request)
+    console.log('[HistoryDetail API] 用户已认证:', { userId: user.userId })
+
+    // 2. 获取历史记录 ID（从 URL 路径参数）
+    const historyId = params.id
+    console.log('[HistoryDetail API] 查询历史记录 ID:', historyId)
+
+    // 3. 调用 Service 层获取详情
+    // 注意：Service 层接收 userId 参数，从 JWT Token 解析而来
+    // Service 层会自动验证记录是否属于该用户
+    const detail = await HistoryService.getHistoryDetail(historyId, user.userId)
+
+    // 4. 返回成功响应
+    console.log('[HistoryDetail API] 查询成功:', {
+      id: detail.id,
+      senderName: detail.senderName,
+      recipientName: detail.recipientName
+    })
+
+    return Response.json({
+      success: true,
+      data: detail
+    })
+  })
+}

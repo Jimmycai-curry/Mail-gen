@@ -3,8 +3,8 @@
 // 负责处理历史记录的增删改查业务逻辑
 
 import { prisma } from '@/lib/db'
-import { HistoryItem } from '@/types/history'
-import { GetHistoriesRequest } from '@/types/history'
+import { HistoryItem, HistoryDetail, GetHistoriesRequest } from '@/types/history'
+import { NotFoundError } from '@/utils/error'
 
 /**
  * 筛选参数接口
@@ -237,13 +237,97 @@ export class HistoryService {
   }
 
   /**
-   * 获取历史记录详情（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @param userId - 用户 ID
+   * 获取历史记录详情
+   * 根据历史记录 ID 获取完整的详情信息，包括输入需求和 AI 生成结果
+   * 
+   * 功能:
+   * - 查询数据库获取完整的记录信息
+   * - 验证记录是否属于当前用户（防止越权访问）
+   * - 将 core_points 按换行符分割为数组
+   * - 格式化日期时间为 "YYYY-MM-DD HH:mm" 格式
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @param userId - 用户 ID（从 JWT Token 解析）
    * @returns 历史记录详情
+   * @throws NotFoundError - 记录不存在或已被删除
+   * 
+   * @example
+   * ```typescript
+   * const detail = await HistoryService.getHistoryDetail('550e8400-e29b-41d4-a716-446655440000', 'user-uuid')
+   * // 返回: {
+   * //   id: '550e8400-e29b-41d4-a716-446655440000',
+   * //   senderName: '市场部 张伟',
+   * //   recipientName: '极光科技 卢经理',
+   * //   tone: '专业严谨,诚恳礼貌',
+   * //   scene: '商业合作伙伴年度邀请',
+   * //   corePoints: ['要点1', '要点2'],
+   * //   mailContent: '完整的邮件内容...',
+   * //   isFavorite: true,
+   * //   createdAt: '2025-01-15 14:30'
+   * // }
+   * ```
    */
-  static async getHistoryDetail(id: string, userId: string): Promise<any> {
-    throw new Error('getHistoryDetail 方法待实现')
+  static async getHistoryDetail(id: string, userId: string): Promise<HistoryDetail> {
+    console.log('[HistoryService] 获取历史记录详情:', { id, userId })
+
+    // 1. 查询数据库，根据 id 和 user_id 查找记录
+    // 注意：同时匹配 id 和 user_id 可以防止越权访问（用户只能访问自己的数据）
+    const history = await prisma.mail_histories.findFirst({
+      where: {
+        id: id,                    // 记录 ID
+        user_id: userId,            // 用户 ID（确保只能访问自己的数据）
+        is_deleted: false           // 排除已删除的记录
+      },
+      select: {
+        id: true,
+        sender_name: true,
+        recipient_name: true,
+        tone: true,
+        scene: true,
+        core_points: true,
+        mail_content: true,
+        is_favorite: true,
+        created_time: true
+      }
+    })
+
+    // 2. 权限检查：如果记录不存在，返回 404 错误
+    // 这里不需要额外检查 user_id，因为查询时已经过滤了
+    if (!history) {
+      console.log('[HistoryService] 历史记录不存在或无权访问:', { id, userId })
+      throw new NotFoundError('历史记录不存在')
+    }
+
+    // 3. 数据转换：将数据库记录转换为前端需要的格式
+    const result = {
+      id: history.id,
+      // 发送者姓名：如果为空，返回空字符串
+      senderName: history.sender_name || '',
+      // 接收者姓名：如果为空，返回空字符串
+      recipientName: history.recipient_name || '',
+      // 语气风格：如果为空，返回空字符串
+      tone: history.tone || '',
+      // 应用场景：如果为空，返回空字符串
+      scene: history.scene || '',
+      // 核心要点：按换行符分割为数组，并过滤掉空行
+      corePoints: history.core_points
+        ? history.core_points.split('\n').filter(point => point.trim())
+        : [],
+      // 邮件内容：完整的 AI 生成结果
+      mailContent: history.mail_content,
+      // 收藏状态：如果为空，默认为 false
+      isFavorite: history.is_favorite || false,
+      // 创建时间：格式化为 "YYYY-MM-DD HH:mm" 格式
+      createdAt: this.formatDateTime(history.created_time)
+    }
+
+    console.log('[HistoryService] 查询成功:', {
+      id: result.id,
+      senderName: result.senderName,
+      recipientName: result.recipientName
+    })
+
+    return result
   }
 
   /**
