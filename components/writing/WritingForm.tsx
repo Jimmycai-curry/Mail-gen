@@ -24,6 +24,7 @@ export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateErro
   const [tone, setTone] = useState("formal");
   const [recipientName, setRecipientName] = useState("");
   const [recipientRole, setRecipientRole] = useState("");
+  const [senderName, setSenderName] = useState(""); // 新增：发件人姓名（可选）
   const [keyPoints, setKeyPoints] = useState("");
 
   // 生成状态
@@ -101,6 +102,7 @@ export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateErro
       language,
       recipientName,
       recipientRole,
+      senderName,
       keyPoints: keyPoints.substring(0, 50) + '...'
     });
 
@@ -118,6 +120,7 @@ export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateErro
         language,
         recipientName: recipientName.trim(),
         recipientRole: recipientRole.trim(),
+        senderName: senderName.trim() || undefined, // 如果为空，传 undefined（可选字段）
         keyPoints: keyPoints.trim()
       };
 
@@ -272,6 +275,21 @@ export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateErro
           value={recipientRole}
           onChange={(e) => setRecipientRole(e.target.value)}
           placeholder="输入收件人职位或身份（如：销售总监、技术合作伙伴）"
+          className="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none px-4"
+        />
+      </div>
+
+      {/* 发件人姓名 */}
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          发件人姓名
+          <span className="text-xs text-slate-400 ml-2">（可选）</span>
+        </label>
+        <input
+          type="text"
+          value={senderName}
+          onChange={(e) => setSenderName(e.target.value)}
+          placeholder="输入发件人姓名，用于邮件签名（如：李明）"
           className="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none px-4"
         />
       </div>
