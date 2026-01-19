@@ -239,13 +239,79 @@ export class HistoryApiClient {
   }
 
   /**
-   * 切换收藏状态（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @param isFavorite - 收藏状态
-   * @returns 更新结果
+   * 切换收藏状态
+   * 支持两种模式：
+   * - 不传 isFavorite 参数：切换当前状态（收藏 <-> 取消收藏）
+   * - 传 isFavorite 参数：设置为指定状态（幂等操作）
+   * 
+   * 认证方式:
+   * - 浏览器自动从 Cookie 读取 auth_token
+   * - 后端验证 Token 并提取 userId
+   * - 只能操作对应用户的历史记录
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @param isFavorite - 目标收藏状态（可选）
+   * @returns API 响应
+   * 
+   * @example
+   * ```typescript
+   * // 切换模式：如果当前是收藏，则取消收藏；如果当前是未收藏，则收藏
+   * const response = await HistoryApiClient.toggleFavorite('550e8400-e29b-41d4-a716-446655440000')
+   * 
+   * // 设置模式：直接设置为收藏
+   * const response = await HistoryApiClient.toggleFavorite('550e8400-e29b-41d4-a716-446655440000', true)
+   * 
+   * // 设置模式：直接设置为未收藏
+   * const response = await HistoryApiClient.toggleFavorite('550e8400-e29b-41d4-a716-446655440000', false)
+   * ```
    */
-  static async toggleFavorite(id: string, isFavorite?: boolean): Promise<any> {
-    throw new Error('toggleFavorite 方法待实现')
+  static async toggleFavorite(id: string, isFavorite?: boolean): Promise<{
+    success: boolean;
+    data: { id: string; isFavorite: boolean };
+  }> {
+    console.log('[HistoryApiClient] 请求切换收藏状态:', { id, isFavorite })
+
+    // 1. 发起 PUT 请求到收藏接口
+    // 注意：Cookie 会自动携带，无需手动设置
+    const response = await fetch(`/api/history/${id}/favorite`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // 如果指定了 isFavorite，则发送请求体；否则发送空对象
+      body: JSON.stringify(isFavorite !== undefined ? { isFavorite } : {}),
+    })
+
+    // 2. 检查响应状态
+    if (!response.ok) {
+      console.error('[HistoryApiClient] 切换收藏失败:', {
+        status: response.status,
+        statusText: response.statusText
+      })
+
+      // 如果是 401，说明 Token 无效或过期，跳转到登录页
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        throw new Error('未登录或登录已过期')
+      }
+
+      // 如果是 404，说明历史记录不存在或无权访问
+      if (response.status === 404) {
+        throw new Error('历史记录不存在或无权访问')
+      }
+
+      throw new Error('切换收藏状态失败')
+    }
+
+    // 3. 解析 JSON 响应
+    const data = await response.json()
+
+    console.log('[HistoryApiClient] 切换收藏成功:', {
+      id: data.data.id,
+      isFavorite: data.data.isFavorite
+    })
+
+    return data
   }
 
   /**

@@ -9,7 +9,7 @@ import { Copy, Heart, FileText, Info } from "lucide-react";
  * HistoryDetail 组件
  * 历史记录详情展示，包含工具栏、输入需求详情和 AI 生成结果
  */
-export function HistoryDetail({ detail, isLoading = false }: HistoryDetailProps) {
+export function HistoryDetail({ detail, isLoading = false, onToggleFavorite }: HistoryDetailProps) {
   // 加载状态：显示加载动画
   if (isLoading) {
     return (
@@ -51,11 +51,12 @@ export function HistoryDetail({ detail, isLoading = false }: HistoryDetailProps)
 
   /**
    * 处理收藏操作
-   * 功能待实现：暂无实际收藏逻辑
+   * 调用父组件传入的回调函数切换收藏状态
    */
   const handleFavorite = () => {
-    console.log("收藏功能待实现");
-    // TODO: 实现收藏切换功能
+    if (detail && onToggleFavorite) {
+      onToggleFavorite(detail.id);
+    }
   };
 
   return (

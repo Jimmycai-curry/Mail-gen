@@ -59,6 +59,8 @@ export interface HistoryListProps {
   onSelectHistory: (id: string) => void;
   /** 筛选变更回调函数 */
   onFilterChange?: (filters: any) => void;
+  /** 切换收藏状态的回调函数 */
+  onToggleFavorite?: (id: string) => void;
   /** 加载状态 */
   isLoading?: boolean;
   /** 错误信息 */
@@ -72,6 +74,8 @@ export interface HistoryDetailProps {
   detail?: HistoryDetail | null;
   /** 加载状态 */
   isLoading?: boolean;
+  /** 切换收藏状态的回调函数 */
+  onToggleFavorite?: (id: string) => void;
 }
 
 /**
