@@ -94,8 +94,8 @@ export default function AdminLoginForm({ onSubmit, isLoading = false }: AdminLog
         return;
       }
       
-      // 存储 token 到 localStorage
-      localStorage.setItem('auth_token', result.token);
+      // Token 已通过 HttpOnly Cookie 自动设置，无需手动存储
+      // 后端在响应中设置了 auth_token Cookie，浏览器会自动保存
       
       // 跳转到管理后台首页
       router.push('/admin/dashboard');

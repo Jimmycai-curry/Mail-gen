@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react"; // 引入 useState 来管理收缩状态
-import { Mail, PenSquare, History, ChevronLeft, ChevronRight, Heart, HeartOff } from "lucide-react"; // 新增 ChevronRight 图标
+import { useState } from "react"; // 引入 useState 来管理收缩状态和弹窗状态
+import { useRouter } from "next/navigation"; // 引入 useRouter 用于页面跳转
+import { Mail, PenSquare, History, ChevronLeft, ChevronRight, Heart, HeartOff, LogOut } from "lucide-react"; // 新增 LogOut 图标
 
 /**
  * Sidebar 组件
@@ -15,13 +16,62 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
+  const router = useRouter(); // 初始化路由器
+  
   // 使用 state 来管理侧边栏是否处于收缩状态
   // false = 展开状态（显示文字），true = 收缩状态（只显示图标）
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // 管理登出确认弹窗的显示状态
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
+  // 管理登出加载状态
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // 切换收缩状态的函数
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  // 显示登出确认弹窗
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  // 取消登出
+  const handleCancelLogout = () => {
+    setShowLogoutConfirm(false);
+  };
+
+  // 确认登出
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    
+    try {
+      // 调用后端登出接口清除 Cookie
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // 确保发送 Cookie
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('[Logout] 登出成功，跳转到首页');
+        // 跳转到 Landing Page
+        router.push('/');
+      } else {
+        console.error('[Logout] 登出失败:', result.message);
+        alert('登出失败，请重试');
+        setIsLoggingOut(false);
+        setShowLogoutConfirm(false);
+      }
+    } catch (error) {
+      console.error('[Logout] 登出请求失败:', error);
+      alert('登出失败，请重试');
+      setIsLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
   };
 
   return (
@@ -86,7 +136,7 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         </nav>
       </div>
 
-      {/* 底部区域：用户信息 */}
+      {/* 底部区域：用户信息 + 登出按钮 */}
       <div className={`flex flex-col gap-3 ${isCollapsed ? 'px-2' : 'px-4'}`}>
         {/* 用户信息卡片 - 收缩时只显示头像 */}
         <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3 overflow-hidden">
@@ -106,6 +156,31 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
             </div>
           )}
         </div>
+
+        {/* 登出按钮 */}
+        {isCollapsed ? (
+          // 收缩状态：只显示图标按钮
+          <button
+            onClick={handleLogoutClick}
+            disabled={isLoggingOut}
+            className="flex items-center justify-center p-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="登出"
+          >
+            <LogOut size={20} />
+          </button>
+        ) : (
+          // 展开状态：完整按钮
+          <button
+            onClick={handleLogoutClick}
+            disabled={isLoggingOut}
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <LogOut size={20} />
+            <span className="text-sm font-medium">
+              {isLoggingOut ? '登出中...' : '登出'}
+            </span>
+          </button>
+        )}
       </div>
 
       {/* 收缩/展开按钮 - 绝对定位在右侧边缘中间 */}
@@ -131,6 +206,44 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
           <ChevronLeft size={16} />
         </span>
       </button>
+
+      {/* 登出确认弹窗 */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
+            {/* 弹窗标题 */}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              确认退出登录
+            </h3>
+            
+            {/* 弹窗内容 */}
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              您确定要退出登录吗？退出后需要重新登录才能访问。
+            </p>
+            
+            {/* 按钮组 */}
+            <div className="flex gap-3 justify-end">
+              {/* 取消按钮 */}
+              <button
+                onClick={handleCancelLogout}
+                disabled={isLoggingOut}
+                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                取消
+              </button>
+              
+              {/* 确认按钮 */}
+              <button
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoggingOut ? '退出中...' : '确认退出'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
