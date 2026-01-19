@@ -26,6 +26,7 @@ export interface ToastConfig {
  * - 自动2秒后消失
  * - 点击外部提前关闭（渐隐动画）
  * - 支持多个 Toast 堆叠显示
+ * - 消失前有慢慢淡出的效果
  */
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastConfig[]>([]);
@@ -89,41 +90,68 @@ function ToastItem({
   onClose: () => void;
 }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
     // 延迟显示，触发进入动画
     setTimeout(() => setIsVisible(true), 10);
-  }, []);
+
+    // 在消失前 800ms 开始淡出动画
+    const fadeOutTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, (toast.duration || 2000) - 800);
+
+    return () => {
+      clearTimeout(fadeOutTimer);
+    };
+  }, [toast.duration]);
 
   /**
    * 处理点击外部关闭
    */
   const handleBackdropClick = () => {
-    setIsVisible(false);
-    // 等待动画结束后移除
-    setTimeout(onClose, 300);
+    setIsFadingOut(true);
+    // 等待淡出动画结束后移除
+    setTimeout(onClose, 800);
   };
 
   /**
    * 获取 Toast 样式配置
+   * 使用系统主题色，更加协调
    */
   const getToastStyle = () => {
     const styles = {
       success: {
-        bgColor: "bg-green-500",
-        icon: <CheckCircle className="w-6 h-6" />,
+        // 使用系统主色调的柔和变体
+        bgColor: "bg-white dark:bg-gray-800",
+        borderColor: "border-l-4 border-[#0052D9]",
+        textColor: "text-gray-800 dark:text-gray-100",
+        iconColor: "text-[#0052D9]",
+        icon: <CheckCircle className="w-5 h-5" />,
       },
       error: {
-        bgColor: "bg-red-500",
-        icon: <XCircle className="w-6 h-6" />,
+        // 柔和的红色系
+        bgColor: "bg-white dark:bg-gray-800",
+        borderColor: "border-l-4 border-red-500",
+        textColor: "text-gray-800 dark:text-gray-100",
+        iconColor: "text-red-500",
+        icon: <XCircle className="w-5 h-5" />,
       },
       info: {
-        bgColor: "bg-blue-500",
-        icon: <Info className="w-6 h-6" />,
+        // 使用系统主色调
+        bgColor: "bg-white dark:bg-gray-800",
+        borderColor: "border-l-4 border-blue-500",
+        textColor: "text-gray-800 dark:text-gray-100",
+        iconColor: "text-blue-500",
+        icon: <Info className="w-5 h-5" />,
       },
       warning: {
-        bgColor: "bg-yellow-500",
-        icon: <AlertTriangle className="w-6 h-6" />,
+        // 柔和的橙色系
+        bgColor: "bg-white dark:bg-gray-800",
+        borderColor: "border-l-4 border-orange-500",
+        textColor: "text-gray-800 dark:text-gray-100",
+        iconColor: "text-orange-500",
+        icon: <AlertTriangle className="w-5 h-5" />,
       },
     };
 
@@ -136,25 +164,33 @@ function ToastItem({
     <>
       {/* 背景蒙层 - 点击关闭 */}
       <div
-        className={`fixed inset-0 z-[9999] transition-opacity duration-300 ${
-          isVisible ? "bg-black/20" : "bg-transparent pointer-events-none"
+        className={`fixed inset-0 z-[9999] transition-all duration-800 ${
+          isVisible && !isFadingOut
+            ? "bg-black/10"
+            : "bg-transparent pointer-events-none"
         }`}
         onClick={handleBackdropClick}
       />
 
       {/* Toast 主体 */}
       <div
-        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] transition-all duration-300 ${
-          isVisible
+        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] transition-all ${
+          isFadingOut
+            ? "duration-800 opacity-0 scale-95"
+            : "duration-300"
+        } ${
+          isVisible && !isFadingOut
             ? "opacity-100 scale-100"
             : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
         <div
-          className={`${style.bgColor} text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px] max-w-[400px]`}
+          className={`${style.bgColor} ${style.borderColor} ${style.textColor} px-5 py-3.5 rounded-xl shadow-lg flex items-center gap-3 min-w-[280px] max-w-[400px]`}
         >
           {/* 图标 */}
-          <div className="flex-shrink-0">{style.icon}</div>
+          <div className={`flex-shrink-0 ${style.iconColor}`}>
+            {style.icon}
+          </div>
 
           {/* 消息文本 */}
           <p className="text-sm font-medium flex-1">{toast.message}</p>
