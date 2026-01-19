@@ -91,7 +91,8 @@ function buildSystemMessage(params: DeepSeekParams): string {
 2. 语言：${getLanguageName(params.language)}
 3. 格式：专业、清晰、结构化
 4. 长度：适中（200-500 字）
-5. 不要添加额外的称谓或签名，直接输出正文内容`;
+5. 不要添加额外的称谓或签名，直接输出正文内容;
+6. 不得使用markdown格式,直接输出纯文本`;
 }
 
 /**
@@ -251,19 +252,29 @@ async function callDeepSeekInternal(params: DeepSeekParams): Promise<string> {
 
     return generatedContent;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
 
+    // 类型守卫：检查是否为 Error 对象
+    const isError = error instanceof Error;
+    
+    // 类型守卫：检查是否有 code 属性（网络错误）
+    const hasCode = typeof error === 'object' && error !== null && 'code' in error;
+    
     // 处理超时错误
-    if (error.name === 'AbortError') {
+    if (isError && error.name === 'AbortError') {
       console.error('[DeepSeek] 请求超时', { duration: `${duration}ms` });
       throw new AIServiceError('AI 生成超时，请重试');
     }
 
     // 处理网络错误
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
-      console.error('[DeepSeek] 网络连接失败', { error: error.message });
-      throw new AIServiceError('无法连接到 DeepSeek 服务');
+    if (hasCode) {
+      const errorCode = (error as { code: string }).code;
+      if (errorCode === 'ECONNREFUSED' || errorCode === 'ENOTFOUND') {
+        const errorMessage = isError ? error.message : '网络错误';
+        console.error('[DeepSeek] 网络连接失败', { error: errorMessage });
+        throw new AIServiceError('无法连接到 DeepSeek 服务');
+      }
     }
 
     // 抛出原始错误
@@ -285,8 +296,11 @@ export async function callDeepSeek(params: DeepSeekParams): Promise<string> {
     try {
       console.log(`[DeepSeek] 尝试调用 (${attempt}/${maxRetries})`);
       return await callDeepSeekInternal(params);
-    } catch (error: any) {
-      console.error(`[DeepSeek] 第 ${attempt} 次调用失败:`, error.message);
+    } catch (error: unknown) {
+      // 安全地提取错误信息
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      
+      console.error(`[DeepSeek] 第 ${attempt} 次调用失败:`, errorMessage);
 
       // 最后一次尝试失败，直接抛出错误
       if (attempt === maxRetries) {
@@ -296,10 +310,10 @@ export async function callDeepSeek(params: DeepSeekParams): Promise<string> {
 
       // 判断是否需要重试
       const shouldRetry = 
-        error.message.includes('频率超限') ||
-        error.message.includes('暂时不可用') ||
-        error.message.includes('网络') ||
-        error.message.includes('超时');
+        errorMessage.includes('频率超限') ||
+        errorMessage.includes('暂时不可用') ||
+        errorMessage.includes('网络') ||
+        errorMessage.includes('超时');
 
       if (!shouldRetry) {
         // 不可重试的错误（如认证失败），直接抛出
