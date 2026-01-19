@@ -1240,7 +1240,8 @@ export namespace Prisma {
     id: string | null
     admin_id: string | null
     action_type: string | null
-    target_id: string | null
+    user_id: string | null
+    audit_id: string | null
     detail: string | null
     ip: string | null
     created_time: Date | null
@@ -1250,7 +1251,8 @@ export namespace Prisma {
     id: string | null
     admin_id: string | null
     action_type: string | null
-    target_id: string | null
+    user_id: string | null
+    audit_id: string | null
     detail: string | null
     ip: string | null
     created_time: Date | null
@@ -1260,7 +1262,8 @@ export namespace Prisma {
     id: number
     admin_id: number
     action_type: number
-    target_id: number
+    user_id: number
+    audit_id: number
     detail: number
     ip: number
     created_time: number
@@ -1272,7 +1275,8 @@ export namespace Prisma {
     id?: true
     admin_id?: true
     action_type?: true
-    target_id?: true
+    user_id?: true
+    audit_id?: true
     detail?: true
     ip?: true
     created_time?: true
@@ -1282,7 +1286,8 @@ export namespace Prisma {
     id?: true
     admin_id?: true
     action_type?: true
-    target_id?: true
+    user_id?: true
+    audit_id?: true
     detail?: true
     ip?: true
     created_time?: true
@@ -1292,7 +1297,8 @@ export namespace Prisma {
     id?: true
     admin_id?: true
     action_type?: true
-    target_id?: true
+    user_id?: true
+    audit_id?: true
     detail?: true
     ip?: true
     created_time?: true
@@ -1375,7 +1381,8 @@ export namespace Prisma {
     id: string
     admin_id: string
     action_type: string
-    target_id: string | null
+    user_id: string | null
+    audit_id: string | null
     detail: string | null
     ip: string | null
     created_time: Date | null
@@ -1402,7 +1409,8 @@ export namespace Prisma {
     id?: boolean
     admin_id?: boolean
     action_type?: boolean
-    target_id?: boolean
+    user_id?: boolean
+    audit_id?: boolean
     detail?: boolean
     ip?: boolean
     created_time?: boolean
@@ -1412,7 +1420,8 @@ export namespace Prisma {
     id?: boolean
     admin_id?: boolean
     action_type?: boolean
-    target_id?: boolean
+    user_id?: boolean
+    audit_id?: boolean
     detail?: boolean
     ip?: boolean
     created_time?: boolean
@@ -1422,7 +1431,8 @@ export namespace Prisma {
     id?: boolean
     admin_id?: boolean
     action_type?: boolean
-    target_id?: boolean
+    user_id?: boolean
+    audit_id?: boolean
     detail?: boolean
     ip?: boolean
     created_time?: boolean
@@ -1432,13 +1442,14 @@ export namespace Prisma {
     id?: boolean
     admin_id?: boolean
     action_type?: boolean
-    target_id?: boolean
+    user_id?: boolean
+    audit_id?: boolean
     detail?: boolean
     ip?: boolean
     created_time?: boolean
   }
 
-  export type admin_operation_logsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "admin_id" | "action_type" | "target_id" | "detail" | "ip" | "created_time", ExtArgs["result"]["admin_operation_logs"]>
+  export type admin_operation_logsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "admin_id" | "action_type" | "user_id" | "audit_id" | "detail" | "ip" | "created_time", ExtArgs["result"]["admin_operation_logs"]>
 
   export type $admin_operation_logsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "admin_operation_logs"
@@ -1447,7 +1458,8 @@ export namespace Prisma {
       id: string
       admin_id: string
       action_type: string
-      target_id: string | null
+      user_id: string | null
+      audit_id: string | null
       detail: string | null
       ip: string | null
       created_time: Date | null
@@ -1877,7 +1889,8 @@ export namespace Prisma {
     readonly id: FieldRef<"admin_operation_logs", 'String'>
     readonly admin_id: FieldRef<"admin_operation_logs", 'String'>
     readonly action_type: FieldRef<"admin_operation_logs", 'String'>
-    readonly target_id: FieldRef<"admin_operation_logs", 'String'>
+    readonly user_id: FieldRef<"admin_operation_logs", 'String'>
+    readonly audit_id: FieldRef<"admin_operation_logs", 'String'>
     readonly detail: FieldRef<"admin_operation_logs", 'String'>
     readonly ip: FieldRef<"admin_operation_logs", 'String'>
     readonly created_time: FieldRef<"admin_operation_logs", 'DateTime'>
@@ -6689,7 +6702,8 @@ export namespace Prisma {
     id: 'id',
     admin_id: 'admin_id',
     action_type: 'action_type',
-    target_id: 'target_id',
+    user_id: 'user_id',
+    audit_id: 'audit_id',
     detail: 'detail',
     ip: 'ip',
     created_time: 'created_time'
@@ -6870,7 +6884,8 @@ export namespace Prisma {
     id?: UuidFilter<"admin_operation_logs"> | string
     admin_id?: UuidFilter<"admin_operation_logs"> | string
     action_type?: StringFilter<"admin_operation_logs"> | string
-    target_id?: StringNullableFilter<"admin_operation_logs"> | string | null
+    user_id?: UuidNullableFilter<"admin_operation_logs"> | string | null
+    audit_id?: UuidNullableFilter<"admin_operation_logs"> | string | null
     detail?: StringNullableFilter<"admin_operation_logs"> | string | null
     ip?: StringNullableFilter<"admin_operation_logs"> | string | null
     created_time?: DateTimeNullableFilter<"admin_operation_logs"> | Date | string | null
@@ -6880,7 +6895,8 @@ export namespace Prisma {
     id?: SortOrder
     admin_id?: SortOrder
     action_type?: SortOrder
-    target_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    audit_id?: SortOrderInput | SortOrder
     detail?: SortOrderInput | SortOrder
     ip?: SortOrderInput | SortOrder
     created_time?: SortOrderInput | SortOrder
@@ -6893,7 +6909,8 @@ export namespace Prisma {
     NOT?: admin_operation_logsWhereInput | admin_operation_logsWhereInput[]
     admin_id?: UuidFilter<"admin_operation_logs"> | string
     action_type?: StringFilter<"admin_operation_logs"> | string
-    target_id?: StringNullableFilter<"admin_operation_logs"> | string | null
+    user_id?: UuidNullableFilter<"admin_operation_logs"> | string | null
+    audit_id?: UuidNullableFilter<"admin_operation_logs"> | string | null
     detail?: StringNullableFilter<"admin_operation_logs"> | string | null
     ip?: StringNullableFilter<"admin_operation_logs"> | string | null
     created_time?: DateTimeNullableFilter<"admin_operation_logs"> | Date | string | null
@@ -6903,7 +6920,8 @@ export namespace Prisma {
     id?: SortOrder
     admin_id?: SortOrder
     action_type?: SortOrder
-    target_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    audit_id?: SortOrderInput | SortOrder
     detail?: SortOrderInput | SortOrder
     ip?: SortOrderInput | SortOrder
     created_time?: SortOrderInput | SortOrder
@@ -6919,7 +6937,8 @@ export namespace Prisma {
     id?: UuidWithAggregatesFilter<"admin_operation_logs"> | string
     admin_id?: UuidWithAggregatesFilter<"admin_operation_logs"> | string
     action_type?: StringWithAggregatesFilter<"admin_operation_logs"> | string
-    target_id?: StringNullableWithAggregatesFilter<"admin_operation_logs"> | string | null
+    user_id?: UuidNullableWithAggregatesFilter<"admin_operation_logs"> | string | null
+    audit_id?: UuidNullableWithAggregatesFilter<"admin_operation_logs"> | string | null
     detail?: StringNullableWithAggregatesFilter<"admin_operation_logs"> | string | null
     ip?: StringNullableWithAggregatesFilter<"admin_operation_logs"> | string | null
     created_time?: DateTimeNullableWithAggregatesFilter<"admin_operation_logs"> | Date | string | null
@@ -7273,7 +7292,8 @@ export namespace Prisma {
     id?: string
     admin_id: string
     action_type: string
-    target_id?: string | null
+    user_id?: string | null
+    audit_id?: string | null
     detail?: string | null
     ip?: string | null
     created_time?: Date | string | null
@@ -7283,7 +7303,8 @@ export namespace Prisma {
     id?: string
     admin_id: string
     action_type: string
-    target_id?: string | null
+    user_id?: string | null
+    audit_id?: string | null
     detail?: string | null
     ip?: string | null
     created_time?: Date | string | null
@@ -7293,7 +7314,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     action_type?: StringFieldUpdateOperationsInput | string
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    audit_id?: NullableStringFieldUpdateOperationsInput | string | null
     detail?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     created_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7303,7 +7325,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     action_type?: StringFieldUpdateOperationsInput | string
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    audit_id?: NullableStringFieldUpdateOperationsInput | string | null
     detail?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     created_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7313,7 +7336,8 @@ export namespace Prisma {
     id?: string
     admin_id: string
     action_type: string
-    target_id?: string | null
+    user_id?: string | null
+    audit_id?: string | null
     detail?: string | null
     ip?: string | null
     created_time?: Date | string | null
@@ -7323,7 +7347,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     action_type?: StringFieldUpdateOperationsInput | string
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    audit_id?: NullableStringFieldUpdateOperationsInput | string | null
     detail?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     created_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7333,7 +7358,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     action_type?: StringFieldUpdateOperationsInput | string
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    audit_id?: NullableStringFieldUpdateOperationsInput | string | null
     detail?: NullableStringFieldUpdateOperationsInput | string | null
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     created_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7772,6 +7798,18 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -7807,7 +7845,8 @@ export namespace Prisma {
     id?: SortOrder
     admin_id?: SortOrder
     action_type?: SortOrder
-    target_id?: SortOrder
+    user_id?: SortOrder
+    audit_id?: SortOrder
     detail?: SortOrder
     ip?: SortOrder
     created_time?: SortOrder
@@ -7817,7 +7856,8 @@ export namespace Prisma {
     id?: SortOrder
     admin_id?: SortOrder
     action_type?: SortOrder
-    target_id?: SortOrder
+    user_id?: SortOrder
+    audit_id?: SortOrder
     detail?: SortOrder
     ip?: SortOrder
     created_time?: SortOrder
@@ -7827,7 +7867,8 @@ export namespace Prisma {
     id?: SortOrder
     admin_id?: SortOrder
     action_type?: SortOrder
-    target_id?: SortOrder
+    user_id?: SortOrder
+    audit_id?: SortOrder
     detail?: SortOrder
     ip?: SortOrder
     created_time?: SortOrder
@@ -7864,6 +7905,21 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -7997,18 +8053,6 @@ export namespace Prisma {
     _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
-  export type UuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
   export type feedbacksCountOrderByAggregateInput = {
     id?: SortOrder
     user_id?: SortOrder
@@ -8051,21 +8095,6 @@ export namespace Prisma {
 
   export type feedbacksSumOrderByAggregateInput = {
     status?: SortOrder
-  }
-
-  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type mail_historiesCountOrderByAggregateInput = {
@@ -8214,6 +8243,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -8281,6 +8321,31 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -8296,17 +8361,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8361,31 +8415,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
-  }
-
-  export type NestedUuidNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
 

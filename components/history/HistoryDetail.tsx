@@ -2,6 +2,7 @@
 
 import { HistoryDetailProps } from "@/types/history";
 import { Copy, Heart, FileText, Info } from "lucide-react";
+import { toast } from "@/utils/toast";
 
 /**
  * Spec: /docs/specs/history-page.md
@@ -42,11 +43,28 @@ export function HistoryDetail({ detail, isLoading = false, onToggleFavorite }: H
 
   /**
    * 处理复制操作
-   * 功能待实现：暂无实际复制逻辑
+   * 复制 AI 生成的邮件内容到剪贴板
+   * 成功后使用新样式的 toast 提示用户
    */
-  const handleCopy = () => {
-    console.log("复制功能待实现");
-    // TODO: 实现复制到剪贴板功能
+  const handleCopy = async () => {
+    if (!detail?.mailContent) {
+      toast.error("没有可复制的内容");
+      return;
+    }
+
+    try {
+      // 将邮件内容复制到剪贴板
+      // 移除 HTML 标签，只复制纯文本
+      const plainText = detail.mailContent.replace(/<br\/?>/g, '\n');
+      await navigator.clipboard.writeText(plainText);
+      
+      // 显示成功提示（使用新的绿色 ✓ 样式）
+      toast.success("复制成功");
+    } catch (error) {
+      // 复制失败时显示错误提示（使用新的红色 × 样式）
+      console.error("复制失败:", error);
+      toast.error("复制失败，请稍后重试");
+    }
   };
 
   /**
