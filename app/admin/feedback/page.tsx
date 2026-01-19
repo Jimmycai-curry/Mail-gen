@@ -36,6 +36,8 @@ export default function FeedbackPage() {
   const [keyword, setKeyword] = useState("");
   const [type, setType] = useState("");
   const [dateRange, setDateRange] = useState("");
+  const [startDate, setStartDate] = useState<string | undefined>();
+  const [endDate, setEndDate] = useState<string | undefined>();
 
   // 弹窗状态
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,27 +62,9 @@ export default function FeedbackPage() {
       if (keyword) params.append("keyword", keyword);
       if (type) params.append("type", type);
       
-      // 处理日期范围
-      if (dateRange) {
-        const now = new Date();
-        let startDate: Date | null = null;
-        
-        switch (dateRange) {
-          case "24h":
-            startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            break;
-          case "7d":
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            break;
-          case "30d":
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            break;
-        }
-        
-        if (startDate) {
-          params.append("startDate", startDate.toISOString());
-        }
-      }
+      // 处理日期范围（直接使用 startDate 和 endDate）
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
 
       // 发送请求（浏览器自动携带 Cookie）
       const response = await fetch(`/api/admin/feedbacks?${params.toString()}`, {
@@ -111,7 +95,7 @@ export default function FeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, selectedTab, keyword, type, dateRange, router]);
+    }, [page, pageSize, selectedTab, keyword, type, startDate, endDate, router]);
 
   /**
    * 初始加载和依赖变化时重新加载
@@ -123,10 +107,18 @@ export default function FeedbackPage() {
   /**
    * 处理筛选条件变化
    */
-  const handleFilterChange = useCallback((filters: { keyword: string; type: string; dateRange: string }) => {
+  const handleFilterChange = useCallback((filters: { 
+    keyword: string; 
+    type: string; 
+    dateRange: string;
+    startDate?: string;
+    endDate?: string;
+  }) => {
     setKeyword(filters.keyword);
     setType(filters.type);
     setDateRange(filters.dateRange);
+    setStartDate(filters.startDate);
+    setEndDate(filters.endDate);
     setPage(1); // 重置到第一页
   }, []);
 
@@ -205,26 +197,9 @@ export default function FeedbackPage() {
       if (keyword) params.append("keyword", keyword);
       if (type) params.append("type", type);
       
-      if (dateRange) {
-        const now = new Date();
-        let startDate: Date | null = null;
-        
-        switch (dateRange) {
-          case "24h":
-            startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-            break;
-          case "7d":
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            break;
-          case "30d":
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            break;
-        }
-        
-        if (startDate) {
-          params.append("startDate", startDate.toISOString());
-        }
-      }
+      // 处理日期范围（导出时也使用相同的日期参数）
+      if (startDate) params.append("startDate", startDate);
+      if (endDate) params.append("endDate", endDate);
 
       // 直接发送请求，浏览器会自动显示下载提示
       const response = await fetch(`/api/admin/feedbacks/export?${params.toString()}`, {

@@ -226,7 +226,7 @@ export enum ActionType {
 
 // 反馈类型枚举
 export enum FeedbackType {
-  COMPLAINT = 'COMPLAINT',     // 投诉
+  CUSTOM = 'CUSTOM',           // 反馈
   REPORT = 'REPORT',           // 举报
   SUGGESTION = 'SUGGESTION',   // 建议
 }
@@ -243,7 +243,7 @@ export interface FeedbackListItem {
   userId: string                // 用户 ID
   userName: string              // 用户姓名（从 users 表 JOIN）
   userPhone: string             // 脱敏手机号（如 "138****0001"）
-  type: string                  // 反馈类型：'COMPLAINT', 'REPORT', 'SUGGESTION'
+  type: string                  // 反馈类型：'CUSTOM', 'REPORT', 'SUGGESTION'
   content: string               // 反馈内容
   status: number                // 状态：0=待处理, 1=已处理
   adminNote: string | null      // 管理员备注
@@ -262,7 +262,7 @@ export interface FeedbackQueryParams {
   page?: number            // 页码（从 1 开始）
   pageSize?: number        // 每页数量
   keyword?: string         // 搜索关键词（用户名/手机号/反馈内容）
-  type?: string            // 反馈类型筛选（'COMPLAINT', 'REPORT', 'SUGGESTION'）
+  type?: string            // 反馈类型筛选（'CUSTOM', 'REPORT', 'SUGGESTION'）
   status?: number          // 状态筛选（0=待处理, 1=已处理）
   startDate?: string       // 开始时间（ISO 格式）
   endDate?: string         // 结束时间（ISO 格式）
@@ -281,14 +281,16 @@ export interface ProcessFeedbackData {
 
 // 反馈类型映射（用于前端展示）
 export const FeedbackTypeLabel: Record<string, string> = {
-  COMPLAINT: '投诉',
+  CUSTOM: '反馈',      // 反馈（自定义类型）
   REPORT: '举报',
   SUGGESTION: '建议',
+  
 }
 
 // 反馈类型颜色映射（用于前端徽章样式）
 export const FeedbackTypeColor: Record<string, string> = {
-  COMPLAINT: 'bg-red-100 text-red-600 dark:bg-red-900/30',
-  REPORT: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30',
-  SUGGESTION: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30',
+  CUSTOM: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',  // 反馈类型使用琥珀色（温暖专业的金黄色）
+  REPORT: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30',                   // 举报类型使用橙色
+  SUGGESTION: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30',                     // 建议类型使用蓝色
+  COMPLAINT: 'bg-red-100 text-red-600 dark:bg-red-900/30',                          // 投诉类型（兼容旧数据，红色）
 }

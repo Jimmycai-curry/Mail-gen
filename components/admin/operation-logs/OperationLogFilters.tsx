@@ -133,13 +133,15 @@ export default function OperationLogFilters({
               className="appearance-none flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 pr-10 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <option value="">全部操作</option>
-              <option value="BAN_USER">封禁用户</option>
-              <option value="UNBAN_USER">解封用户</option>
-              <option value="UPDATE_SENSITIVE_WORDS">修改敏感词</option>
-              <option value="PROCESS_FEEDBACK">处理反馈</option>
-              <option value="CONFIG_CHANGE">配置变更</option>
+              {/* 用户管理相关 */}
+              <option value="DISABLE_USER">封禁用户</option>
+              <option value="ENABLE_USER">解封用户</option>
               <option value="CREATE_USER">创建用户</option>
-              <option value="UPDATE_USER">修改用户</option>
+              {/* 反馈管理相关 */}
+              <option value="PROCESS_FEEDBACK">处理反馈</option>
+              {/* 审计日志相关 */}
+              <option value="MARK_VIOLATION">标记违规</option>
+              <option value="MARK_PASSED">标记通过</option>
             </select>
             <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px] pointer-events-none">
               filter_alt

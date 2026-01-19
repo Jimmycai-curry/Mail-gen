@@ -6,7 +6,7 @@
  * Features:
  * - 搜索框（支持手机号/IP/模型名称搜索）
  * - 状态下拉菜单（所有状态/通过/违规拦截）
- * - 时间范围选择器（最近24小时/最近7天/最近30天/自定义）
+ * - 时间范围选择器（日期范围选择器 + 快捷按钮：最近24小时/最近7天/最近30天）
  * - 实时搜索（300ms 防抖）
  */
 
@@ -30,11 +30,14 @@ export default function AuditLogFilters({
   const [searchKeyword, setSearchKeyword] = useState(currentFilters.keyword || "");
   // 状态筛选（0=违规拦截, 1=通过, undefined=所有）
   const [statusFilter, setStatusFilter] = useState<number | undefined>(currentFilters.status);
-  // 时间范围筛选（预设选项）
-  const [timeRange, setTimeRange] = useState<string>("all");
+  // 日期范围（格式: "YYYY-MM-DD ~ YYYY-MM-DD"）
+  const [dateRange, setDateRange] = useState<string>("");
   // 下拉菜单展开状态
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [timeDropdownOpen, setTimeDropdownOpen] = useState(false);
+  
+  // 日期输入框的引用
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
 
   // ========== 防抖处理 ==========
   
@@ -72,39 +75,47 @@ export default function AuditLogFilters({
   };
 
   /**
-   * 处理时间范围变化
+   * 处理日期范围变化
    */
-  const handleTimeRangeChange = (range: string) => {
-    setTimeRange(range);
-    setTimeDropdownOpen(false);
+  const handleDateRangeChange = (value: string) => {
+    setDateRange(value);
 
-    // 计算时间范围
-    const now = new Date();
-    let startDate: string | undefined;
-    let endDate: string | undefined = now.toISOString();
-
-    switch (range) {
-      case "24h":
-        // 最近24小时
-        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-        break;
-      case "7d":
-        // 最近7天
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        break;
-      case "30d":
-        // 最近30天
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-        break;
-      case "all":
-      default:
-        // 所有时间
-        startDate = undefined;
-        endDate = undefined;
-        break;
+    if (!value) {
+      // 清空日期筛选
+      onFilterChange({ startDate: undefined, endDate: undefined });
+      return;
     }
 
-    onFilterChange({ startDate, endDate });
+    // 解析日期范围（格式: "YYYY-MM-DD ~ YYYY-MM-DD"）
+    const [startStr, endStr] = value.split(' ~ ');
+    if (startStr && endStr) {
+      const startDate = new Date(startStr);
+      const endDate = new Date(endStr);
+      endDate.setHours(23, 59, 59, 999); // 设置为当天结束时间
+
+      onFilterChange({
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      });
+    }
+  };
+
+  /**
+   * 快速选择日期范围
+   */
+  const handleQuickDateSelect = (days: number) => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+
+    setDateRange(`${startStr} ~ ${endStr}`);
+    onFilterChange({
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
   };
 
   /**
@@ -113,14 +124,13 @@ export default function AuditLogFilters({
   useEffect(() => {
     const handleClickOutside = () => {
       setStatusDropdownOpen(false);
-      setTimeDropdownOpen(false);
     };
 
-    if (statusDropdownOpen || timeDropdownOpen) {
+    if (statusDropdownOpen) {
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
     }
-  }, [statusDropdownOpen, timeDropdownOpen]);
+  }, [statusDropdownOpen]);
 
   // ========== 渲染 ==========
 
@@ -151,7 +161,6 @@ export default function AuditLogFilters({
               onClick={(e) => {
                 e.stopPropagation();
                 setStatusDropdownOpen(!statusDropdownOpen);
-                setTimeDropdownOpen(false);
               }}
               className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
             >
@@ -200,57 +209,115 @@ export default function AuditLogFilters({
             )}
           </div>
 
-          {/* 时间范围下拉菜单 */}
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setTimeDropdownOpen(!timeDropdownOpen);
-                setStatusDropdownOpen(false);
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
-            >
-              {timeRange === "24h"
-                ? "最近 24 小时"
-                : timeRange === "7d"
-                ? "最近 7 天"
-                : timeRange === "30d"
-                ? "最近 30 天"
-                : "所有时间"}
-              <span className="material-symbols-outlined text-[18px]">
-                calendar_today
-              </span>
-            </button>
+          {/* 日期范围筛选 */}
+          <div className="flex items-center gap-2">
+            {/* 开始日期 */}
+            <div className="relative">
+              <input
+                ref={startDateRef}
+                type="date"
+                value={dateRange.split(' ~ ')[0] || ''}
+                onChange={(e) => {
+                  const newStart = e.target.value;
+                  const currentEnd = dateRange.split(' ~ ')[1] || '';
+                  if (newStart && currentEnd) {
+                    handleDateRangeChange(`${newStart} ~ ${currentEnd}`);
+                  } else if (newStart) {
+                    setDateRange(newStart);
+                  }
+                }}
+                className="pl-4 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (startDateRef.current) {
+                    // 尝试使用 showPicker (现代浏览器)
+                    try {
+                      (startDateRef.current as any).showPicker?.();
+                    } catch {
+                      // 回退到 click 方法
+                      startDateRef.current.focus();
+                      startDateRef.current.click();
+                    }
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0052D9] transition-colors cursor-pointer z-10"
+                title="选择开始日期"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  calendar_month
+                </span>
+              </button>
+            </div>
 
-            {/* 下拉选项 */}
-            {timeDropdownOpen && (
-              <div className="absolute top-full right-0 mt-2 w-44 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg z-50 overflow-hidden">
-                <button
-                  onClick={() => handleTimeRangeChange("all")}
-                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  所有时间
-                </button>
-                <button
-                  onClick={() => handleTimeRangeChange("24h")}
-                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  最近 24 小时
-                </button>
-                <button
-                  onClick={() => handleTimeRangeChange("7d")}
-                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  最近 7 天
-                </button>
-                <button
-                  onClick={() => handleTimeRangeChange("30d")}
-                  className="w-full px-4 py-2.5 text-left text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  最近 30 天
-                </button>
-              </div>
-            )}
+            <span className="text-slate-400">~</span>
+
+            {/* 结束日期 */}
+            <div className="relative">
+              <input
+                ref={endDateRef}
+                type="date"
+                value={dateRange.split(' ~ ')[1] || ''}
+                onChange={(e) => {
+                  const newEnd = e.target.value;
+                  const currentStart = dateRange.split(' ~ ')[0] || '';
+                  if (currentStart && newEnd) {
+                    handleDateRangeChange(`${currentStart} ~ ${newEnd}`);
+                  } else if (newEnd) {
+                    setDateRange(newEnd);
+                  }
+                }}
+                className="pl-4 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (endDateRef.current) {
+                    // 尝试使用 showPicker (现代浏览器)
+                    try {
+                      (endDateRef.current as any).showPicker?.();
+                    } catch {
+                      // 回退到 click 方法
+                      endDateRef.current.focus();
+                      endDateRef.current.click();
+                    }
+                  }
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0052D9] transition-colors cursor-pointer z-10"
+                title="选择结束日期"
+              >
+                <span className="material-symbols-outlined text-[20px]">
+                  calendar_month
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* 快速选择按钮 */}
+          <div className="hidden lg:flex items-center gap-2 ml-2">
+            <button
+              onClick={() => handleQuickDateSelect(1)}
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              最近24小时
+            </button>
+            <button
+              onClick={() => handleQuickDateSelect(7)}
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              最近7天
+            </button>
+            <button
+              onClick={() => handleQuickDateSelect(30)}
+              className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            >
+              最近30天
+            </button>
           </div>
         </div>
       </div>

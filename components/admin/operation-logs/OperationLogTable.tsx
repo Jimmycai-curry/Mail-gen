@@ -53,20 +53,54 @@ export default function OperationLogTable({
   };
 
   /**
-   * 获取操作类型徽章样式（根据设计稿）
+   * 获取操作类型徽章样式（根据实际操作类型）
    */
   const getActionTypeBadge = (actionType: string) => {
     const badgeMap: Record<
       string,
       { label: string; bgColor: string; textColor: string }
     > = {
-      BAN_USER: {
+      // 用户管理相关
+      DISABLE_USER: {
         label: "封禁用户",
         bgColor: "bg-red-100 dark:bg-red-900/30",
         textColor: "text-red-600 dark:text-red-400",
       },
-      UNBAN_USER: {
+      ENABLE_USER: {
         label: "解封用户",
+        bgColor: "bg-green-100 dark:bg-green-900/30",
+        textColor: "text-green-600 dark:text-green-400",
+      },
+      CREATE_USER: {
+        label: "创建用户",
+        bgColor: "bg-green-100 dark:bg-green-900/30",
+        textColor: "text-green-600 dark:text-green-400",
+      },
+      // 反馈管理相关
+      PROCESS_FEEDBACK: {
+        label: "处理反馈",
+        bgColor: "bg-blue-100 dark:bg-blue-900/30",
+        textColor: "text-blue-600 dark:text-blue-400",
+      },
+      // 审计日志相关
+      MARK_VIOLATION: {
+        label: "标记违规",
+        bgColor: "bg-red-100 dark:bg-red-900/30",
+        textColor: "text-red-600 dark:text-red-400",
+      },
+      MARK_PASSED: {
+        label: "标记通过",
+        bgColor: "bg-green-100 dark:bg-green-900/30",
+        textColor: "text-green-600 dark:text-green-400",
+      },
+      // 兼容旧的操作类型（以防有遗留数据）
+      BAN_USER: {
+        label: "封禁用户(旧)",
+        bgColor: "bg-red-100 dark:bg-red-900/30",
+        textColor: "text-red-600 dark:text-red-400",
+      },
+      UNBAN_USER: {
+        label: "解封用户(旧)",
         bgColor: "bg-green-100 dark:bg-green-900/30",
         textColor: "text-green-600 dark:text-green-400",
       },
@@ -75,20 +109,10 @@ export default function OperationLogTable({
         bgColor: "bg-orange-100 dark:bg-orange-900/30",
         textColor: "text-orange-600 dark:text-orange-400",
       },
-      PROCESS_FEEDBACK: {
-        label: "处理反馈",
-        bgColor: "bg-blue-100 dark:bg-blue-900/30",
-        textColor: "text-blue-600 dark:text-blue-400",
-      },
       CONFIG_CHANGE: {
         label: "配置变更",
         bgColor: "bg-purple-100 dark:bg-purple-900/30",
         textColor: "text-purple-600 dark:text-purple-400",
-      },
-      CREATE_USER: {
-        label: "创建用户",
-        bgColor: "bg-green-100 dark:bg-green-900/30",
-        textColor: "text-green-600 dark:text-green-400",
       },
       UPDATE_USER: {
         label: "修改用户",
@@ -99,11 +123,6 @@ export default function OperationLogTable({
         label: "删除用户",
         bgColor: "bg-red-100 dark:bg-red-900/30",
         textColor: "text-red-600 dark:text-red-400",
-      },
-      EXPORT_OPERATION_LOGS: {
-        label: "导出日志",
-        bgColor: "bg-slate-100 dark:bg-slate-900/30",
-        textColor: "text-slate-600 dark:text-slate-400",
       },
     };
 
@@ -144,8 +163,11 @@ export default function OperationLogTable({
                 <th className="w-32 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                   操作行为
                 </th>
-                <th className="w-32 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">
-                  目标 ID
+                <th className="w-36 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                  用户 ID
+                </th>
+                <th className="w-36 px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest text-center">
+                  审计日志 ID
                 </th>
                 <th className="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
                   详细描述
@@ -162,7 +184,7 @@ export default function OperationLogTable({
               {loading ? (
                 // 加载中状态
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="size-8 border-4 border-[#0052D9]/20 border-t-[#0052D9] rounded-full animate-spin"></div>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -174,7 +196,7 @@ export default function OperationLogTable({
               ) : logs.length === 0 ? (
                 // 空状态
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-700">
                         folder_open
@@ -209,10 +231,29 @@ export default function OperationLogTable({
                     {/* 操作行为（彩色标签） */}
                     <td className="px-6 py-4">{getActionTypeBadge(log.actionType)}</td>
 
-                    {/* 目标 ID */}
+                    {/* 用户 ID */}
                     <td className="px-6 py-4 text-center">
-                      <span className="text-xs font-mono text-slate-500">
-                        {log.targetId || "-"}
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                        {log.userId ? (
+                          <span title={log.userId}>
+                            {log.userId.substring(0, 8)}...
+                          </span>
+                        ) : (
+                          "-"
+                        )}
+                      </span>
+                    </td>
+
+                    {/* 审计日志 ID */}
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                        {log.auditId ? (
+                          <span title={log.auditId}>
+                            {log.auditId.substring(0, 8)}...
+                          </span>
+                        ) : (
+                          "-"
+                        )}
                       </span>
                     </td>
 

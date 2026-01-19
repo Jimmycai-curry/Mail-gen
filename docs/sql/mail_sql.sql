@@ -41,13 +41,13 @@ CREATE TABLE audit_logs (
 CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX idx_audit_logs_status_time ON audit_logs(status, created_time);
 
--- 3. 投诉反馈与举报表 (feedbacks)
+-- 3. 反馈与举报表 (feedbacks)
 CREATE TABLE feedbacks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     log_id UUID,                             -- 关联的生成记录ID
     
-    type VARCHAR(30) NOT NULL,               -- 'COMPLAINT', 'REPORT', 'SUGGESTION'
+    type VARCHAR(30) NOT NULL,               -- 'CUSTOM'-反馈, 'REPORT'-举报, 'SUGGESTION'-建议
     content TEXT NOT NULL,                   -- 反馈内容
     
     status SMALLINT DEFAULT 0,               -- 0: 待处理, 1: 已处理
@@ -103,13 +103,13 @@ COMMENT ON COLUMN audit_logs.external_audit_id IS '外部审核接口（阿里�
 COMMENT ON COLUMN audit_logs.created_time IS '内容生成及记录存证时间';
 
 -- =============================================
--- 3. 投诉反馈表 (feedbacks) 注释
+-- 3. 反馈表 (feedbacks) 注释
 -- =============================================
-COMMENT ON TABLE feedbacks IS '用户投诉、举报与建议反馈表';
+COMMENT ON TABLE feedbacks IS '用户反馈、举报与建议表';
 COMMENT ON COLUMN feedbacks.id IS '反馈唯一标识 UUID';
 COMMENT ON COLUMN feedbacks.user_id IS '反馈提交者 ID';
 COMMENT ON COLUMN feedbacks.log_id IS '关联的生成记录 ID（针对特定生成的举报）';
-COMMENT ON COLUMN feedbacks.type IS '反馈类别：COMPLAINT-质量投诉, REPORT-违规举报, SUGGESTION-建议';
+COMMENT ON COLUMN feedbacks.type IS '反馈类别：CUSTOM-反馈, REPORT-违规举报, SUGGESTION-建议';
 COMMENT ON COLUMN feedbacks.content IS '反馈的具体文本内容';
 COMMENT ON COLUMN feedbacks.status IS '处理状态：0-待处理(Pending), 1-已处理(Done)';
 COMMENT ON COLUMN feedbacks.admin_note IS '管理员处理意见及备注';
