@@ -34,15 +34,15 @@ export default function FeatureSection() {
   ];
 
   return (
-    <section className="bg-white dark:bg-background-dark/50 py-24">
+    <section className="bg-slate-50 dark:bg-slate-900/50 py-24">
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10">
         <div className="flex flex-col gap-16">
           {/* 区域标题 */}
           <div className="flex flex-col gap-4 text-center items-center">
-            <h2 className="text-[#0c121d] dark:text-white text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="text-slate-900 dark:text-slate-100 text-3xl font-bold tracking-tight md:text-4xl">
               企业级核心能力
             </h2>
-            <p className="text-[#4568a1] dark:text-gray-400 text-lg max-w-[720px]">
+            <p className="text-slate-600 dark:text-slate-300 text-lg font-normal max-w-[720px]">
               专为追求卓越与安全的全球化商务团队打造。
             </p>
           </div>
@@ -52,7 +52,7 @@ export default function FeatureSection() {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="group flex flex-col gap-6 rounded-xl border border-[#cdd8ea] dark:border-gray-700 bg-background-light dark:bg-gray-800/50 p-8 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="group flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 p-8 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 {/* 图标 */}
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
@@ -61,10 +61,10 @@ export default function FeatureSection() {
 
                 {/* 标题和描述 */}
                 <div className="flex flex-col gap-2">
-                  <h3 className="text-[#0c121d] dark:text-white text-xl font-bold leading-tight">
+                  <h3 className="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight">
                     {feature.title}
                   </h3>
-                  <p className="text-[#4568a1] dark:text-gray-400 text-base font-normal leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-300 text-base font-normal leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

@@ -65,7 +65,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 bg-[#0054db] text-white flex flex-col fixed h-full z-50">
+    <aside className="w-64 bg-[#0054db] dark:bg-sidebar-bg text-white flex flex-col fixed h-full z-50">
       {/* Logo 区域 */}
       <div className="p-6 flex items-center gap-3">
         <div className="size-8 bg-white/20 rounded-lg flex items-center justify-center">

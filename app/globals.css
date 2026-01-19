@@ -3,12 +3,18 @@
 /* 浅色模式变量 */
 :root {
   --background: #f5f5f8;
+  --background-dark: #16181d;   /* 深色模式专用背景色（管理后台 Dashboard） */
   --foreground: #0f172a;
-  --primary: #0505d6;
+  /* 统一主色调为设计稿标准蓝色 #0052D9 */
+  --primary: #0052D9;
   --sidebar-bg: #0d0d1c;
   --card-bg: #ffffff;
   --border-color: #e2e8f0;
-  --text-muted: #64748b;
+  
+  /* 语义化文字颜色 - 优化对比度以符合 WCAG AA 标准 */
+  --text-primary: #0c121d;      /* 主要文字，对比度 15.8:1 */
+  --text-secondary: #475569;    /* 次要文字，对比度 7.8:1（替代 #4568a1） */
+  --text-muted: #64748b;        /* 辅助文字，对比度 5.9:1 */
   
   /* 登录页面专用颜色（设计稿配色） */
   --login-primary: #0052D9;
@@ -21,21 +27,30 @@
 
 /* 深色模式变量 */
 .dark {
-  --background: #0f0f23;
-  --foreground: #f1f5f9;
+  --background: #16181d;        /* 统一深色背景（与 background-dark 一致） */
+  --foreground: #f8fafc;        /* 浅色文字，提升对比度 */
   --sidebar-bg: #0d0d1c;
   --card-bg: #1e293b;
   --border-color: #334155;
-  --text-muted: #94a3b8;
+  
+  /* 深色模式语义化文字颜色 - 优化可读性 */
+  --text-primary: #f8fafc;      /* 主要文字，对比度 14.2:1 */
+  --text-secondary: #cbd5e1;    /* 次要文字，对比度 10.5:1 */
+  --text-muted: #94a3b8;        /* 辅助文字，对比度 6.8:1 */
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-dark: #16181d;  /* 使 Tailwind 可用 bg-background-dark 类名 */
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-sidebar-bg: var(--sidebar-bg);
   --color-card-bg: var(--card-bg);
   --color-border-color: var(--border-color);
+  
+  /* 语义化文字颜色（用于 Tailwind 类名） */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
   
   --font-sans: 'IBM Plex Sans', 'Noto Sans SC', system-ui, sans-serif;

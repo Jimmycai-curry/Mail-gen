@@ -7,7 +7,7 @@
  */
 export default function Footer() {
   return (
-    <footer className="border-t border-[#e6ebf4] dark:border-gray-800 bg-white dark:bg-background-dark">
+    <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10 py-12">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           {/* Logo区域 */}
@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="text-primary/70 flex items-center">
               <span className="material-symbols-outlined text-2xl">mail</span>
             </div>
-            <span className="text-[#0c121d] dark:text-white font-bold tracking-tight">
+            <span className="text-slate-900 dark:text-slate-100 font-bold tracking-tight">
               FluentWJ
             </span>
           </div>
@@ -23,7 +23,7 @@ export default function Footer() {
           {/* 链接区域 */}
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
             <a
-              className="text-[#4568a1] dark:text-gray-500 hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -33,7 +33,7 @@ export default function Footer() {
               ICP 备案信息
             </a>
             <a
-              className="text-[#4568a1] dark:text-gray-500 hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -43,7 +43,7 @@ export default function Footer() {
               AI 算法备案登记
             </a>
             <a
-              className="text-[#4568a1] dark:text-gray-500 hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-400 hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={(e) => {
                 e.preventDefault();
@@ -56,8 +56,8 @@ export default function Footer() {
         </div>
 
         {/* 版权信息和图标 */}
-        <div className="mt-12 flex flex-col items-center justify-between border-t border-[#e6ebf4] dark:border-gray-800 pt-8 md:flex-row">
-          <p className="text-[#4568a1] dark:text-gray-500 text-sm">
+        <div className="mt-12 flex flex-col items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-8 md:flex-row">
+          <p className="text-slate-600 dark:text-slate-400 text-sm">
             © 2026 FluentWJ Enterprise. 版权所有。
           </p>
           <div className="mt-4 flex gap-6 md:mt-0">
