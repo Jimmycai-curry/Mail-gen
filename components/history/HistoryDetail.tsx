@@ -95,11 +95,11 @@ export function HistoryDetail({ detail, isLoading = false }: HistoryDetailProps)
       {/* 内容展示区 */}
       <div className="flex-1 overflow-y-auto p-8">
         <div className="max-w-6xl mx-auto w-full">
-          {/* 左右分栏布局：左侧输入需求（3列，纵向50%），右侧AI结果（7列，纵向80%） */}
+          {/* 左右分栏布局：左侧输入需求（3列，纵向50%），右侧AI结果（7列，纵向70%） */}
           <div className="grid grid-cols-10 gap-4">
             {/* 左侧：输入需求详情 */}
             <div className="col-span-3">
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 h-[50vh]">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 h-[50vh] overflow-y-auto">
                 {/* 小标题 */}
                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                   <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
@@ -154,14 +154,14 @@ export function HistoryDetail({ detail, isLoading = false }: HistoryDetailProps)
 
             {/* 右侧：AI 生成结果 */}
             <div className="col-span-7">
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-800 h-[80vh]">
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-md border border-gray-100 dark:border-gray-800 h-[70vh] flex flex-col">
                 {/* 小标题 */}
-                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex-shrink-0">
                   AI 生成结果
                 </h4>
 
-                {/* 邮件内容（富文本展示） */}
-                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed">
+                {/* 邮件内容（富文本展示）- 可滚动 */}
+                <div className="flex-1 overflow-y-auto prose prose-sm dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed">
                   {/* 邮件内容分段展示 */}
                   <div
                     dangerouslySetInnerHTML={{
