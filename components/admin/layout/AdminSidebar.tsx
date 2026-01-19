@@ -56,12 +56,31 @@ export default function AdminSidebar() {
 
   /**
    * 处理登出操作
+   * 调用后端接口清除 HttpOnly Cookie，然后跳转到管理员登录页
    */
-  const handleLogout = () => {
-    // 清除 token
-    localStorage.removeItem("auth_token");
-    // 跳转到登录页
-    router.push("/admin/login");
+  const handleLogout = async () => {
+    try {
+      // 调用后端登出接口清除 Cookie
+      const response = await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include', // 确保发送 Cookie
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('[AdminLogout] 登出成功，跳转到管理员登录页');
+        // 跳转到管理员登录页
+        router.push('/admin/login');
+      } else {
+        console.error('[AdminLogout] 登出失败:', result.message);
+        alert('登出失败，请重试');
+      }
+    } catch (error) {
+      console.error('[AdminLogout] 登出请求失败:', error);
+      // 即使请求失败，也跳转到登录页（容错处理）
+      router.push('/admin/login');
+    }
   };
 
   return (

@@ -189,8 +189,8 @@ export default function LoginForm({ onSubmit, isLoading = false }: LoginFormProp
         return;
       }
       
-      // 存储 token 到 localStorage
-      localStorage.setItem('auth_token', result.token);
+      // Token 已通过 HttpOnly Cookie 自动设置，无需手动存储
+      // 后端在响应中设置了 auth_token Cookie，浏览器会自动保存
       
       // 检查是否需要设置密码
       if (result.needsPasswordSetup) {
