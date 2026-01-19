@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -64,6 +63,7 @@ model mail_histories {
   scene          String?   @db.VarChar(50)
   tone           String?   @db.VarChar(50)
   recipient_name String?   @db.VarChar(100)
+  recipient_role String?   @db.VarChar(200)
   sender_name    String?   @db.VarChar(100)
   core_points    String?
   mail_content   String

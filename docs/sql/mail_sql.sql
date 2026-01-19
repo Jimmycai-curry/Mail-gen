@@ -139,6 +139,7 @@ CREATE TABLE mail_histories (
     scene VARCHAR(50),                       -- 场景
     tone VARCHAR(50),                        -- 语气
     recipient_name VARCHAR(100),             -- 收件人姓名
+    recipient_role VARCHAR(200),             -- 收件人身份/职位
     sender_name VARCHAR(100),                -- 发件人姓名
     core_points TEXT,                        -- 核心要点
     
@@ -169,6 +170,7 @@ COMMENT ON COLUMN mail_histories.audit_log_id IS '关联的审计日志 ID（用
 COMMENT ON COLUMN mail_histories.scene IS '邮件撰写场景';
 COMMENT ON COLUMN mail_histories.tone IS '邮件撰写语气';
 COMMENT ON COLUMN mail_histories.recipient_name IS '收件人姓名';
+COMMENT ON COLUMN mail_histories.recipient_role IS '收件人身份/职位（如：采购总监、技术合作伙伴）';
 COMMENT ON COLUMN mail_histories.sender_name IS '发件人姓名';
 COMMENT ON COLUMN mail_histories.core_points IS '用户输入的邮件核心内容要点';
 COMMENT ON COLUMN mail_histories.mail_content IS 'AI 生成的最终邮件正文内容';

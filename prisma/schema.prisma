@@ -63,6 +63,7 @@ model mail_histories {
   scene          String?   @db.VarChar(50)
   tone           String?   @db.VarChar(50)
   recipient_name String?   @db.VarChar(100)
+  recipient_role String?   @db.VarChar(200)
   sender_name    String?   @db.VarChar(100)
   core_points    String?
   mail_content   String

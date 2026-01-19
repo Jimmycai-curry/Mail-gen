@@ -218,6 +218,7 @@ export async function generateMail(params: GenerateMailParams): Promise<Generate
           scene: params.scenario,
           tone: params.tone,
           recipient_name: params.recipientName,
+          recipient_role: params.recipientRole, // 写入收件人身份/职位
           sender_name: params.senderName || '', // 使用用户提供的发件人姓名，若无则为空
           core_points: params.keyPoints,
           mail_content: contentWithWatermark
