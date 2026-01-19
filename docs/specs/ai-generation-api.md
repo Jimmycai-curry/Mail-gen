@@ -48,6 +48,7 @@ Cookie: auth_token=<JWT_TOKEN>
   language: string;        // 语言：zh-CN | en-US | zh-TW | ja-JP | ko-KR
   recipientName: string;   // 收件人姓名
   recipientRole: string;   // 收件人身份/职位
+  senderName?: string;     // 发件人姓名（可选）
   keyPoints: string;       // 核心要点（多行文本）
 }
 ```
@@ -61,6 +62,7 @@ Cookie: auth_token=<JWT_TOKEN>
 | language | string | 是 | 目标语言 | "zh-CN" |
 | recipientName | string | 是 | 收件人姓名 | "张先生" |
 | recipientRole | string | 是 | 收件人职位/背景 | "采购总监" |
+| senderName | string | 否 | 发件人姓名，用于邮件签名 | "李明" |
 | keyPoints | string | 是 | 核心要点，最多 2000 字符 | "询问产品报价\n希望建立长期合作" |
 
 ---

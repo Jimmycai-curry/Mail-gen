@@ -10,6 +10,7 @@ export interface GenerateRequestBody {
   language: string;        // 语言：zh-CN | en-US | zh-TW | ja-JP | ko-KR
   recipientName: string;   // 收件人姓名
   recipientRole: string;   // 收件人身份/职位
+  senderName?: string;     // 发件人姓名（可选）
   keyPoints: string;       // 核心要点
 }
 

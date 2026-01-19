@@ -26,6 +26,7 @@ const generateSchema = z.object({
   }),
   recipientName: z.string().min(1, '收件人姓名不能为空').max(100, '收件人姓名最多100个字符'),
   recipientRole: z.string().min(1, '收件人身份不能为空').max(200, '收件人身份最多200个字符'),
+  senderName: z.string().max(50, '发件人姓名最多50个字符').optional(), // 可选字段
   keyPoints: z.string().min(1, '核心要点不能为空').max(2000, '核心要点最多2000个字符')
 });
 
@@ -112,6 +113,7 @@ export async function POST(request: NextRequest) {
       language: requestBody.language,
       recipientName: requestBody.recipientName,
       recipientRole: requestBody.recipientRole,
+      senderName: requestBody.senderName, // 传递发件人姓名（可选）
       keyPoints: requestBody.keyPoints
     });
 

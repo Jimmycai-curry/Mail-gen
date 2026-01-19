@@ -20,6 +20,7 @@ export interface GenerateMailParams {
   language: string;        // 语言
   recipientName: string;   // 收件人姓名
   recipientRole: string;   // 收件人职位
+  senderName?: string;     // 发件人姓名（可选）
   keyPoints: string;       // 核心要点
 }
 
@@ -129,6 +130,7 @@ export async function generateMail(params: GenerateMailParams): Promise<Generate
       language: params.language,
       recipientName: params.recipientName,
       recipientRole: params.recipientRole,
+      senderName: params.senderName, // 传递发件人姓名（可选）
       keyPoints: params.keyPoints
     };
 
@@ -216,7 +218,7 @@ export async function generateMail(params: GenerateMailParams): Promise<Generate
           scene: params.scenario,
           tone: params.tone,
           recipient_name: params.recipientName,
-          sender_name: '', // 可选字段，暂为空
+          sender_name: params.senderName || '', // 使用用户提供的发件人姓名，若无则为空
           core_points: params.keyPoints,
           mail_content: contentWithWatermark
         }

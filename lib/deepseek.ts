@@ -12,6 +12,7 @@ export interface DeepSeekParams {
   language: string;        // 目标语言
   recipientName: string;   // 收件人姓名
   recipientRole: string;   // 收件人职位
+  senderName?: string;     // 发件人姓名（可选）
   keyPoints: string;       // 核心要点
 }
 
@@ -97,16 +98,37 @@ function buildSystemMessage(params: DeepSeekParams): string {
  * 构建用户消息（User Message）
  */
 function buildUserMessage(params: DeepSeekParams): string {
-  return `请为我撰写一份${getScenarioName(params.scenario)}：
+  // 基础信息
+  let message = `请为我撰写一份${getScenarioName(params.scenario)}：
 
 **收件人信息**：
 - 姓名：${params.recipientName}
 - 职位/背景：${params.recipientRole}
+`;
 
+  // 如果提供了发件人姓名，增加到 Prompt 中
+  if (params.senderName && params.senderName.trim()) {
+    message += `
+**发件人信息**：
+- 姓名：${params.senderName}
+`;
+  }
+
+  // 核心要点
+  message += `
 **核心要点**：
 ${params.keyPoints}
 
-请直接输出邮件正文内容。`;
+请直接输出邮件正文内容`;
+
+  // 如果提供了发件人姓名，提示 AI 在结尾使用
+  if (params.senderName && params.senderName.trim()) {
+    message += `，并在结尾处使用发件人姓名作为签名`;
+  }
+
+  message += `。`;
+
+  return message;
 }
 
 /**
