@@ -62,7 +62,8 @@ CREATE TABLE admin_operation_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     admin_id UUID NOT NULL,                  -- 管理员用户ID
     action_type VARCHAR(50) NOT NULL,        -- 操作类型：'BAN_USER', 'UNBAN_USER' 等
-    target_id VARCHAR(50),                   -- 操作对象ID
+    user_id UUID,                            -- 被操作的用户ID
+    audit_id UUID,                           -- 审计日志表对应ID
     detail TEXT,                             -- 理由或详情
     ip VARCHAR(45),                          -- 管理员操作IP
     created_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -122,7 +123,8 @@ COMMENT ON TABLE admin_operation_logs IS '管理员后台操作审计日志';
 COMMENT ON COLUMN admin_operation_logs.id IS '操作日志唯一标识 UUID';
 COMMENT ON COLUMN admin_operation_logs.admin_id IS '执行操作的管理员 ID';
 COMMENT ON COLUMN admin_operation_logs.action_type IS '操作类型（如：BAN_USER, UNBAN_USER, PROCESS_FEEDBACK）';
-COMMENT ON COLUMN admin_operation_logs.target_id IS '被操作的对象 ID（如被封禁的用户 ID）';
+COMMENT ON COLUMN admin_operation_logs.user_id IS '被操作的用户 ID';
+COMMENT ON COLUMN admin_operation_logs.audit_id IS '审计日志表对应 ID';
 COMMENT ON COLUMN admin_operation_logs.detail IS '操作的具体原因或详细描述';
 COMMENT ON COLUMN admin_operation_logs.ip IS '管理员执行操作时的 IP 地址';
 COMMENT ON COLUMN admin_operation_logs.created_time IS '管理行为发生的精确时间';
