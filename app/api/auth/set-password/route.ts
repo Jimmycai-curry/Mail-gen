@@ -8,8 +8,9 @@ import { SetPasswordRequest } from '@/types/auth'
 
 export async function POST(request: NextRequest) {
   return withErrorHandler(async () => {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // 从 Cookie 获取 Token
+    const token = request.cookies.get('auth_token')?.value
+    if (!token) {
       return Response.json(
         {
           success: false,
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const token = authHeader.substring(7)
+    // 验证 Token
     const payload = await verifyToken(token)
 
     if (!payload) {
