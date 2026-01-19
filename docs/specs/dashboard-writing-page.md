@@ -149,11 +149,9 @@ const [keyPoints, setKeyPoints] = useState("");
 ```typescript
 interface ResultViewerProps {
   content?: string;
+  isLoading?: boolean;
   isEmpty?: boolean;
-  onCopy?: () => void;
-  onThumbDown?: () => void;
-  onThumbUp?: () => void;
-  onRegenerate?: () => void;
+  auditLogId?: string;  // 新增：关联的审计日志 ID（用于反馈提交）
 }
 ```
 
@@ -165,9 +163,10 @@ interface ResultViewerProps {
 
 **工具栏按钮**:
 - 复制：`Copy` 图标
-- 点踩：`ThumbsDown` 图标（旋转 180 度）
-- 点赞：`ThumbsUp` 图标
-- 重新生成：`Refresh` 图标
+- 建议：`Lightbulb` 图标（已提交后显示 `Check`）
+- 内容举报：`Flag` 图标（已提交后显示 `Check`）
+- 用户反馈：`MessageSquare` 图标（已提交后显示 `Check`）
+- ~~点踩、点赞、重新生成：已移除~~
 - ~~收藏：已移除~~
 
 **样式规范**:
@@ -250,10 +249,11 @@ interface ResultViewerProps {
 5. 用户可通过工具栏进行操作
 
 ### 工具栏操作
-- **复制**：将内容复制到剪贴板
-- **点赞**：标记为有用（暂未实现）
-- **点踩**：标记为无用（暂未实现）
-- **重新生成**：重新调用 API（暂未实现）
+- **复制**：将内容复制到剪贴板（使用 Toast 提示）
+- **建议**：提交改进建议（弹窗输入，连通 feedbacks 数据库）
+- **内容举报**：举报不当内容（弹窗输入，连通 feedbacks 数据库）
+- **用户反馈**：自定义反馈（弹窗输入，连通 feedbacks 数据库）
+- ~~**点赞/点踩/重新生成**：已移除~~
 
 ---
 
@@ -268,12 +268,13 @@ interface ResultViewerProps {
 ---
 
 ## 后续扩展
-1. 实现 API 集成（AI 生成接口）
-2. 实现点赞/点踩功能
-3. 实现复制到剪贴板的 Toast 提示
+1. ~~实现 API 集成（AI 生成接口）~~ ✅ 已完成
+2. ~~实现反馈功能~~ ✅ 已完成（建议、举报、自定义反馈）
+3. ~~实现复制到剪贴板的 Toast 提示~~ ✅ 已完成
 4. 添加更多表单验证
 5. 实现历史记录功能
 6. 添加响应式优化（移动端适配）
+7. 实现重新生成功能（使用相同参数重新调用 API）
 
 ---
 

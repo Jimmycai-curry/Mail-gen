@@ -445,3 +445,82 @@ export async function getPendingFeedbackCount(): Promise<number> {
     return 0
   }
 }
+
+/**
+ * 用户提交反馈（建议、举报、自定义反馈）
+ * Spec: /docs/specs/user-feedback-submission.md
+ * 
+ * @param data - 反馈数据
+ * @param data.userId - 用户 UUID
+ * @param data.logId - 关联的 audit_logs.id
+ * @param data.type - 反馈类型：'SUGGESTION' | 'REPORT' | 'CUSTOM'
+ * @param data.content - 反馈内容（1-500字符）
+ */
+export async function submitUserFeedback(data: {
+  userId: string;
+  logId: string;
+  type: string;
+  content: string;
+}): Promise<void> {
+  console.log('[FeedbackService] 用户提交反馈:', {
+    userId: data.userId,
+    logId: data.logId,
+    type: data.type,
+    contentLength: data.content.length
+  })
+
+  const { userId, logId, type, content } = data
+
+  // ========== 步骤 1: 参数校验 ==========
+  const validTypes = ['SUGGESTION', 'REPORT', 'CUSTOM']
+  if (!validTypes.includes(type)) {
+    throw new ValidationError(`反馈类型必须是 ${validTypes.join('、')}`)
+  }
+
+  if (!content || content.trim().length === 0) {
+    throw new ValidationError('反馈内容不能为空')
+  }
+
+  if (content.length > 500) {
+    throw new ValidationError('反馈内容最多 500 字符')
+  }
+
+  try {
+    // ========== 步骤 2: 验证 logId 是否存在 ==========
+    const auditLog = await prisma.audit_logs.findUnique({
+      where: { id: logId }
+    })
+
+    if (!auditLog) {
+      throw new NotFoundError('关联的生成记录不存在')
+    }
+
+    // ========== 步骤 3: 插入 feedbacks 表 ==========
+    await prisma.feedbacks.create({
+      data: {
+        user_id: userId,
+        log_id: logId,
+        type: type,
+        content: content.trim(),
+        status: 0,  // 待处理
+        // created_time 会自动生成
+      }
+    })
+
+    console.log('[FeedbackService] 反馈提交成功', {
+      userId,
+      logId,
+      type
+    })
+
+  } catch (error) {
+    // 如果是已知的业务异常，直接抛出
+    if (error instanceof NotFoundError || error instanceof ValidationError) {
+      throw error
+    }
+
+    // 数据库错误
+    console.error('[FeedbackService] 提交反馈失败:', error)
+    throw new Error('反馈提交失败，请稍后重试')
+  }
+}

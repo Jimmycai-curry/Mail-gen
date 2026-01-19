@@ -16,6 +16,7 @@ export default function WritingPage() {
   const [content, setContent] = useState("");         // 生成的内容
   const [isLoading, setIsLoading] = useState(false);  // 是否正在加载
   const [error, setError] = useState<string | null>(null); // 错误信息
+  const [auditLogId, setAuditLogId] = useState<string | undefined>(); // 审计日志 ID（用于反馈提交）
 
   /**
    * 开始生成的回调
@@ -28,12 +29,16 @@ export default function WritingPage() {
 
   /**
    * 生成成功的回调
+   * 
+   * @param generatedContent - 生成的内容
+   * @param logId - 审计日志 ID
    */
-  const handleGenerateSuccess = (generatedContent: string) => {
+  const handleGenerateSuccess = (generatedContent: string, logId: string) => {
     setContent(generatedContent);
+    setAuditLogId(logId);
     setIsLoading(false);
     setError(null);
-    console.log('[WritingPage] 生成成功');
+    console.log('[WritingPage] 生成成功', { auditLogId: logId });
   };
 
   /**
@@ -48,18 +53,10 @@ export default function WritingPage() {
     alert(errorMessage);
   };
 
-  /**
-   * 重新生成（TODO）
-   */
-  const handleRegenerate = () => {
-    console.log('[WritingPage] 重新生成');
-    // TODO: 实现重新生成逻辑
-  };
-
   return (
     <div className="flex gap-6 h-full p-6">
       {/* 左侧：撰写表单 - 占 4 份 */}
-      <div className="basis-[40%] flex-shrink-0">
+      <div className="basis-[40%] shrink-0">
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 h-full">
           <WritingForm 
             onGenerateStart={handleGenerateStart}
@@ -75,7 +72,7 @@ export default function WritingPage() {
           content={content}
           isLoading={isLoading}
           isEmpty={!content && !isLoading}
-          onRegenerate={handleRegenerate}
+          auditLogId={auditLogId}
         />
       </div>
     </div>

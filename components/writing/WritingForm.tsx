@@ -9,7 +9,7 @@ import type { GenerateRequestBody, GenerateSuccessResponse, GenerateErrorRespons
  */
 interface WritingFormProps {
   onGenerateStart?: () => void;                           // 开始生成的回调
-  onGenerateSuccess?: (content: string) => void;          // 生成成功的回调
+  onGenerateSuccess?: (content: string, auditLogId: string) => void;  // 生成成功的回调（新增 auditLogId 参数）
   onGenerateError?: (error: string) => void;              // 生成失败的回调
 }
 
@@ -158,8 +158,8 @@ export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateErro
         contentLength: successData.data.content.length
       });
 
-      // 回调成功
-      onGenerateSuccess?.(successData.data.content);
+      // 回调成功（传递 content 和 auditLogId）
+      onGenerateSuccess?.(successData.data.content, successData.data.auditLogId);
 
     } catch (error: any) {
       // 处理取消
