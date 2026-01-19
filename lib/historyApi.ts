@@ -2,7 +2,7 @@
 // 说明: 前端历史记录 API 调用层
 // 封装所有历史记录相关的 API 请求
 
-import { GetHistoriesRequest, GetHistoriesResponse } from '@/types/history'
+import { GetHistoriesRequest, GetHistoriesResponse, GetHistoryDetailResponse } from '@/types/history'
 
 /**
  * 历史记录 API 客户端
@@ -92,22 +92,150 @@ export class HistoryApiClient {
   }
 
   /**
-   * 搜索历史记录（TODO: 待实现）
-   * @param keyword - 搜索关键词
-   * @param filters - 筛选参数
-   * @returns 搜索结果
+   * 搜索历史记录
+   * 
+   * 认证方式:
+   * - 浏览器自动从 Cookie 读取 auth_token
+   * - 后端验证 Token 并提取 userId
+   * - 只返回对应用户的历史记录
+   * 
+   * @param params - 搜索参数（包含关键词和筛选条件）
+   * @returns API 响应
+   * 
+   * @example
+   * ```typescript
+   * // 基础搜索
+   * const response = await HistoryApiClient.searchHistories({
+   *   keyword: '邀请'
+   * })
+   * 
+   * // 搜索 + 筛选
+   * const response = await HistoryApiClient.searchHistories({
+   *   keyword: '合作',
+   *   startDate: '2025-01-01',
+   *   endDate: '2025-01-31',
+   *   showOnlyFavorites: true
+   * })
+   * ```
    */
-  static async searchHistories(keyword: string, filters?: GetHistoriesRequest): Promise<any> {
-    throw new Error('searchHistories 方法待实现')
+  static async searchHistories(params: {
+    keyword: string;
+    page?: number;
+    pageSize?: number;
+    startDate?: string;
+    endDate?: string;
+    showOnlyFavorites?: boolean;
+  }): Promise<GetHistoriesResponse> {
+    console.log('[HistoryApiClient] 请求搜索历史记录:', params)
+
+    // 1. 发起 POST 请求到搜索接口
+    // 注意：Cookie 会自动携带，无需手动设置
+    const response = await fetch('/api/history/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    // 2. 检查响应状态
+    if (!response.ok) {
+      console.error('[HistoryApiClient] 搜索失败:', {
+        status: response.status,
+        statusText: response.statusText
+      })
+      
+      // 如果是 401，说明 Token 无效或过期，跳转到登录页
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        throw new Error('未登录或登录已过期')
+      }
+      
+      // 如果是 400，可能是参数错误
+      if (response.status === 400) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || '搜索参数错误')
+      }
+      
+      throw new Error('搜索历史记录失败')
+    }
+
+    // 3. 解析 JSON 响应
+    const data: GetHistoriesResponse = await response.json()
+    
+    console.log('[HistoryApiClient] 搜索历史记录成功:', {
+      keyword: params.keyword,
+      total: data.data.total,
+      count: data.data.list.length
+    })
+
+    return data
   }
 
   /**
-   * 获取历史记录详情（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @returns 详情数据
+   * 获取历史记录详情
+   * 根据历史记录 ID 获取完整的详情信息
+   *
+   * 认证方式:
+   * - 浏览器自动从 Cookie 读取 auth_token
+   * - 后端验证 Token 并提取 userId
+   * - 只返回对应用户的历史记录
+   *
+   * @param id - 历史记录 ID（UUID）
+   * @returns API 响应
+   *
+   * @example
+   * ```typescript
+   * // 获取某个历史记录的详情
+   * const response = await HistoryApiClient.getHistoryDetail('550e8400-e29b-41d4-a716-446655440000')
+   *
+   * if (response.success) {
+   *   console.log('历史记录详情:', response.data)
+   *   // response.data 包含：
+   *   // - id, senderName, recipientName
+   *   // - tone, scene, corePoints
+   *   // - mailContent, isFavorite, createdAt
+   * }
+   * ```
    */
-  static async getHistoryDetail(id: string): Promise<any> {
-    throw new Error('getHistoryDetail 方法待实现')
+  static async getHistoryDetail(id: string): Promise<GetHistoryDetailResponse> {
+    console.log('[HistoryApiClient] 请求获取历史记录详情:', id)
+
+    // 1. 发起 GET 请求到详情接口
+    // 注意：Cookie 会自动携带，无需手动设置
+    const response = await fetch(`/api/history/${id}`)
+
+    // 2. 检查响应状态
+    if (!response.ok) {
+      console.error('[HistoryApiClient] 请求失败:', {
+        status: response.status,
+        statusText: response.statusText
+      })
+
+      // 如果是 401，说明 Token 无效或过期，跳转到登录页
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        throw new Error('未登录或登录已过期')
+      }
+
+      // 如果是 404，说明历史记录不存在或无权访问
+      if (response.status === 404) {
+        throw new Error('历史记录不存在或无权访问')
+      }
+
+      throw new Error('获取历史记录详情失败')
+    }
+
+    // 3. 解析 JSON 响应
+    const data: GetHistoryDetailResponse = await response.json()
+
+    console.log('[HistoryApiClient] 获取历史记录详情成功:', {
+      id: data.data.id,
+      senderName: data.data.senderName,
+      recipientName: data.data.recipientName
+    })
+
+    return data
   }
 
   /**

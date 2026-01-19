@@ -3,8 +3,8 @@
 // 负责处理历史记录的增删改查业务逻辑
 
 import { prisma } from '@/lib/db'
-import { HistoryItem } from '@/types/history'
-import { GetHistoriesRequest } from '@/types/history'
+import { HistoryItem, HistoryDetail, GetHistoriesRequest } from '@/types/history'
+import { NotFoundError } from '@/utils/error'
 
 /**
  * 筛选参数接口
@@ -116,7 +116,10 @@ export class HistoryService {
         where.created_time.gte = new Date(startDate)
       }
       if (endDate) {
-        where.created_time.lte = new Date(endDate)
+        // 使用 lt（小于）而不是 lte（小于等于）
+        // 例如：endDate = "2025-01-20" 表示查询到 2025-01-19 23:59:59 为止
+        // 不包含 2025-01-20 00:00:00 及之后的记录
+        where.created_time.lt = new Date(endDate)
       }
     }
 
@@ -226,24 +229,209 @@ export class HistoryService {
   }
 
   /**
-   * 搜索历史记录（TODO: 待实现）
-   * @param keyword - 搜索关键词
-   * @param userId - 用户 ID
+   * 搜索历史记录
+   * 根据关键词在多个字段中进行模糊匹配，支持时间范围、收藏筛选
+   * 
+   * 功能:
+   * - 在 scene、sender_name、recipient_name、core_points、mail_content 中搜索关键词
+   * - 支持大小写不敏感的模糊匹配（使用 PostgreSQL ILIKE）
+   * - 支持时间范围筛选
+   * - 支持收藏筛选
+   * - 支持分页查询
+   * - 按创建时间倒序排列
+   * 
+   * @param keyword - 搜索关键词（至少2个字符）
+   * @param userId - 用户 ID（从 JWT Token 解析）
    * @param filters - 筛选参数
-   * @returns 搜索结果
+   * @returns 搜索结果和分页信息
+   * 
+   * @example
+   * ```typescript
+   * const result = await HistoryService.searchHistories('邀请', 'user-uuid', {
+   *   page: 1,
+   *   pageSize: 20,
+   *   showOnlyFavorites: true
+   * })
+   * ```
    */
   static async searchHistories(keyword: string, userId: string, filters: FilterParams = {}): Promise<HistoryListResult> {
-    throw new Error('searchHistories 方法待实现')
+    const {
+      page = 1,
+      pageSize = 20,
+      startDate,
+      endDate,
+      showOnlyFavorites = false
+    } = filters
+
+    console.log('[HistoryService] 搜索历史记录:', { keyword, userId, filters })
+
+    // 1. 构建基础查询条件
+    const where: any = {
+      user_id: userId,           // 只查询当前用户的数据
+      is_deleted: false,         // 排除已删除的记录
+      // OR 条件：在多个字段中搜索关键词
+      OR: [
+        { scene: { contains: keyword, mode: 'insensitive' } },
+        { sender_name: { contains: keyword, mode: 'insensitive' } },
+        { recipient_name: { contains: keyword, mode: 'insensitive' } },
+        { core_points: { contains: keyword, mode: 'insensitive' } },
+        { mail_content: { contains: keyword, mode: 'insensitive' } }
+      ]
+    }
+
+    // 2. 处理时间范围筛选（复用现有逻辑）
+    if (startDate || endDate) {
+      where.created_time = {}
+
+      if (startDate) {
+        where.created_time.gte = new Date(startDate)
+      }
+      if (endDate) {
+        // 使用 lt（小于）而不是 lte（小于等于）
+        // 例如：endDate = "2025-01-20" 表示查询到 2025-01-19 23:59:59 为止
+        // 不包含 2025-01-20 00:00:00 及之后的记录
+        where.created_time.lt = new Date(endDate)
+      }
+    }
+
+    // 3. 处理收藏筛选（复用现有逻辑）
+    if (showOnlyFavorites) {
+      where.is_favorite = true
+    }
+
+    console.log('[HistoryService] 搜索条件:', JSON.stringify(where, null, 2))
+
+    // 4. 查询总数
+    const total = await prisma.mail_histories.count({ where })
+
+    // 5. 分页查询列表
+    const list = await prisma.mail_histories.findMany({
+      where,
+      orderBy: { created_time: 'desc' }, // 按时间倒序
+      skip: (page - 1) * pageSize,     // 跳过前面的记录
+      take: pageSize,                  // 取指定数量的记录
+      select: {
+        id: true,
+        scene: true,
+        sender_name: true,
+        recipient_name: true,
+        core_points: true,
+        is_favorite: true,
+        created_time: true
+      }
+    })
+
+    // 6. 格式化返回数据（复用现有方法）
+    const formattedList = list.map(item => this.formatHistoryItem(item))
+
+    console.log('[HistoryService] 搜索成功:', {
+      keyword,
+      total,
+      count: formattedList.length,
+      page,
+      pageSize
+    })
+
+    return {
+      list: formattedList,
+      total,
+      page,
+      pageSize
+    }
   }
 
   /**
-   * 获取历史记录详情（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @param userId - 用户 ID
+   * 获取历史记录详情
+   * 根据历史记录 ID 获取完整的详情信息，包括输入需求和 AI 生成结果
+   * 
+   * 功能:
+   * - 查询数据库获取完整的记录信息
+   * - 验证记录是否属于当前用户（防止越权访问）
+   * - 将 core_points 按换行符分割为数组
+   * - 格式化日期时间为 "YYYY-MM-DD HH:mm" 格式
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @param userId - 用户 ID（从 JWT Token 解析）
    * @returns 历史记录详情
+   * @throws NotFoundError - 记录不存在或已被删除
+   * 
+   * @example
+   * ```typescript
+   * const detail = await HistoryService.getHistoryDetail('550e8400-e29b-41d4-a716-446655440000', 'user-uuid')
+   * // 返回: {
+   * //   id: '550e8400-e29b-41d4-a716-446655440000',
+   * //   senderName: '市场部 张伟',
+   * //   recipientName: '极光科技 卢经理',
+   * //   tone: '专业严谨,诚恳礼貌',
+   * //   scene: '商业合作伙伴年度邀请',
+   * //   corePoints: ['要点1', '要点2'],
+   * //   mailContent: '完整的邮件内容...',
+   * //   isFavorite: true,
+   * //   createdAt: '2025-01-15 14:30'
+   * // }
+   * ```
    */
-  static async getHistoryDetail(id: string, userId: string): Promise<any> {
-    throw new Error('getHistoryDetail 方法待实现')
+  static async getHistoryDetail(id: string, userId: string): Promise<HistoryDetail> {
+    console.log('[HistoryService] 获取历史记录详情:', { id, userId })
+
+    // 1. 查询数据库，根据 id 和 user_id 查找记录
+    // 注意：同时匹配 id 和 user_id 可以防止越权访问（用户只能访问自己的数据）
+    const history = await prisma.mail_histories.findFirst({
+      where: {
+        id: id,                    // 记录 ID
+        user_id: userId,            // 用户 ID（确保只能访问自己的数据）
+        is_deleted: false           // 排除已删除的记录
+      },
+      select: {
+        id: true,
+        sender_name: true,
+        recipient_name: true,
+        tone: true,
+        scene: true,
+        core_points: true,
+        mail_content: true,
+        is_favorite: true,
+        created_time: true
+      }
+    })
+
+    // 2. 权限检查：如果记录不存在，返回 404 错误
+    // 这里不需要额外检查 user_id，因为查询时已经过滤了
+    if (!history) {
+      console.log('[HistoryService] 历史记录不存在或无权访问:', { id, userId })
+      throw new NotFoundError('历史记录不存在')
+    }
+
+    // 3. 数据转换：将数据库记录转换为前端需要的格式
+    const result = {
+      id: history.id,
+      // 发送者姓名：如果为空，返回空字符串
+      senderName: history.sender_name || '',
+      // 接收者姓名：如果为空，返回空字符串
+      recipientName: history.recipient_name || '',
+      // 语气风格：如果为空，返回空字符串
+      tone: history.tone || '',
+      // 应用场景：如果为空，返回空字符串
+      scene: history.scene || '',
+      // 核心要点：按换行符分割为数组，并过滤掉空行
+      corePoints: history.core_points
+        ? history.core_points.split('\n').filter(point => point.trim())
+        : [],
+      // 邮件内容：完整的 AI 生成结果
+      mailContent: history.mail_content,
+      // 收藏状态：如果为空，默认为 false
+      isFavorite: history.is_favorite || false,
+      // 创建时间：格式化为 "YYYY-MM-DD HH:mm" 格式
+      createdAt: this.formatDateTime(history.created_time)
+    }
+
+    console.log('[HistoryService] 查询成功:', {
+      id: result.id,
+      senderName: result.senderName,
+      recipientName: result.recipientName
+    })
+
+    return result
   }
 
   /**

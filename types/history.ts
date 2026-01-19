@@ -70,6 +70,8 @@ export interface HistoryListProps {
 export interface HistoryDetailProps {
   /** 当前选中的详情数据（可选，支持空状态） */
   detail?: HistoryDetail | null;
+  /** 加载状态 */
+  isLoading?: boolean;
 }
 
 /**
@@ -154,4 +156,13 @@ export interface ToggleFavoriteResponse {
 export interface DeleteHistoryResponse {
   success: boolean;
   message: string;
+}
+
+/**
+ * 获取历史记录详情响应
+ * GET /api/history/[id] 接口的响应格式
+ */
+export interface GetHistoryDetailResponse {
+  success: boolean;
+  data: HistoryDetail;
 }

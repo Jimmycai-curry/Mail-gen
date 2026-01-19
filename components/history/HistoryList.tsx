@@ -14,6 +14,9 @@ import { FilterDropdown } from "./FilterDropdown";
  * 展示历史记录的标题、预览内容、创建时间和收藏状态
  */
 export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, isLoading, error }: HistoryListProps) {
+  // 搜索关键词状态
+  const [searchKeyword, setSearchKeyword] = useState('');
+  
   // 筛选状态管理
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterState, setFilterState] = useState<{
@@ -36,8 +39,9 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
   React.useEffect(() => {
     if (filterState.quickFilter === 'today') {
       const today = new Date();
+      // 今天：从今天开始到明天开始（包含今天整天）
       const startDate = format(startOfDay(today), 'yyyy-MM-dd');
-      const endDate = format(endOfDay(today), 'yyyy-MM-dd');
+      const endDate = format(startOfDay(subDays(today, -1)), 'yyyy-MM-dd'); // 明天的开始
       
       setFilterState(prev => ({
         ...prev,
@@ -88,6 +92,12 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
 
   /**
    * 处理快捷筛选选项
+   * 
+   * 日期范围说明：
+   * - 今天：从今天 00:00 到明天 00:00（包含今天整天）
+   * - 本周：从本周一 00:00 到下周一 00:00（包含本周整周）
+   * - 本月：从本月1日 00:00 到下月1日 00:00（包含本月整月）
+   * - 近一年：从一年前 00:00 到明天 00:00（包含近365天）
    */
   const handleQuickFilter = (option: 'today' | 'week' | 'month' | 'year') => {
     const today = new Date();
@@ -96,20 +106,28 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
 
     switch (option) {
       case 'today':
+        // 今天：从今天开始到明天开始（不包含明天）
+        // 例如：2025-01-19 00:00:00 到 2025-01-20 00:00:00
         startDate = format(startOfDay(today), 'yyyy-MM-dd');
-        endDate = format(endOfDay(today), 'yyyy-MM-dd');
+        endDate = format(startOfDay(subDays(today, -1)), 'yyyy-MM-dd'); // 明天的开始
         break;
       case 'week':
+        // 本周：从本周一开始到下周一开始（不包含下周一）
+        // 例如：2025-01-13 00:00:00 到 2025-01-20 00:00:00
         startDate = format(startOfWeek(today), 'yyyy-MM-dd');
-        endDate = format(endOfWeek(today), 'yyyy-MM-dd');
+        endDate = format(startOfWeek(subDays(today, -7)), 'yyyy-MM-dd'); // 下周一的开始
         break;
       case 'month':
+        // 本月：从本月1日开始到下月1日开始（不包含下月1日）
+        // 例如：2025-01-01 00:00:00 到 2025-02-01 00:00:00
         startDate = format(startOfMonth(today), 'yyyy-MM-dd');
-        endDate = format(endOfMonth(today), 'yyyy-MM-dd');
+        endDate = format(startOfMonth(subDays(today, -31)), 'yyyy-MM-dd'); // 下月1日的开始
         break;
       case 'year':
-        startDate = format(subDays(today, 365), 'yyyy-MM-dd');
-        endDate = format(endOfDay(today), 'yyyy-MM-dd');
+        // 近一年：从365天前开始到明天开始（不包含明天）
+        // 例如：2024-01-19 00:00:00 到 2025-01-20 00:00:00
+        startDate = format(startOfDay(subDays(today, 365)), 'yyyy-MM-dd');
+        endDate = format(startOfDay(subDays(today, -1)), 'yyyy-MM-dd'); // 明天的开始
         break;
     }
 
@@ -154,6 +172,7 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
 
     // 构建筛选参数
     const filters = {
+      keyword: searchKeyword,  // 包含搜索关键词
       startDate: filterState.startDate,
       endDate: filterState.endDate,
       showOnlyFavorites: filterState.showOnlyFavorites,
@@ -163,6 +182,35 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
     // 通过回调函数通知父组件
     if (onFilterChange) {
       onFilterChange(filters);
+    }
+  };
+
+  /**
+   * 处理搜索
+   * 在搜索框按下回车键或失去焦点时触发
+   */
+  const handleSearch = () => {
+    // 构建搜索参数
+    const filters = {
+      keyword: searchKeyword,
+      startDate: filterState.startDate,
+      endDate: filterState.endDate,
+      showOnlyFavorites: filterState.showOnlyFavorites
+    };
+
+    // 通过回调函数通知父组件执行搜索
+    if (onFilterChange) {
+      onFilterChange(filters);
+    }
+  };
+
+  /**
+   * 处理搜索框按键事件
+   * 按下回车键时触发搜索
+   */
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -279,9 +327,11 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="搜索历史记录"
+                placeholder="搜索历史记录（按回车搜索）"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="w-full bg-gray-100 dark:bg-gray-800 border-none rounded-lg pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/50 outline-none"
-                // 功能待实现：暂无搜索逻辑
               />
             </div>
 
@@ -303,7 +353,38 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
 
         {/* 历史记录列表：可滚动区域 */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-3">
-          {histories.map((history) => renderCard(history))}
+          {isLoading ? (
+            // 加载中状态
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-4 text-sm text-gray-500">加载中...</p>
+            </div>
+          ) : error ? (
+            // 错误状态
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="text-6xl mb-4">⚠️</div>
+              <p className="text-gray-500 text-sm mb-2">加载失败</p>
+              <p className="text-gray-400 text-xs">{error}</p>
+            </div>
+          ) : histories.length === 0 ? (
+            // 空状态：区分是搜索无结果还是没有记录
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="text-6xl mb-4">
+                {searchKeyword.trim() ? '🔍' : '📋'}
+              </div>
+              <p className="text-gray-500 text-sm mb-2">
+                {searchKeyword.trim() ? '未搜索到相关记录' : '暂无历史记录'}
+              </p>
+              {searchKeyword.trim() && (
+                <p className="text-gray-400 text-xs">
+                  搜索关键词："{searchKeyword}"
+                </p>
+              )}
+            </div>
+          ) : (
+            // 有数据：显示列表
+            histories.map((history) => renderCard(history))
+          )}
         </div>
       </div>
 

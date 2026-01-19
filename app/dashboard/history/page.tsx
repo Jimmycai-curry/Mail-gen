@@ -20,6 +20,8 @@ export default function HistoryPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // 当前选中的历史记录详情
   const [selectedDetail, setSelectedDetail] = useState<HistoryDetail | null>(null);
+  // 加载详情的状态
+  const [isDetailLoading, setIsDetailLoading] = useState<boolean>(false);
 
   // 历史记录列表数据
   const [histories, setHistories] = useState<HistoryItem[]>([]);
@@ -79,58 +81,49 @@ export default function HistoryPage() {
    * 处理选择历史记录
    * @param id - 历史记录 ID
    *
-   * 注意：详情获取功能暂未实现，当前仍使用 Mock 详情数据
-   * 后续需要创建 GET /api/history/[id] 接口
+   * 说明:
+   * - 前端调用 HistoryApiClient.getHistoryDetail(id)
+   * - Cookie 自动携带 auth_token
+   * - 后端从 Cookie 读取 Token 进行认证
+   * - 后端提取 userId 查询对应用户的详情数据
    */
-  const handleSelectHistory = (id: string) => {
+  const handleSelectHistory = async (id: string) => {
     setSelectedId(id);
 
-    // TODO: 这里应该调用 API 获取详情数据
-    // 暂时使用 Mock 详情数据
-    const mockDetails: Record<string, HistoryDetail> = {
-      "1": {
-        id: "1",
-        senderName: "市场部 张伟",
-        recipientName: "极光科技 卢经理",
-        tone: "专业严谨,诚恳礼貌",
-        scene: "商业合作伙伴年度邀请",
-        corePoints: [
-          "回顾过去一年在云服务领域的紧密合作",
-          "诚邀对方参加 11月15日 的战略研讨会",
-          "提及我司最新的 AIGC 解决方案优势",
-          "确认双方在明年的市场共享策略"
-        ],
-        mailContent: `尊敬的卢经理：
+    try {
+      console.log('[HistoryPage] 开始加载历史记录详情:', id);
+      setIsDetailLoading(true);
 
-您好！
+      // 调用 API 客户端获取详情
+      const response = await HistoryApiClient.getHistoryDetail(id);
 
-回顾即将过去的 2023 年，我们双方在云服务基础设施建设领域的紧密协作不仅取得了令人瞩目的市场成绩，更建立起了深厚的战略互信。在此，我谨代表市场部向贵司一直以来的支持与配合表示最诚挚的谢意。
-
-为了进一步深化双方合作关系，并共同探讨在 AIGC 技术爆发背景下的市场新机遇，我们计划于 2023年11月15日 在上海总部举办"2024 年度战略合作伙伴研讨会"。届时，我司将首次公开演示最新的 FluentWJ 企业级 AIGC 解决方案，旨在通过 AI 技术赋能双方在业务流程自动化方面的效率提升。
-
-我们非常期待能与贵司在明年的市场共享策略及联合营销方案上达成更高水平的共识。随信附上本次会议的初步议程，请您查收。
-
-顺颂商祺！
-
-张伟
-市场部
-2023年10月24日`,
-        isFavorite: true,
-        createdAt: "2023-10-24 14:30"
+      // 检查响应是否成功
+      if (response.success) {
+        setSelectedDetail(response.data);
+        console.log('[HistoryPage] 加载历史记录详情成功:', {
+          id: response.data.id,
+          senderName: response.data.senderName,
+          recipientName: response.data.recipientName
+        });
+      } else {
+        toast.error('加载历史记录详情失败');
       }
-    };
-
-    const detail = mockDetails[id];
-    setSelectedDetail(detail || null);
+    } catch (err) {
+      console.error('[HistoryPage] 加载历史记录详情失败:', err);
+      toast.error('加载历史记录详情失败，请稍后重试');
+    } finally {
+      setIsDetailLoading(false);
+    }
   };
 
   /**
-   * 处理筛选变更
-   * 当用户点击"确认应用"按钮时调用
-   * @param filters - 筛选参数
+   * 处理筛选变更和搜索
+   * 当用户点击"确认应用"按钮或按回车搜索时调用
+   * @param filters - 筛选参数（可能包含搜索关键词）
    * 
    * 说明:
-   * - 前端调用 HistoryApiClient.getHistories(filters)
+   * - 如果有关键词，调用 HistoryApiClient.searchHistories()
+   * - 如果没有关键词，调用 HistoryApiClient.getHistories()
    * - Cookie 自动携带 auth_token
    * - 后端从 Token 解析 userId，应用筛选条件查询数据
    */
@@ -139,23 +132,47 @@ export default function HistoryPage() {
       setIsLoading(true);
       setError(null);
 
-      // 调用 API 客户端获取筛选后的数据
-      const response = await HistoryApiClient.getHistories(filters);
+      let response;
+      
+      // 判断是搜索还是普通筛选
+      if (filters.keyword && filters.keyword.trim()) {
+        // 有关键词：调用搜索接口
+        console.log('[HistoryPage] 执行搜索:', filters);
+        response = await HistoryApiClient.searchHistories({
+          keyword: filters.keyword.trim(),
+          page: filters.page,
+          pageSize: filters.pageSize,
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          showOnlyFavorites: filters.showOnlyFavorites
+        });
+      } else {
+        // 无关键词：调用普通筛选接口
+        console.log('[HistoryPage] 执行筛选:', filters);
+        response = await HistoryApiClient.getHistories(filters);
+      }
 
       if (response.success) {
         setHistories(response.data.list);
-        console.log('[HistoryPage] 筛选历史记录成功:', {
+        console.log('[HistoryPage] 操作成功:', {
           filters,
+          total: response.data.total,
           count: response.data.list.length
         });
       } else {
-        setError('筛选失败');
-        toast.error('筛选失败，请稍后重试');
+        setError('操作失败');
+        toast.error('操作失败，请稍后重试');
       }
     } catch (err) {
-      console.error('[HistoryPage] 筛选历史记录失败:', err);
-      setError('筛选失败');
-      toast.error('筛选失败，请稍后重试');
+      console.error('[HistoryPage] 操作失败:', err);
+      setError('操作失败');
+      
+      // 显示更友好的错误提示
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('操作失败，请稍后重试');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +194,7 @@ export default function HistoryPage() {
 
       {/* 右侧详情展示：flex-1 占据剩余空间 */}
       <section className="flex-1 flex flex-col overflow-hidden">
-        <HistoryDetailView detail={selectedDetail} />
+        <HistoryDetailView detail={selectedDetail} isLoading={isDetailLoading} />
       </section>
     </div>
   );
