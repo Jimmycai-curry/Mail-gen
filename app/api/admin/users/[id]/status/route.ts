@@ -28,20 +28,18 @@ function getClientIP(req: NextRequest): string {
 
 /**
  * 验证管理员权限
- * 从请求头提取JWT Token并验证，确保用户为管理员（role = 0）
+ * 从 Cookie 读取 JWT Token 并验证，确保用户为管理员（role = 0）
  */
 async function verifyAdmin(req: NextRequest) {
-  // 从 Authorization 头获取 Token
-  const authHeader = req.headers.get('authorization')
+  // 从 Cookie 获取 Token（Middleware 已验证过一次，这里再验证确保安全）
+  const token = req.cookies.get('auth_token')?.value
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!token) {
     return NextResponse.json(
       { success: false, error: 'Missing or invalid token' },
       { status: 401 }
     )
   }
-
-  const token = authHeader.substring(7)
 
   // 验证 Token
   const payload = await verifyToken(token)
