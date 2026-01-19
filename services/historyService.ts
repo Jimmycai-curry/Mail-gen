@@ -527,12 +527,64 @@ export class HistoryService {
   }
 
   /**
-   * 删除历史记录（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @param userId - 用户 ID
-   * @returns 删除结果
+   * 删除历史记录
+   * 采用软删除策略，将 is_deleted 标记为 true，数据保留在数据库中
+   * 
+   * 功能:
+   * - 查询数据库获取历史记录
+   * - 验证记录是否属于当前用户（防止越权访问）
+   * - 验证记录是否已被删除（防止重复删除）
+   * - 执行软删除：更新 is_deleted = true 和 updated_time
+   * - 返回删除成功结果
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @param userId - 用户 ID（从 JWT Token 解析）
+   * @returns 删除结果（成功标志）
+   * @throws NotFoundError - 记录不存在、已被删除或无权访问
+   * 
+   * @example
+   * ```typescript
+   * // 删除某条历史记录
+   * const result = await HistoryService.deleteHistory('550e8400-e29b-41d4-a716-446655440000', 'user-uuid')
+   * // 返回: { success: true }
+   * ```
    */
   static async deleteHistory(id: string, userId: string): Promise<{ success: boolean }> {
-    throw new Error('deleteHistory 方法待实现')
+    console.log('[HistoryService] 删除历史记录:', { id, userId })
+
+    // 1. 查询当前记录并验证权限
+    // 注意：同时匹配 id 和 user_id 可以防止越权访问（用户只能删除自己的数据）
+    // 同时排除已删除的记录（防止重复删除）
+    const history = await prisma.mail_histories.findFirst({
+      where: {
+        id: id,                    // 记录 ID
+        user_id: userId,            // 用户 ID（确保只能删除自己的数据）
+        is_deleted: false           // 排除已删除的记录
+      },
+      select: {
+        id: true
+      }
+    })
+
+    // 2. 权限检查：如果记录不存在或已被删除，返回 404 错误
+    // 这里不需要额外检查 user_id，因为查询时已经过滤了
+    if (!history) {
+      console.log('[HistoryService] 历史记录不存在、已被删除或无权访问:', { id, userId })
+      throw new NotFoundError('历史记录不存在')
+    }
+
+    // 3. 执行软删除：更新 is_deleted 为 true，并更新时间戳
+    await prisma.mail_histories.update({
+      where: { id: id },
+      data: {
+        is_deleted: true,           // 标记为已删除
+        updated_time: new Date()    // 更新时间戳
+      }
+    })
+
+    console.log('[HistoryService] 删除成功:', { id })
+
+    // 4. 返回成功结果
+    return { success: true }
   }
 }

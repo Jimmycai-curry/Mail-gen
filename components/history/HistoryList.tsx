@@ -13,7 +13,7 @@ import { FilterDropdown } from "./FilterDropdown";
  * 历史记录列表，包含搜索框、筛选按钮和卡片列表
  * 展示历史记录的标题、预览内容、创建时间和收藏状态
  */
-export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, onToggleFavorite, isLoading, error }: HistoryListProps) {
+export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, onToggleFavorite, onDeleteHistory, isLoading, error }: HistoryListProps) {
   // 搜索关键词状态
   const [searchKeyword, setSearchKeyword] = useState('');
   
@@ -232,10 +232,10 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
    * 用户点击弹窗中的确认按钮后调用
    */
   const handleConfirmDelete = () => {
-    if (historyToDelete) {
-      // TODO: 这里将来调用后端删除 API
-      console.log('删除历史记录:', historyToDelete.id, historyToDelete.title);
-      // 暂时只打印日志，等后端 API 做好后再实现实际删除
+    if (historyToDelete && onDeleteHistory) {
+      // 调用父组件传入的删除回调函数
+      console.log('[HistoryList] 确认删除历史记录:', historyToDelete.id, historyToDelete.title);
+      onDeleteHistory(historyToDelete.id);
     }
     // 关闭弹窗
     setIsDeleteModalOpen(false);

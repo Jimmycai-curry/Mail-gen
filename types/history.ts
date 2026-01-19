@@ -61,6 +61,8 @@ export interface HistoryListProps {
   onFilterChange?: (filters: any) => void;
   /** 切换收藏状态的回调函数 */
   onToggleFavorite?: (id: string) => void;
+  /** 删除历史记录的回调函数 */
+  onDeleteHistory?: (id: string) => void;
   /** 加载状态 */
   isLoading?: boolean;
   /** 错误信息 */

@@ -236,6 +236,69 @@ export default function HistoryPage() {
     }
   };
 
+  /**
+   * 处理删除历史记录
+   * 当用户在列表中点击删除图标并确认后调用
+   * @param id - 历史记录 ID
+   * 
+   * 说明:
+   * - 二次确认在 HistoryList 组件中完成（自定义弹窗）
+   * - 此函数直接调用 API 删除
+   * - Cookie 自动携带 auth_token
+   * - 后端验证权限并执行软删除（is_deleted = true）
+   * - 成功后从本地状态中移除该记录
+   * - 自动选中下一条记录（如果有）
+   * - 如果没有下一条，清空详情区
+   */
+  const handleDeleteHistory = async (id: string) => {
+    try {
+      console.log('[HistoryPage] 开始删除历史记录:', id);
+
+      // 1. 调用 API 删除
+      const response = await HistoryApiClient.deleteHistory(id);
+
+      if (response.success) {
+        console.log('[HistoryPage] 删除成功:', id);
+
+        // 2. 更新本地状态：从列表中移除该项
+        const currentIndex = histories.findIndex(h => h.id === id);
+        const newHistories = histories.filter(h => h.id !== id);
+        setHistories(newHistories);
+
+        // 3. 处理选中状态
+        if (selectedDetail?.id === id) {
+          // 如果删除的是当前选中项
+          if (newHistories.length > 0) {
+            // 选中下一条（如果删除的是最后一条，则选中新的最后一条）
+            const nextIndex = currentIndex < newHistories.length ? currentIndex : newHistories.length - 1;
+            const nextItem = newHistories[nextIndex];
+            console.log('[HistoryPage] 自动选中下一条记录:', nextItem.id);
+            handleSelectHistory(nextItem.id); // 自动选中下一条
+          } else {
+            // 列表为空，清空详情区
+            console.log('[HistoryPage] 列表为空，清空详情区');
+            setSelectedDetail(null);
+            setSelectedId(null);
+          }
+        }
+
+        // 4. 显示成功提示
+        toast.success('删除成功');
+      } else {
+        toast.error('删除失败，请稍后重试');
+      }
+    } catch (err) {
+      console.error('[HistoryPage] 删除失败:', err);
+      
+      // 显示更友好的错误提示
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('删除失败，请稍后重试');
+      }
+    }
+  };
+
   return (
     <div className="flex h-full">
       {/* 左侧历史记录列表：固定宽度 400px */}
@@ -246,6 +309,7 @@ export default function HistoryPage() {
           onSelectHistory={handleSelectHistory}
           onFilterChange={handleFilterChange}
           onToggleFavorite={handleToggleFavorite}
+          onDeleteHistory={handleDeleteHistory}
           isLoading={isLoading}
           error={error}
         />

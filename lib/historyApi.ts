@@ -315,11 +315,68 @@ export class HistoryApiClient {
   }
 
   /**
-   * 删除历史记录（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @returns 删除结果
+   * 删除历史记录
+   * 采用软删除策略，将历史记录标记为已删除（is_deleted = true）
+   * 
+   * 认证方式:
+   * - 浏览器自动从 Cookie 读取 auth_token
+   * - 后端验证 Token 并提取 userId
+   * - 只能删除对应用户的历史记录
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @returns API 响应
+   * 
+   * @example
+   * ```typescript
+   * // 删除某条历史记录
+   * const response = await HistoryApiClient.deleteHistory('550e8400-e29b-41d4-a716-446655440000')
+   * 
+   * if (response.success) {
+   *   console.log(response.message) // "删除成功"
+   * }
+   * ```
    */
-  static async deleteHistory(id: string): Promise<any> {
-    throw new Error('deleteHistory 方法待实现')
+  static async deleteHistory(id: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    console.log('[HistoryApiClient] 请求删除历史记录:', id)
+
+    // 1. 发起 DELETE 请求到删除接口
+    // 注意：Cookie 会自动携带，无需手动设置
+    const response = await fetch(`/api/history/${id}`, {
+      method: 'DELETE',
+    })
+
+    // 2. 检查响应状态
+    if (!response.ok) {
+      console.error('[HistoryApiClient] 删除失败:', {
+        status: response.status,
+        statusText: response.statusText
+      })
+
+      // 如果是 401，说明 Token 无效或过期，跳转到登录页
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        throw new Error('未登录或登录已过期')
+      }
+
+      // 如果是 404，说明历史记录不存在或无权访问
+      if (response.status === 404) {
+        throw new Error('历史记录不存在或无权访问')
+      }
+
+      throw new Error('删除历史记录失败')
+    }
+
+    // 3. 解析 JSON 响应
+    const data = await response.json()
+
+    console.log('[HistoryApiClient] 删除成功:', {
+      id,
+      message: data.message
+    })
+
+    return data
   }
 }
