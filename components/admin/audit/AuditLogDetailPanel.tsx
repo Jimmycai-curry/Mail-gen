@@ -20,6 +20,7 @@
 
 import { useEffect, useState } from "react";
 import type { AuditLogDetail } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 interface AuditLogDetailPanelProps {
   log: AuditLogDetail;
@@ -74,15 +75,15 @@ export default function AuditLogDetailPanel({
       const result = await response.json();
 
       if (response.ok && result.code === 200) {
-        alert("标记通过成功！");
+        toast.success("标记通过成功！");
         onClose(); // 关闭详情面板
         window.location.reload(); // 刷新页面显示最新状态
       } else {
-        alert(`标记失败: ${result.error || '未知错误'}`);
+        toast.error(`标记失败: ${result.error || '未知错误'}`);
       }
     } catch (error: any) {
       console.error("[AuditLogDetail] 标记通过失败:", error);
-      alert(`标记失败: ${error.message}`);
+      toast.error(`标记失败: ${error.message}`);
     }
   };
 
@@ -108,15 +109,15 @@ export default function AuditLogDetailPanel({
       const result = await response.json();
 
       if (response.ok && result.code === 200) {
-        alert("标记违规成功！");
+        toast.success("标记违规成功！");
         onClose(); // 关闭详情面板
         window.location.reload(); // 刷新页面显示最新状态
       } else {
-        alert(`标记失败: ${result.error || '未知错误'}`);
+        toast.error(`标记失败: ${result.error || '未知错误'}`);
       }
     } catch (error: any) {
       console.error("[AuditLogDetail] 标记违规失败:", error);
-      alert(`标记失败: ${error.message}`);
+      toast.error(`标记失败: ${error.message}`);
     }
   };
 

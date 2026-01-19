@@ -15,6 +15,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import type { NavItem } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 // 导航菜单配置
 const NAV_ITEMS: NavItem[] = [
@@ -74,7 +75,7 @@ export default function AdminSidebar() {
         router.push('/admin/login');
       } else {
         console.error('[AdminLogout] 登出失败:', result.message);
-        alert('登出失败，请重试');
+        toast.error('登出失败，请重试');
       }
     } catch (error) {
       console.error('[AdminLogout] 登出请求失败:', error);

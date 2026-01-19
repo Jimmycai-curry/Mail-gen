@@ -20,6 +20,7 @@ import UserFilters from "@/components/admin/users/UserFilters";
 import AddUserDialog from "@/components/admin/users/AddUserDialog";
 import StatusConfirmDialog from "@/components/admin/users/StatusConfirmDialog";
 import { UserListItem, UserListQuery } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 export default function UsersPage() {
   // ========== 状态管理 ==========
@@ -203,18 +204,18 @@ export default function UsersPage() {
         loadUsers();
         handleCloseStatusDialog();
 
-        // 显示成功提示（可以集成 Toast 组件）
-        alert(
+        // 显示成功提示（使用新的 Toast 组件）
+        toast.success(
           `用户 ${statusDialogState.user.phone} 已${
             statusDialogState.targetStatus === 0 ? "封禁" : "启用"
           }`
         );
       } else {
-        alert(`操作失败: ${data.error}`);
+        toast.error(`操作失败: ${data.error}`);
       }
     } catch (error) {
       console.error("更新用户状态失败:", error);
-      alert("更新用户状态失败，请稍后重试");
+      toast.error("更新用户状态失败，请稍后重试");
     }
   };
 
@@ -258,7 +259,7 @@ export default function UsersPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        alert(`导出失败: ${data.error}`);
+        toast.error(`导出失败: ${data.error}`);
         return;
       }
 
@@ -272,9 +273,12 @@ export default function UsersPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      
+      // 导出成功提示
+      toast.success("用户数据导出成功");
     } catch (error) {
       console.error("导出用户数据失败:", error);
-      alert("导出失败，请稍后重试");
+      toast.error("导出失败，请稍后重试");
     }
   };
 

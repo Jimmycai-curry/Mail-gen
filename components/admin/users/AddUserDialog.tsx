@@ -13,6 +13,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "@/utils/toast";
 
 interface AddUserDialogProps {
   open: boolean;                  // 对话框是否打开
@@ -85,7 +86,7 @@ export default function AddUserDialog({
         // 成功：关闭对话框并刷新列表
         handleClose();
         onSuccess();
-        alert(`用户 ${phone} 创建成功`);
+        toast.success(`用户 ${phone} 创建成功`);
       } else {
         setError(data.error || "创建用户失败");
       }

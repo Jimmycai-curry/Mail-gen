@@ -16,6 +16,7 @@
 
 import { useState, useEffect } from "react";
 import { FeedbackListItem, FeedbackTypeLabel } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 interface FeedbackProcessModalProps {
   feedback: FeedbackListItem | null;
@@ -151,8 +152,14 @@ export default function FeedbackProcessModal({
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-slate-500">反馈 ID</span>
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(feedback.id);
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(feedback.id);
+                        toast.success("反馈 ID 复制成功");
+                      } catch (error) {
+                        console.error("复制失败:", error);
+                        toast.error("复制失败，请稍后重试");
+                      }
                     }}
                     className="text-[10px] text-primary hover:text-[#0047BD] transition-colors"
                     title="点击复制到剪贴板"

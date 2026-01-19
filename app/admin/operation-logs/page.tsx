@@ -18,6 +18,7 @@ import { useState, useEffect, useCallback } from "react";
 import OperationLogFilters from "@/components/admin/operation-logs/OperationLogFilters";
 import OperationLogTable from "@/components/admin/operation-logs/OperationLogTable";
 import type { OperationLog, OperationLogQueryParams } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 export default function OperationLogPage() {
   // ========== 状态管理 ==========
@@ -105,7 +106,7 @@ export default function OperationLogPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        alert(error.error || "导出失败");
+        toast.error(error.error || "导出失败");
         return;
       }
 
@@ -120,10 +121,12 @@ export default function OperationLogPage() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
+      // 导出成功提示
+      toast.success("操作日志导出成功");
       console.log("[OperationLog] 导出成功");
     } catch (error) {
       console.error("[OperationLog] 导出失败:", error);
-      alert("导出失败，请稍后重试");
+      toast.error("导出失败，请稍后重试");
     }
   };
 

@@ -20,6 +20,7 @@ import AuditLogFilters from "@/components/admin/audit/AuditLogFilters";
 import AuditLogTable from "@/components/admin/audit/AuditLogTable";
 import AuditLogDetailPanel from "@/components/admin/audit/AuditLogDetailPanel";
 import type { AuditLog, AuditLogDetail, AuditLogQueryParams } from "@/types/admin";
+import { toast } from "@/utils/toast";
 
 export default function AuditLogPage() {
   // ========== 状态管理 ==========
@@ -115,11 +116,11 @@ export default function AuditLogPage() {
         console.log("[AuditLog] 详情加载成功:", { id });
       } else {
         console.error("[AuditLog] 详情加载失败:", result.error);
-        alert(`加载详情失败: ${result.error}`);
+        toast.error(`加载详情失败: ${result.error}`);
       }
     } catch (error: any) {
       console.error("[AuditLog] 请求失败:", error);
-      alert(`加载详情失败: ${error.message}`);
+      toast.error(`加载详情失败: ${error.message}`);
     } finally {
       setDetailLoading(false);
     }
@@ -149,7 +150,7 @@ export default function AuditLogPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        alert(error.error || "导出失败");
+        toast.error(error.error || "导出失败");
         return;
       }
 
@@ -164,10 +165,12 @@ export default function AuditLogPage() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
+      // 导出成功提示
+      toast.success("审计日志导出成功");
       console.log("[AuditLog] 导出成功");
     } catch (error) {
       console.error("[AuditLog] 导出失败:", error);
-      alert("导出失败，请稍后重试");
+      toast.error("导出失败，请稍后重试");
     }
   };
 
