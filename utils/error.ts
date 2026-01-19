@@ -79,13 +79,24 @@ export class InternalServerError extends AppError {
 }
 
 /**
+ * AI 服务错误（500 Internal Server Error）
+ * 用于 AI 生成服务相关的错误
+ */
+export class AIServiceError extends AppError {
+  constructor(message: string = 'AI 服务异常') {
+    super(message, 500, 'AI_SERVICE_ERROR')
+  }
+}
+
+/**
  * 错误响应接口
  */
 export interface ErrorResponse {
   success: false
-  message: string
+  status: number
   error: {
     code: string
+    message: string
     details?: string
   }
 }
@@ -100,9 +111,10 @@ export function handleError(error: unknown): ErrorResponse {
   if (error instanceof AppError) {
     return {
       success: false,
-      message: error.message,
+      status: error.statusCode,
       error: {
         code: error.code,
+        message: error.message,
         details: error.isOperational ? undefined : '请联系管理员'
       }
     }
@@ -111,9 +123,10 @@ export function handleError(error: unknown): ErrorResponse {
   if (error instanceof Error) {
     return {
       success: false,
-      message: '服务器内部错误',
+      status: 500,
       error: {
         code: 'INTERNAL_SERVER_ERROR',
+        message: '服务器内部错误',
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
       }
     }
@@ -121,9 +134,10 @@ export function handleError(error: unknown): ErrorResponse {
 
   return {
     success: false,
-    message: '服务器内部错误',
+    status: 500,
     error: {
-      code: 'UNKNOWN_ERROR'
+      code: 'UNKNOWN_ERROR',
+      message: '服务器内部错误'
     }
   }
 }

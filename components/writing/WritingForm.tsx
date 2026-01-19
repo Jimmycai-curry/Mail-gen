@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Zap } from "lucide-react";
+import { Zap, Loader2, X } from "lucide-react";
+import type { GenerateRequestBody, GenerateSuccessResponse, GenerateErrorResponse } from "@/types/ai";
+
+/**
+ * WritingForm Props 接口
+ */
+interface WritingFormProps {
+  onGenerateStart?: () => void;                           // 开始生成的回调
+  onGenerateSuccess?: (content: string) => void;          // 生成成功的回调
+  onGenerateError?: (error: string) => void;              // 生成失败的回调
+}
 
 /**
  * WritingForm 组件
  * 撰写表单，包含业务场景、语气选择、收件人信息和核心要点
  */
-export function WritingForm() {
+export function WritingForm({ onGenerateStart, onGenerateSuccess, onGenerateError }: WritingFormProps) {
   // 表单状态管理
   const [scenario, setScenario] = useState("");
   const [language, setLanguage] = useState("zh-CN"); // 新增：语言选择
@@ -15,6 +25,10 @@ export function WritingForm() {
   const [recipientName, setRecipientName] = useState("");
   const [recipientRole, setRecipientRole] = useState("");
   const [keyPoints, setKeyPoints] = useState("");
+
+  // 生成状态
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
 
   // 语气选项
   const tones = [
@@ -42,17 +56,124 @@ export function WritingForm() {
     { value: "ko-KR", label: "한국어" },
   ];
 
-  // 处理表单提交
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * 取消生成
+   */
+  const handleCancel = () => {
+    if (abortController) {
+      abortController.abort();
+      setAbortController(null);
+      setIsGenerating(false);
+      console.log('[WritingForm] 用户取消生成');
+    }
+  };
+
+  /**
+   * 处理表单提交
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("表单数据：", {
+
+    // 表单验证
+    if (!scenario) {
+      onGenerateError?.('请选择业务场景');
+      return;
+    }
+
+    if (!recipientName.trim()) {
+      onGenerateError?.('请输入收件人姓名');
+      return;
+    }
+
+    if (!recipientRole.trim()) {
+      onGenerateError?.('请输入收件人身份');
+      return;
+    }
+
+    if (!keyPoints.trim()) {
+      onGenerateError?.('请输入核心要点');
+      return;
+    }
+
+    console.log('[WritingForm] 开始生成...', {
       scenario,
       tone,
+      language,
       recipientName,
       recipientRole,
-      keyPoints,
+      keyPoints: keyPoints.substring(0, 50) + '...'
     });
-    // TODO: 后续调用 API 生成内容
+
+    // 创建 AbortController（用于取消）
+    const controller = new AbortController();
+    setAbortController(controller);
+    setIsGenerating(true);
+    onGenerateStart?.();
+
+    try {
+      // 构建请求体
+      const requestBody: GenerateRequestBody = {
+        scenario,
+        tone,
+        language,
+        recipientName: recipientName.trim(),
+        recipientRole: recipientRole.trim(),
+        keyPoints: keyPoints.trim()
+      };
+
+      // 调用 API
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
+      });
+
+      const data = await response.json() as GenerateSuccessResponse | GenerateErrorResponse;
+
+      // 检查响应
+      if (!response.ok || !data.success) {
+        const errorData = data as GenerateErrorResponse;
+        console.error('[WritingForm] 生成失败:', errorData.error);
+        
+        // 根据错误码处理
+        if (errorData.error.code === 'AUTH_EXPIRED') {
+          // 跳转到登录页
+          window.location.href = '/login';
+          return;
+        }
+        
+        onGenerateError?.(errorData.error.message);
+        return;
+      }
+
+      const successData = data as GenerateSuccessResponse;
+      console.log('[WritingForm] 生成成功', {
+        auditLogId: successData.data.auditLogId,
+        contentLength: successData.data.content.length
+      });
+
+      // 回调成功
+      onGenerateSuccess?.(successData.data.content);
+
+    } catch (error: any) {
+      // 处理取消
+      if (error.name === 'AbortError') {
+        console.log('[WritingForm] 请求已取消');
+        onGenerateError?.('生成已取消');
+        return;
+      }
+
+      // 处理网络错误
+      console.error('[WritingForm] 请求失败:', error);
+      onGenerateError?.('网络请求失败，请检查连接后重试');
+
+    } finally {
+      setIsGenerating(false);
+      setAbortController(null);
+    }
   };
 
   return (
@@ -169,14 +290,35 @@ export function WritingForm() {
         />
       </div>
 
-      {/* 立即生成按钮 */}
-      <button
-        type="submit"
-        className="w-full h-12 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4"
-      >
-        <Zap size={20} />
-        立即生成内容
-      </button>
+      {/* 立即生成按钮 / 取消按钮 */}
+      {!isGenerating ? (
+        <button
+          type="submit"
+          disabled={isGenerating}
+          className="w-full h-12 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Zap size={20} />
+          立即生成内容
+        </button>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {/* 加载提示 */}
+          <div className="w-full h-12 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium rounded-lg flex items-center justify-center gap-3">
+            <Loader2 size={20} className="animate-spin" />
+            <span>AI 正在为您生成专业内容，预计需要 10-30 秒...</span>
+          </div>
+          
+          {/* 取消按钮 */}
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="w-full h-10 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-medium rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+          >
+            <X size={16} />
+            取消生成
+          </button>
+        </div>
+      )}
     </form>
   );
 }

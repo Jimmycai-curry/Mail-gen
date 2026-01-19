@@ -1,36 +1,45 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, ThumbsDown, ThumbsUp, RefreshCw } from "lucide-react";
+import { Copy, ThumbsDown, ThumbsUp, RefreshCw, Loader2 } from "lucide-react";
+
+/**
+ * ResultViewer Props 接口
+ */
+interface ResultViewerProps {
+  content?: string;            // 生成的内容
+  isLoading?: boolean;         // 是否正在加载
+  isEmpty?: boolean;           // 是否为空状态
+  onRegenerate?: () => void;   // 重新生成回调
+}
 
 /**
  * ResultViewer 组件
  * 结果展示区，包含工具栏、内容展示和提示信息
  */
-export function ResultViewer() {
-  const [content, setContent] = useState(""); // 生成内容状态
-
+export function ResultViewer({ content = "", isLoading = false, isEmpty = true, onRegenerate }: ResultViewerProps) {
+  
   // 工具栏操作
   const handleCopy = () => {
     if (content) {
       navigator.clipboard.writeText(content);
+      // TODO: 使用 toast 替代 alert
       alert("已复制到剪贴板");
     }
   };
 
   const handleThumbDown = () => {
     console.log("点踩");
-    // TODO: 后续实现
+    // TODO: 后续实现反馈功能
   };
 
   const handleThumbUp = () => {
     console.log("点赞");
-    // TODO: 后续实现
+    // TODO: 后续实现反馈功能
   };
 
   const handleRegenerate = () => {
     console.log("重新生成");
-    // TODO: 后续实现
+    onRegenerate?.();
   };
 
   return (
@@ -80,31 +89,25 @@ export function ResultViewer() {
       {/* 内容展示区 */}
       <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 overflow-y-auto flex flex-col">
         <div className="prose dark:prose-invert max-w-none flex-1">
+          {/* 加载状态 */}
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
+              <Loader2 size={48} className="animate-spin text-primary" />
+              <p className="text-sm">AI 正在生成中，请稍候...</p>
+            </div>
+          )}
+
           {/* 空状态提示 */}
-          {!content && (
+          {!isLoading && isEmpty && !content && (
             <p className="text-slate-400 italic">
               点击左侧"立即生成"按钮开始撰写...
             </p>
           )}
           
           {/* 生成内容展示 */}
-          {content && (
-            <div>
-              {/* 示例内容（实际内容由 API 返回） */}
-              <h2 className="text-xl font-bold mb-4">
-                关于下季度销售目标的会议邀约
-              </h2>
-              <p>尊敬的销售总监：</p>
-              <p>您好！希望这封邮件时您正一切顺利。</p>
-              <p>
-                根据我们最新的业务分析，我想邀请您参加一个关于下季度销售目标的讨论会议。在本次会议中，我们将重点讨论以下几个核心要点：
-              </p>
-              <ul className="list-disc list-inside ml-4">
-                <li>区域市场的扩张策略</li>
-                <li>针对核心大客户的激励方案</li>
-                <li>渠道合作伙伴的赋能计划</li>
-              </ul>
-              <p>期待与您共同探讨。顺颂商祺。</p>
+          {!isLoading && content && (
+            <div className="whitespace-pre-wrap">
+              {content}
             </div>
           )}
         </div>
