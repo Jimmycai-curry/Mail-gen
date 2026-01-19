@@ -116,7 +116,10 @@ export class HistoryService {
         where.created_time.gte = new Date(startDate)
       }
       if (endDate) {
-        where.created_time.lte = new Date(endDate)
+        // 使用 lt（小于）而不是 lte（小于等于）
+        // 例如：endDate = "2025-01-20" 表示查询到 2025-01-19 23:59:59 为止
+        // 不包含 2025-01-20 00:00:00 及之后的记录
+        where.created_time.lt = new Date(endDate)
       }
     }
 
@@ -226,14 +229,115 @@ export class HistoryService {
   }
 
   /**
-   * 搜索历史记录（TODO: 待实现）
-   * @param keyword - 搜索关键词
-   * @param userId - 用户 ID
+   * 搜索历史记录
+   * 根据关键词在多个字段中进行模糊匹配，支持时间范围、收藏筛选
+   * 
+   * 功能:
+   * - 在 scene、sender_name、recipient_name、core_points、mail_content 中搜索关键词
+   * - 支持大小写不敏感的模糊匹配（使用 PostgreSQL ILIKE）
+   * - 支持时间范围筛选
+   * - 支持收藏筛选
+   * - 支持分页查询
+   * - 按创建时间倒序排列
+   * 
+   * @param keyword - 搜索关键词（至少2个字符）
+   * @param userId - 用户 ID（从 JWT Token 解析）
    * @param filters - 筛选参数
-   * @returns 搜索结果
+   * @returns 搜索结果和分页信息
+   * 
+   * @example
+   * ```typescript
+   * const result = await HistoryService.searchHistories('邀请', 'user-uuid', {
+   *   page: 1,
+   *   pageSize: 20,
+   *   showOnlyFavorites: true
+   * })
+   * ```
    */
   static async searchHistories(keyword: string, userId: string, filters: FilterParams = {}): Promise<HistoryListResult> {
-    throw new Error('searchHistories 方法待实现')
+    const {
+      page = 1,
+      pageSize = 20,
+      startDate,
+      endDate,
+      showOnlyFavorites = false
+    } = filters
+
+    console.log('[HistoryService] 搜索历史记录:', { keyword, userId, filters })
+
+    // 1. 构建基础查询条件
+    const where: any = {
+      user_id: userId,           // 只查询当前用户的数据
+      is_deleted: false,         // 排除已删除的记录
+      // OR 条件：在多个字段中搜索关键词
+      OR: [
+        { scene: { contains: keyword, mode: 'insensitive' } },
+        { sender_name: { contains: keyword, mode: 'insensitive' } },
+        { recipient_name: { contains: keyword, mode: 'insensitive' } },
+        { core_points: { contains: keyword, mode: 'insensitive' } },
+        { mail_content: { contains: keyword, mode: 'insensitive' } }
+      ]
+    }
+
+    // 2. 处理时间范围筛选（复用现有逻辑）
+    if (startDate || endDate) {
+      where.created_time = {}
+
+      if (startDate) {
+        where.created_time.gte = new Date(startDate)
+      }
+      if (endDate) {
+        // 使用 lt（小于）而不是 lte（小于等于）
+        // 例如：endDate = "2025-01-20" 表示查询到 2025-01-19 23:59:59 为止
+        // 不包含 2025-01-20 00:00:00 及之后的记录
+        where.created_time.lt = new Date(endDate)
+      }
+    }
+
+    // 3. 处理收藏筛选（复用现有逻辑）
+    if (showOnlyFavorites) {
+      where.is_favorite = true
+    }
+
+    console.log('[HistoryService] 搜索条件:', JSON.stringify(where, null, 2))
+
+    // 4. 查询总数
+    const total = await prisma.mail_histories.count({ where })
+
+    // 5. 分页查询列表
+    const list = await prisma.mail_histories.findMany({
+      where,
+      orderBy: { created_time: 'desc' }, // 按时间倒序
+      skip: (page - 1) * pageSize,     // 跳过前面的记录
+      take: pageSize,                  // 取指定数量的记录
+      select: {
+        id: true,
+        scene: true,
+        sender_name: true,
+        recipient_name: true,
+        core_points: true,
+        is_favorite: true,
+        created_time: true
+      }
+    })
+
+    // 6. 格式化返回数据（复用现有方法）
+    const formattedList = list.map(item => this.formatHistoryItem(item))
+
+    console.log('[HistoryService] 搜索成功:', {
+      keyword,
+      total,
+      count: formattedList.length,
+      page,
+      pageSize
+    })
+
+    return {
+      list: formattedList,
+      total,
+      page,
+      pageSize
+    }
   }
 
   /**

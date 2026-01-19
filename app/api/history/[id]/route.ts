@@ -60,7 +60,7 @@ import { HistoryService } from '@/services/historyService'
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withErrorHandler(async () => {
     console.log('[HistoryDetail API] 收到获取历史记录详情请求')
@@ -70,7 +70,7 @@ export async function GET(
     console.log('[HistoryDetail API] 用户已认证:', { userId: user.userId })
 
     // 2. 获取历史记录 ID（从 URL 路径参数）
-    const historyId = params.id
+    const { id: historyId } = await params
     console.log('[HistoryDetail API] 查询历史记录 ID:', historyId)
 
     // 3. 调用 Service 层获取详情

@@ -92,13 +92,84 @@ export class HistoryApiClient {
   }
 
   /**
-   * 搜索历史记录（TODO: 待实现）
-   * @param keyword - 搜索关键词
-   * @param filters - 筛选参数
-   * @returns 搜索结果
+   * 搜索历史记录
+   * 
+   * 认证方式:
+   * - 浏览器自动从 Cookie 读取 auth_token
+   * - 后端验证 Token 并提取 userId
+   * - 只返回对应用户的历史记录
+   * 
+   * @param params - 搜索参数（包含关键词和筛选条件）
+   * @returns API 响应
+   * 
+   * @example
+   * ```typescript
+   * // 基础搜索
+   * const response = await HistoryApiClient.searchHistories({
+   *   keyword: '邀请'
+   * })
+   * 
+   * // 搜索 + 筛选
+   * const response = await HistoryApiClient.searchHistories({
+   *   keyword: '合作',
+   *   startDate: '2025-01-01',
+   *   endDate: '2025-01-31',
+   *   showOnlyFavorites: true
+   * })
+   * ```
    */
-  static async searchHistories(keyword: string, filters?: GetHistoriesRequest): Promise<any> {
-    throw new Error('searchHistories 方法待实现')
+  static async searchHistories(params: {
+    keyword: string;
+    page?: number;
+    pageSize?: number;
+    startDate?: string;
+    endDate?: string;
+    showOnlyFavorites?: boolean;
+  }): Promise<GetHistoriesResponse> {
+    console.log('[HistoryApiClient] 请求搜索历史记录:', params)
+
+    // 1. 发起 POST 请求到搜索接口
+    // 注意：Cookie 会自动携带，无需手动设置
+    const response = await fetch('/api/history/search', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    // 2. 检查响应状态
+    if (!response.ok) {
+      console.error('[HistoryApiClient] 搜索失败:', {
+        status: response.status,
+        statusText: response.statusText
+      })
+      
+      // 如果是 401，说明 Token 无效或过期，跳转到登录页
+      if (response.status === 401) {
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname)
+        throw new Error('未登录或登录已过期')
+      }
+      
+      // 如果是 400，可能是参数错误
+      if (response.status === 400) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || '搜索参数错误')
+      }
+      
+      throw new Error('搜索历史记录失败')
+    }
+
+    // 3. 解析 JSON 响应
+    const data: GetHistoriesResponse = await response.json()
+    
+    console.log('[HistoryApiClient] 搜索历史记录成功:', {
+      keyword: params.keyword,
+      total: data.data.total,
+      count: data.data.list.length
+    })
+
+    return data
   }
 
   /**

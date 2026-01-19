@@ -117,12 +117,13 @@ export default function HistoryPage() {
   };
 
   /**
-   * 处理筛选变更
-   * 当用户点击"确认应用"按钮时调用
-   * @param filters - 筛选参数
+   * 处理筛选变更和搜索
+   * 当用户点击"确认应用"按钮或按回车搜索时调用
+   * @param filters - 筛选参数（可能包含搜索关键词）
    * 
    * 说明:
-   * - 前端调用 HistoryApiClient.getHistories(filters)
+   * - 如果有关键词，调用 HistoryApiClient.searchHistories()
+   * - 如果没有关键词，调用 HistoryApiClient.getHistories()
    * - Cookie 自动携带 auth_token
    * - 后端从 Token 解析 userId，应用筛选条件查询数据
    */
@@ -131,23 +132,47 @@ export default function HistoryPage() {
       setIsLoading(true);
       setError(null);
 
-      // 调用 API 客户端获取筛选后的数据
-      const response = await HistoryApiClient.getHistories(filters);
+      let response;
+      
+      // 判断是搜索还是普通筛选
+      if (filters.keyword && filters.keyword.trim()) {
+        // 有关键词：调用搜索接口
+        console.log('[HistoryPage] 执行搜索:', filters);
+        response = await HistoryApiClient.searchHistories({
+          keyword: filters.keyword.trim(),
+          page: filters.page,
+          pageSize: filters.pageSize,
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          showOnlyFavorites: filters.showOnlyFavorites
+        });
+      } else {
+        // 无关键词：调用普通筛选接口
+        console.log('[HistoryPage] 执行筛选:', filters);
+        response = await HistoryApiClient.getHistories(filters);
+      }
 
       if (response.success) {
         setHistories(response.data.list);
-        console.log('[HistoryPage] 筛选历史记录成功:', {
+        console.log('[HistoryPage] 操作成功:', {
           filters,
+          total: response.data.total,
           count: response.data.list.length
         });
       } else {
-        setError('筛选失败');
-        toast.error('筛选失败，请稍后重试');
+        setError('操作失败');
+        toast.error('操作失败，请稍后重试');
       }
     } catch (err) {
-      console.error('[HistoryPage] 筛选历史记录失败:', err);
-      setError('筛选失败');
-      toast.error('筛选失败，请稍后重试');
+      console.error('[HistoryPage] 操作失败:', err);
+      setError('操作失败');
+      
+      // 显示更友好的错误提示
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('操作失败，请稍后重试');
+      }
     } finally {
       setIsLoading(false);
     }
