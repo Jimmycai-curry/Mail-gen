@@ -143,7 +143,8 @@ export async function updateUserStatus(
     data: {
       admin_id: adminId,
       action_type: status === 0 ? 'DISABLE_USER' : 'ENABLE_USER',
-      target_id: userId,
+      user_id: userId,   // 修改：被操作的用户ID
+      audit_id: null,    // 修改：此操作不涉及审计日志
       detail: `修改用户 ${user.phone} 状态为 ${status === 0 ? '封禁' : '正常'}`,
       ip: adminIp
     }
@@ -213,7 +214,8 @@ export async function createUser(
     data: {
       admin_id: adminId,
       action_type: 'CREATE_USER',
-      target_id: newUser.id,
+      user_id: newUser.id,   // 修改：被创建的用户ID
+      audit_id: null,        // 修改：此操作不涉及审计日志
       detail: `创建用户 ${phone}，角色: ${role === 0 ? '管理员' : '普通用户'}`,
       ip: adminIp
     }
@@ -311,7 +313,8 @@ export async function exportUsers(
     data: {
       admin_id: adminId,
       action_type: 'EXPORT_USERS',
-      target_id: null,
+      user_id: null,    // 修改：导出操作不针对特定用户
+      audit_id: null,   // 修改：此操作不涉及审计日志
       detail: `导出用户数据，条件: ${JSON.stringify(query)}，数量: ${count}`,
       ip: adminIp
     }

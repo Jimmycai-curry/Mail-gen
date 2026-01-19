@@ -274,7 +274,8 @@ export async function processFeedback(
       data: {
         admin_id: adminId,
         action_type: 'PROCESS_FEEDBACK',
-        target_id: id,
+        user_id: feedback.user_id,     // 修改：反馈提交者的用户ID
+        audit_id: feedback.log_id,     // 修改：关联的审计日志ID（如果有）
         detail: `处理反馈: ${FeedbackTypeLabel[feedback.type] || feedback.type}${data.adminNote ? `, 备注: ${data.adminNote}` : ''}`,
         ip: adminIp,
       }
@@ -413,7 +414,8 @@ export async function exportFeedbacks(
       data: {
         admin_id: adminId,
         action_type: 'EXPORT_FEEDBACKS',
-        target_id: null,
+        user_id: null,    // 修改：导出操作不针对特定用户
+        audit_id: null,   // 修改：导出操作不针对特定审计日志
         detail: `导出反馈数据 ${count} 条，筛选条件: ${JSON.stringify({ type, status, startDate, endDate })}`,
         ip: adminIp,
       }

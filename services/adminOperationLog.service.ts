@@ -130,7 +130,8 @@ export async function getOperationLogs(
       id: log.id,
       adminAccount: adminPhone || '-', // 完整显示管理员账号
       actionType: log.action_type,
-      targetId: log.target_id,
+      userId: log.user_id || null,     // 修改：被操作的用户ID
+      auditId: log.audit_id || null,   // 修改：审计日志表对应ID
       detail: log.detail,
       ip: log.ip,
       createdTime: log.created_time?.toISOString() || '',
@@ -180,7 +181,7 @@ export async function exportOperationLogs(
 
     if (matchedAdmins.length === 0) {
       // 没有匹配的管理员，返回空CSV
-      return '\uFEFF日志ID,管理员账号,操作类型,目标ID,详细描述,IP地址,操作时间';
+      return '\uFEFF日志ID,管理员账号,操作类型,被操作用户ID,审计日志ID,详细描述,IP地址,操作时间';
     }
 
     where.admin_id = {
@@ -220,7 +221,7 @@ export async function exportOperationLogs(
   const rows: string[] = [];
 
   // CSV 表头（UTF-8 BOM）
-  rows.push('\uFEFF日志ID,管理员账号,操作类型,目标ID,详细描述,IP地址,操作时间');
+  rows.push('\uFEFF日志ID,管理员账号,操作类型,被操作用户ID,审计日志ID,详细描述,IP地址,操作时间');
 
   // CSV 数据行
   for (const log of logs) {
@@ -246,7 +247,8 @@ export async function exportOperationLogs(
         log.id,
         adminPhone, // 完整显示管理员账号
         actionLabel,
-        log.target_id || '-',
+        log.user_id || '-',      // 修改：被操作的用户ID
+        log.audit_id || '-',     // 修改：审计日志表对应ID
         csvEscape(log.detail),
         log.ip || '-',
         createdTime,
@@ -264,7 +266,8 @@ export async function exportOperationLogs(
 export async function logAdminOperation(data: {
   adminId: string;
   actionType: string;
-  targetId?: string;
+  userId?: string;      // 修改：被操作的用户ID（原来是 targetId）
+  auditId?: string;     // 新增：审计日志表对应ID
   detail?: string;
   ip?: string;
 }): Promise<void> {
@@ -272,7 +275,8 @@ export async function logAdminOperation(data: {
     data: {
       admin_id: data.adminId,
       action_type: data.actionType,
-      target_id: data.targetId || null,
+      user_id: data.userId || null,     // 修改：使用 user_id
+      audit_id: data.auditId || null,   // 新增：使用 audit_id
       detail: data.detail || null,
       ip: data.ip || null,
     },

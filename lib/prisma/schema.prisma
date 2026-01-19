@@ -13,7 +13,8 @@ model admin_operation_logs {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   admin_id     String    @db.Uuid
   action_type  String    @db.VarChar(50)
-  target_id    String?   @db.VarChar(50)
+  user_id      String?   @db.Uuid
+  audit_id     String?   @db.Uuid
   detail       String?
   ip           String?   @db.VarChar(45)
   created_time DateTime? @default(now()) @db.Timestamptz(6)

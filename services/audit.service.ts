@@ -321,7 +321,8 @@ export async function exportAuditLogs(
     data: {
       admin_id: adminId,
       action_type: 'EXPORT_AUDIT_LOGS',
-      target_id: null,
+      user_id: null,    // 修改：导出操作不针对特定用户
+      audit_id: null,   // 修改：导出操作不针对特定审计日志
       detail: `导出审计日志，条件: ${JSON.stringify(params)}，数量: ${count}`,
       ip: adminIp
     }
@@ -352,6 +353,7 @@ export async function markAuditLogAsViolation(
     where: { id },
     select: {
       id: true,
+      user_id: true,      // 新增：获取用户ID
       user_phone: true,
       status: true,
     }
@@ -380,7 +382,8 @@ export async function markAuditLogAsViolation(
     data: {
       admin_id: adminId,
       action_type: 'MARK_VIOLATION',
-      target_id: id,
+      user_id: log.user_id,    // 修改：审计日志对应的用户ID
+      audit_id: id,            // 修改：被标记的审计日志ID
       detail: `手动标记审计日志为违规，用户手机号: ${log.user_phone}`,
       ip: adminIp,
     }
@@ -411,6 +414,7 @@ export async function markAuditLogAsPassed(
     where: { id },
     select: {
       id: true,
+      user_id: true,      // 新增：获取用户ID
       user_phone: true,
       status: true,
     }
@@ -439,7 +443,8 @@ export async function markAuditLogAsPassed(
     data: {
       admin_id: adminId,
       action_type: 'MARK_PASSED',
-      target_id: id,
+      user_id: log.user_id,    // 修改：审计日志对应的用户ID
+      audit_id: id,            // 修改：被标记的审计日志ID
       detail: `手动标记审计日志为通过，用户手机号: ${log.user_phone}`,
       ip: adminIp,
     }

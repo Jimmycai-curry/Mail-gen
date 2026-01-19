@@ -185,7 +185,8 @@ export interface OperationLog {
   id: string                    // 日志 UUID
   adminAccount: string          // 管理员账号（手机号，完整显示）
   actionType: string            // 操作类型（如 "BAN_USER"）
-  targetId: string | null       // 目标ID（如 "USR_99210"）
+  userId: string | null         // 被操作的用户ID
+  auditId: string | null        // 审计日志表对应ID
   detail: string | null         // 操作详情描述
   ip: string | null             // 管理员操作IP
   createdTime: string           // ISO 时间字符串
