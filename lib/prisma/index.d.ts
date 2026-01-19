@@ -4491,6 +4491,7 @@ export namespace Prisma {
     scene: string | null
     tone: string | null
     recipient_name: string | null
+    recipient_role: string | null
     sender_name: string | null
     core_points: string | null
     mail_content: string | null
@@ -4507,6 +4508,7 @@ export namespace Prisma {
     scene: string | null
     tone: string | null
     recipient_name: string | null
+    recipient_role: string | null
     sender_name: string | null
     core_points: string | null
     mail_content: string | null
@@ -4523,6 +4525,7 @@ export namespace Prisma {
     scene: number
     tone: number
     recipient_name: number
+    recipient_role: number
     sender_name: number
     core_points: number
     mail_content: number
@@ -4541,6 +4544,7 @@ export namespace Prisma {
     scene?: true
     tone?: true
     recipient_name?: true
+    recipient_role?: true
     sender_name?: true
     core_points?: true
     mail_content?: true
@@ -4557,6 +4561,7 @@ export namespace Prisma {
     scene?: true
     tone?: true
     recipient_name?: true
+    recipient_role?: true
     sender_name?: true
     core_points?: true
     mail_content?: true
@@ -4573,6 +4578,7 @@ export namespace Prisma {
     scene?: true
     tone?: true
     recipient_name?: true
+    recipient_role?: true
     sender_name?: true
     core_points?: true
     mail_content?: true
@@ -4662,6 +4668,7 @@ export namespace Prisma {
     scene: string | null
     tone: string | null
     recipient_name: string | null
+    recipient_role: string | null
     sender_name: string | null
     core_points: string | null
     mail_content: string
@@ -4695,6 +4702,7 @@ export namespace Prisma {
     scene?: boolean
     tone?: boolean
     recipient_name?: boolean
+    recipient_role?: boolean
     sender_name?: boolean
     core_points?: boolean
     mail_content?: boolean
@@ -4711,6 +4719,7 @@ export namespace Prisma {
     scene?: boolean
     tone?: boolean
     recipient_name?: boolean
+    recipient_role?: boolean
     sender_name?: boolean
     core_points?: boolean
     mail_content?: boolean
@@ -4727,6 +4736,7 @@ export namespace Prisma {
     scene?: boolean
     tone?: boolean
     recipient_name?: boolean
+    recipient_role?: boolean
     sender_name?: boolean
     core_points?: boolean
     mail_content?: boolean
@@ -4743,6 +4753,7 @@ export namespace Prisma {
     scene?: boolean
     tone?: boolean
     recipient_name?: boolean
+    recipient_role?: boolean
     sender_name?: boolean
     core_points?: boolean
     mail_content?: boolean
@@ -4752,7 +4763,7 @@ export namespace Prisma {
     updated_time?: boolean
   }
 
-  export type mail_historiesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_id" | "audit_log_id" | "scene" | "tone" | "recipient_name" | "sender_name" | "core_points" | "mail_content" | "is_favorite" | "is_deleted" | "created_time" | "updated_time", ExtArgs["result"]["mail_histories"]>
+  export type mail_historiesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_id" | "audit_log_id" | "scene" | "tone" | "recipient_name" | "recipient_role" | "sender_name" | "core_points" | "mail_content" | "is_favorite" | "is_deleted" | "created_time" | "updated_time", ExtArgs["result"]["mail_histories"]>
 
   export type $mail_historiesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "mail_histories"
@@ -4764,6 +4775,7 @@ export namespace Prisma {
       scene: string | null
       tone: string | null
       recipient_name: string | null
+      recipient_role: string | null
       sender_name: string | null
       core_points: string | null
       mail_content: string
@@ -5200,6 +5212,7 @@ export namespace Prisma {
     readonly scene: FieldRef<"mail_histories", 'String'>
     readonly tone: FieldRef<"mail_histories", 'String'>
     readonly recipient_name: FieldRef<"mail_histories", 'String'>
+    readonly recipient_role: FieldRef<"mail_histories", 'String'>
     readonly sender_name: FieldRef<"mail_histories", 'String'>
     readonly core_points: FieldRef<"mail_histories", 'String'>
     readonly mail_content: FieldRef<"mail_histories", 'String'>
@@ -6727,6 +6740,7 @@ export namespace Prisma {
     scene: 'scene',
     tone: 'tone',
     recipient_name: 'recipient_name',
+    recipient_role: 'recipient_role',
     sender_name: 'sender_name',
     core_points: 'core_points',
     mail_content: 'mail_content',
@@ -7094,6 +7108,7 @@ export namespace Prisma {
     scene?: StringNullableFilter<"mail_histories"> | string | null
     tone?: StringNullableFilter<"mail_histories"> | string | null
     recipient_name?: StringNullableFilter<"mail_histories"> | string | null
+    recipient_role?: StringNullableFilter<"mail_histories"> | string | null
     sender_name?: StringNullableFilter<"mail_histories"> | string | null
     core_points?: StringNullableFilter<"mail_histories"> | string | null
     mail_content?: StringFilter<"mail_histories"> | string
@@ -7110,6 +7125,7 @@ export namespace Prisma {
     scene?: SortOrderInput | SortOrder
     tone?: SortOrderInput | SortOrder
     recipient_name?: SortOrderInput | SortOrder
+    recipient_role?: SortOrderInput | SortOrder
     sender_name?: SortOrderInput | SortOrder
     core_points?: SortOrderInput | SortOrder
     mail_content?: SortOrder
@@ -7129,6 +7145,7 @@ export namespace Prisma {
     scene?: StringNullableFilter<"mail_histories"> | string | null
     tone?: StringNullableFilter<"mail_histories"> | string | null
     recipient_name?: StringNullableFilter<"mail_histories"> | string | null
+    recipient_role?: StringNullableFilter<"mail_histories"> | string | null
     sender_name?: StringNullableFilter<"mail_histories"> | string | null
     core_points?: StringNullableFilter<"mail_histories"> | string | null
     mail_content?: StringFilter<"mail_histories"> | string
@@ -7145,6 +7162,7 @@ export namespace Prisma {
     scene?: SortOrderInput | SortOrder
     tone?: SortOrderInput | SortOrder
     recipient_name?: SortOrderInput | SortOrder
+    recipient_role?: SortOrderInput | SortOrder
     sender_name?: SortOrderInput | SortOrder
     core_points?: SortOrderInput | SortOrder
     mail_content?: SortOrder
@@ -7167,6 +7185,7 @@ export namespace Prisma {
     scene?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
     tone?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
     recipient_name?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
+    recipient_role?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
     sender_name?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
     core_points?: StringNullableWithAggregatesFilter<"mail_histories"> | string | null
     mail_content?: StringWithAggregatesFilter<"mail_histories"> | string
@@ -7530,6 +7549,7 @@ export namespace Prisma {
     scene?: string | null
     tone?: string | null
     recipient_name?: string | null
+    recipient_role?: string | null
     sender_name?: string | null
     core_points?: string | null
     mail_content: string
@@ -7546,6 +7566,7 @@ export namespace Prisma {
     scene?: string | null
     tone?: string | null
     recipient_name?: string | null
+    recipient_role?: string | null
     sender_name?: string | null
     core_points?: string | null
     mail_content: string
@@ -7562,6 +7583,7 @@ export namespace Prisma {
     scene?: NullableStringFieldUpdateOperationsInput | string | null
     tone?: NullableStringFieldUpdateOperationsInput | string | null
     recipient_name?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_role?: NullableStringFieldUpdateOperationsInput | string | null
     sender_name?: NullableStringFieldUpdateOperationsInput | string | null
     core_points?: NullableStringFieldUpdateOperationsInput | string | null
     mail_content?: StringFieldUpdateOperationsInput | string
@@ -7578,6 +7600,7 @@ export namespace Prisma {
     scene?: NullableStringFieldUpdateOperationsInput | string | null
     tone?: NullableStringFieldUpdateOperationsInput | string | null
     recipient_name?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_role?: NullableStringFieldUpdateOperationsInput | string | null
     sender_name?: NullableStringFieldUpdateOperationsInput | string | null
     core_points?: NullableStringFieldUpdateOperationsInput | string | null
     mail_content?: StringFieldUpdateOperationsInput | string
@@ -7594,6 +7617,7 @@ export namespace Prisma {
     scene?: string | null
     tone?: string | null
     recipient_name?: string | null
+    recipient_role?: string | null
     sender_name?: string | null
     core_points?: string | null
     mail_content: string
@@ -7610,6 +7634,7 @@ export namespace Prisma {
     scene?: NullableStringFieldUpdateOperationsInput | string | null
     tone?: NullableStringFieldUpdateOperationsInput | string | null
     recipient_name?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_role?: NullableStringFieldUpdateOperationsInput | string | null
     sender_name?: NullableStringFieldUpdateOperationsInput | string | null
     core_points?: NullableStringFieldUpdateOperationsInput | string | null
     mail_content?: StringFieldUpdateOperationsInput | string
@@ -7626,6 +7651,7 @@ export namespace Prisma {
     scene?: NullableStringFieldUpdateOperationsInput | string | null
     tone?: NullableStringFieldUpdateOperationsInput | string | null
     recipient_name?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_role?: NullableStringFieldUpdateOperationsInput | string | null
     sender_name?: NullableStringFieldUpdateOperationsInput | string | null
     core_points?: NullableStringFieldUpdateOperationsInput | string | null
     mail_content?: StringFieldUpdateOperationsInput | string
@@ -8049,6 +8075,7 @@ export namespace Prisma {
     scene?: SortOrder
     tone?: SortOrder
     recipient_name?: SortOrder
+    recipient_role?: SortOrder
     sender_name?: SortOrder
     core_points?: SortOrder
     mail_content?: SortOrder
@@ -8065,6 +8092,7 @@ export namespace Prisma {
     scene?: SortOrder
     tone?: SortOrder
     recipient_name?: SortOrder
+    recipient_role?: SortOrder
     sender_name?: SortOrder
     core_points?: SortOrder
     mail_content?: SortOrder
@@ -8081,6 +8109,7 @@ export namespace Prisma {
     scene?: SortOrder
     tone?: SortOrder
     recipient_name?: SortOrder
+    recipient_role?: SortOrder
     sender_name?: SortOrder
     core_points?: SortOrder
     mail_content?: SortOrder
