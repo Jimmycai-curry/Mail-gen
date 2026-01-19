@@ -245,10 +245,14 @@ export async function generateMail(params: GenerateMailParams): Promise<Generate
       auditLogId: result.id
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
+    
+    // 安全地提取错误信息
+    const errorMessage = error instanceof Error ? error.message : '未知错误';
+    
     console.error('[AIService] 邮件生成失败', {
-      error: error.message,
+      error: errorMessage,
       duration: `${duration}ms`
     });
 
