@@ -178,6 +178,64 @@ export default function HistoryPage() {
     }
   };
 
+  /**
+   * 处理收藏状态切换
+   * 当用户点击收藏按钮时调用
+   * @param id - 历史记录 ID
+   * 
+   * 说明:
+   * - 调用 HistoryApiClient.toggleFavorite(id)
+   * - Cookie 自动携带 auth_token
+   * - 后端验证权限并更新收藏状态
+   * - 成功后更新本地状态（列表和详情）
+   */
+  const handleToggleFavorite = async (id: string) => {
+    try {
+      console.log('[HistoryPage] 切换收藏状态:', id);
+
+      // 调用 API 切换收藏状态
+      const response = await HistoryApiClient.toggleFavorite(id);
+
+      if (response.success) {
+        const newFavoriteStatus = response.data.isFavorite;
+        console.log('[HistoryPage] 切换收藏成功:', {
+          id: response.data.id,
+          isFavorite: newFavoriteStatus
+        });
+
+        // 更新列表中的收藏状态
+        setHistories(prevHistories =>
+          prevHistories.map(history =>
+            history.id === id
+              ? { ...history, isFavorite: newFavoriteStatus }
+              : history
+          )
+        );
+
+        // 如果当前正在查看这条记录，也更新详情的收藏状态
+        if (selectedDetail && selectedDetail.id === id) {
+          setSelectedDetail(prevDetail =>
+            prevDetail ? { ...prevDetail, isFavorite: newFavoriteStatus } : null
+          );
+        }
+
+        // 显示成功提示
+        toast.success(newFavoriteStatus ? '已添加到收藏' : '已取消收藏');
+      } else {
+        toast.error('操作失败，请稍后重试');
+      }
+    } catch (err) {
+      console.error('[HistoryPage] 切换收藏失败:', err);
+      
+      // 显示更友好的错误提示
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('操作失败，请稍后重试');
+      }
+    }
+  };
+
   return (
     <div className="flex h-full">
       {/* 左侧历史记录列表：固定宽度 400px */}
@@ -187,6 +245,7 @@ export default function HistoryPage() {
           selectedId={selectedId}
           onSelectHistory={handleSelectHistory}
           onFilterChange={handleFilterChange}
+          onToggleFavorite={handleToggleFavorite}
           isLoading={isLoading}
           error={error}
         />
@@ -194,7 +253,11 @@ export default function HistoryPage() {
 
       {/* 右侧详情展示：flex-1 占据剩余空间 */}
       <section className="flex-1 flex flex-col overflow-hidden">
-        <HistoryDetailView detail={selectedDetail} isLoading={isDetailLoading} />
+        <HistoryDetailView 
+          detail={selectedDetail} 
+          isLoading={isDetailLoading}
+          onToggleFavorite={handleToggleFavorite}
+        />
       </section>
     </div>
   );

@@ -13,7 +13,7 @@ import { FilterDropdown } from "./FilterDropdown";
  * 历史记录列表，包含搜索框、筛选按钮和卡片列表
  * 展示历史记录的标题、预览内容、创建时间和收藏状态
  */
-export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, isLoading, error }: HistoryListProps) {
+export function HistoryList({ histories, selectedId, onSelectHistory, onFilterChange, onToggleFavorite, isLoading, error }: HistoryListProps) {
   // 搜索关键词状态
   const [searchKeyword, setSearchKeyword] = useState('');
   
@@ -255,6 +255,22 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
   };
 
   /**
+   * 处理收藏图标点击
+   * 阻止事件冒泡，避免触发卡片选择事件
+   * @param history - 历史记录数据
+   * @param event - 鼠标点击事件
+   */
+  const handleFavoriteClick = (history: HistoryItem, event: React.MouseEvent) => {
+    // 阻止事件冒泡，避免触发卡片点击事件
+    event.stopPropagation();
+    
+    // 调用父组件传入的回调函数
+    if (onToggleFavorite) {
+      onToggleFavorite(history.id);
+    }
+  };
+
+  /**
    * 渲染单个历史记录卡片
    * @param history - 历史记录数据
    * @returns 卡片元素
@@ -284,9 +300,15 @@ export function HistoryList({ histories, selectedId, onSelectHistory, onFilterCh
           </h3>
           {/* 收藏图标：实心爱心（已收藏）或空心爱心（未收藏） */}
           {history.isFavorite ? (
-            <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+            <Heart 
+              className="w-5 h-5 text-red-500 fill-red-500 cursor-pointer hover:scale-110 transition-transform" 
+              onClick={(event) => handleFavoriteClick(history, event)}
+            />
           ) : (
-            <Heart className="w-5 h-5 text-gray-300 hover:text-primary" />
+            <Heart 
+              className="w-5 h-5 text-gray-300 hover:text-red-500 cursor-pointer hover:scale-110 transition-transform" 
+              onClick={(event) => handleFavoriteClick(history, event)}
+            />
           )}
         </div>
 

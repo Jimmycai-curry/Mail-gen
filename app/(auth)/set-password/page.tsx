@@ -30,18 +30,14 @@ export default function SetPasswordPage() {
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        router.push("/login");
-        return;
-      }
-
+      // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch("/api/auth/set-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include', // 确保发送 Cookie
         body: JSON.stringify({
           password,
           confirmPassword,
@@ -51,9 +47,8 @@ export default function SetPasswordPage() {
       const result = await response.json();
 
       if (result.success) {
-        // 设置密码成功后，清除 localStorage（现在使用 Cookie 存储 token）
-        localStorage.removeItem("auth_token");
         // 直接跳转到 dashboard，不需要重新登录
+        // Token 继续使用同一个 Cookie
         router.push("/dashboard");
       } else {
         alert(result.message || "设置密码失败");

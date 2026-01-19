@@ -60,18 +60,14 @@ export default function AddUserDialog({
     setSubmitting(true);
 
     try {
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        window.location.href = "/admin/login";
-        return;
-      }
-
+      // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch("/api/admin/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include', // 确保发送 Cookie
         body: JSON.stringify({
           phone,
           role,

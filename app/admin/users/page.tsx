@@ -75,18 +75,13 @@ export default function UsersPage() {
         params.append("status", query.status.toString());
       }
 
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        window.location.href = "/admin/login";
-        return;
-      }
-
       // 发送请求
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/users?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {
@@ -181,20 +176,16 @@ export default function UsersPage() {
     if (!statusDialogState.user) return;
 
     try {
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        window.location.href = "/admin/login";
-        return;
-      }
-
+      // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(
         `/api/admin/users/${statusDialogState.user.id}/status`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
+          credentials: 'include', // 确保发送 Cookie
           body: JSON.stringify({
             status: statusDialogState.targetStatus,
           }),
@@ -253,20 +244,15 @@ export default function UsersPage() {
         params.append("status", query.status.toString());
       }
 
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        window.location.href = "/admin/login";
-        return;
-      }
-
       // 发送请求
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(
         `/api/admin/users/export?${params.toString()}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
+          credentials: 'include', // 确保发送 Cookie
         }
       );
 

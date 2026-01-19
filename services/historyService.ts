@@ -435,14 +435,95 @@ export class HistoryService {
   }
 
   /**
-   * 切换收藏状态（TODO: 待实现）
-   * @param id - 历史记录 ID
-   * @param userId - 用户 ID
-   * @param isFavorite - 收藏状态
-   * @returns 更新结果
+   * 切换收藏状态
+   * 根据历史记录 ID 切换或设置收藏状态
+   * 
+   * 功能:
+   * - 查询数据库获取历史记录
+   * - 验证记录是否属于当前用户（防止越权访问）
+   * - 支持两种模式：
+   *   1. 不传 isFavorite 参数：切换当前状态（true -> false, false -> true）
+   *   2. 传 isFavorite 参数：设置为指定状态
+   * - 更新 is_favorite 和 updated_time 字段
+   * - 返回更新后的状态
+   * 
+   * @param id - 历史记录 ID（UUID）
+   * @param userId - 用户 ID（从 JWT Token 解析）
+   * @param isFavorite - 目标收藏状态（可选）
+   * @returns 更新后的 id 和收藏状态
+   * @throws NotFoundError - 记录不存在或已被删除
+   * 
+   * @example
+   * ```typescript
+   * // 切换模式：如果当前是收藏，则取消收藏；如果当前是未收藏，则收藏
+   * const result1 = await HistoryService.toggleFavorite('550e8400-e29b-41d4-a716-446655440000', 'user-uuid', undefined)
+   * // 返回: { id: '550e8400-e29b-41d4-a716-446655440000', isFavorite: true }
+   * 
+   * // 设置模式：直接设置为收藏
+   * const result2 = await HistoryService.toggleFavorite('550e8400-e29b-41d4-a716-446655440000', 'user-uuid', true)
+   * // 返回: { id: '550e8400-e29b-41d4-a716-446655440000', isFavorite: true }
+   * ```
    */
-  static async toggleFavorite(id: string, userId: string, isFavorite: boolean): Promise<{ success: boolean }> {
-    throw new Error('toggleFavorite 方法待实现')
+  static async toggleFavorite(id: string, userId: string, isFavorite?: boolean): Promise<{ id: string; isFavorite: boolean }> {
+    console.log('[HistoryService] 切换收藏状态:', { id, userId, isFavorite })
+
+    // 1. 查询当前记录并验证权限
+    // 注意：同时匹配 id 和 user_id 可以防止越权访问（用户只能操作自己的数据）
+    const history = await prisma.mail_histories.findFirst({
+      where: {
+        id: id,                    // 记录 ID
+        user_id: userId,            // 用户 ID（确保只能操作自己的数据）
+        is_deleted: false           // 排除已删除的记录
+      },
+      select: {
+        id: true,
+        is_favorite: true
+      }
+    })
+
+    // 2. 权限检查：如果记录不存在，返回 404 错误
+    // 这里不需要额外检查 user_id，因为查询时已经过滤了
+    if (!history) {
+      console.log('[HistoryService] 历史记录不存在或无权访问:', { id, userId })
+      throw new NotFoundError('历史记录不存在')
+    }
+
+    // 3. 确定新的收藏状态
+    let newFavoriteStatus: boolean
+    
+    if (isFavorite !== undefined) {
+      // 模式1：明确指定状态（设置模式）
+      newFavoriteStatus = isFavorite
+      console.log('[HistoryService] 设置模式: 设置为', newFavoriteStatus)
+    } else {
+      // 模式2：切换状态（切换模式）
+      newFavoriteStatus = !history.is_favorite
+      console.log('[HistoryService] 切换模式:', history.is_favorite, '->', newFavoriteStatus)
+    }
+
+    // 4. 更新数据库
+    const updated = await prisma.mail_histories.update({
+      where: { id: id },
+      data: {
+        is_favorite: newFavoriteStatus,
+        updated_time: new Date()
+      },
+      select: {
+        id: true,
+        is_favorite: true
+      }
+    })
+
+    console.log('[HistoryService] 收藏状态更新成功:', {
+      id: updated.id,
+      isFavorite: updated.is_favorite
+    })
+
+    // 5. 返回结果
+    return {
+      id: updated.id,
+      isFavorite: updated.is_favorite
+    }
   }
 
   /**

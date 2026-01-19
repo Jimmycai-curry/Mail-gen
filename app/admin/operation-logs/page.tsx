@@ -52,19 +52,13 @@ export default function OperationLogPage() {
       if (queryParams.startDate) params.append("startDate", queryParams.startDate);
       if (queryParams.endDate) params.append("endDate", queryParams.endDate);
 
-      // 获取 Token（从 localStorage）
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        console.error("[OperationLog] 未找到认证 Token");
-        return;
-      }
-
       // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/operation-logs?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {
@@ -100,19 +94,13 @@ export default function OperationLogPage() {
       if (queryParams.startDate) params.append("startDate", queryParams.startDate);
       if (queryParams.endDate) params.append("endDate", queryParams.endDate);
 
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        console.error("[OperationLog] 未找到认证 Token");
-        return;
-      }
-
       // 调用导出 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/operation-logs/export?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {
