@@ -58,19 +58,13 @@ export default function AuditLogPage() {
       if (queryParams.startDate) params.append("startDate", queryParams.startDate);
       if (queryParams.endDate) params.append("endDate", queryParams.endDate);
 
-      // 获取 Token（从 localStorage）
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        console.error("[AuditLog] 未找到认证 Token");
-        return;
-      }
-
       // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/audit-logs?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {
@@ -99,19 +93,13 @@ export default function AuditLogPage() {
   const fetchLogDetail = useCallback(async (id: string) => {
     setDetailLoading(true);
     try {
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        console.error("[AuditLog] 未找到认证 Token");
-        return;
-      }
-
       // 调用 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/audit-logs/${id}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {
@@ -150,19 +138,13 @@ export default function AuditLogPage() {
       if (queryParams.startDate) params.append("startDate", queryParams.startDate);
       if (queryParams.endDate) params.append("endDate", queryParams.endDate);
 
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        console.error("[AuditLog] 未找到认证 Token");
-        return;
-      }
-
       // 调用导出 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/audit-logs/export?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       if (!response.ok) {

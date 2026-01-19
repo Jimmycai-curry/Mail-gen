@@ -61,20 +61,14 @@ export default function AuditLogDetailPanel({
     }
 
     try {
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        alert("未找到认证 Token，请重新登录");
-        return;
-      }
-
       // 调用标记通过 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/audit-logs/${log.id}/mark-passed`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       const result = await response.json();
@@ -101,20 +95,14 @@ export default function AuditLogDetailPanel({
     }
 
     try {
-      // 获取 Token
-      const token = localStorage.getItem("auth_token");
-      
-      if (!token) {
-        alert("未找到认证 Token，请重新登录");
-        return;
-      }
-
       // 调用标记违规 API
+      // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
       const response = await fetch(`/api/admin/audit-logs/${log.id}/mark-violation`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
+        credentials: 'include', // 确保发送 Cookie
       });
 
       const result = await response.json();

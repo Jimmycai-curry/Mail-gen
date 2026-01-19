@@ -56,22 +56,14 @@ export default function AdminDashboardPage() {
         setLoading(true)
         setError(null)
 
-        // 从 localStorage 获取 token（与其他管理后台页面保持一致）
-        const token = localStorage.getItem('auth_token')
-        if (!token) {
-          setError('未登录，请先登录')
-          // 跳转到管理员登录页
-          window.location.href = '/admin/login'
-          return
-        }
-
         // 调用 API
+        // Token 通过 HttpOnly Cookie 自动发送，无需手动添加 Authorization 头
         const response = await fetch('/api/admin/dashboard', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+          },
+          credentials: 'include', // 确保发送 Cookie
         })
 
         if (!response.ok) {
