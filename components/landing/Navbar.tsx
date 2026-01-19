@@ -29,7 +29,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-solid border-[#e6ebf4] dark:border-gray-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 dark:backdrop-blur-md">
       <div className="mx-auto max-w-[1280px] px-6 lg:px-10 py-4">
         <nav className="flex items-center justify-between whitespace-nowrap">
           {/* Logo区域 */}
@@ -37,7 +37,7 @@ export default function Navbar() {
             <div className="text-primary flex items-center">
               <span className="material-symbols-outlined text-3xl">mail</span>
             </div>
-            <h2 className="text-xl font-bold leading-tight tracking-tight text-[#0c121d] dark:text-white">
+            <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100">
               FluentWJ
             </h2>
           </div>
@@ -45,21 +45,21 @@ export default function Navbar() {
           {/* 导航链接 */}
           <div className="hidden md:flex flex-1 justify-center gap-10">
             {/* <a
-              className="text-[#4568a1] dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={handleNavLinkClick}
             >
               产品特性
             </a>
             <a
-              className="text-[#4568a1] dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={handleNavLinkClick}
             >
               行业解决方案
             </a>
             <a
-              className="text-[#4568a1] dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+              className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
               href="#"
               onClick={handleNavLinkClick}
             >
@@ -71,7 +71,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {/* 语言切换图标 */}
             {/* <span 
-              className="material-symbols-outlined text-[#4568a1] dark:text-gray-500 cursor-pointer hover:text-primary transition-colors"
+              className="material-symbols-outlined text-slate-600 dark:text-slate-400 cursor-pointer hover:text-primary transition-colors"
               onClick={handleLanguageChange}
             >
               language
@@ -80,7 +80,7 @@ export default function Navbar() {
             {/* 登录按钮 */}
             <button
               onClick={handleLoginClick}
-              className="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold tracking-wide hover:bg-primary/90 transition-all"
+              className="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-semibold tracking-wide hover:bg-primary/90 transition-all"
             >
               登录
             </button>
