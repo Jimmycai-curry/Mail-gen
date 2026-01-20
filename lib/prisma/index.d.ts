@@ -5624,6 +5624,8 @@ export namespace Prisma {
   export type UsersMinAggregateOutputType = {
     id: string | null
     phone: string | null
+    name: string | null
+    avatar: string | null
     password_hash: string | null
     role: number | null
     status: number | null
@@ -5636,6 +5638,8 @@ export namespace Prisma {
   export type UsersMaxAggregateOutputType = {
     id: string | null
     phone: string | null
+    name: string | null
+    avatar: string | null
     password_hash: string | null
     role: number | null
     status: number | null
@@ -5648,6 +5652,8 @@ export namespace Prisma {
   export type UsersCountAggregateOutputType = {
     id: number
     phone: number
+    name: number
+    avatar: number
     password_hash: number
     role: number
     status: number
@@ -5672,6 +5678,8 @@ export namespace Prisma {
   export type UsersMinAggregateInputType = {
     id?: true
     phone?: true
+    name?: true
+    avatar?: true
     password_hash?: true
     role?: true
     status?: true
@@ -5684,6 +5692,8 @@ export namespace Prisma {
   export type UsersMaxAggregateInputType = {
     id?: true
     phone?: true
+    name?: true
+    avatar?: true
     password_hash?: true
     role?: true
     status?: true
@@ -5696,6 +5706,8 @@ export namespace Prisma {
   export type UsersCountAggregateInputType = {
     id?: true
     phone?: true
+    name?: true
+    avatar?: true
     password_hash?: true
     role?: true
     status?: true
@@ -5795,6 +5807,8 @@ export namespace Prisma {
   export type UsersGroupByOutputType = {
     id: string
     phone: string
+    name: string | null
+    avatar: string | null
     password_hash: string | null
     role: number | null
     status: number | null
@@ -5826,6 +5840,8 @@ export namespace Prisma {
   export type usersSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     phone?: boolean
+    name?: boolean
+    avatar?: boolean
     password_hash?: boolean
     role?: boolean
     status?: boolean
@@ -5838,6 +5854,8 @@ export namespace Prisma {
   export type usersSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     phone?: boolean
+    name?: boolean
+    avatar?: boolean
     password_hash?: boolean
     role?: boolean
     status?: boolean
@@ -5850,6 +5868,8 @@ export namespace Prisma {
   export type usersSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     phone?: boolean
+    name?: boolean
+    avatar?: boolean
     password_hash?: boolean
     role?: boolean
     status?: boolean
@@ -5862,6 +5882,8 @@ export namespace Prisma {
   export type usersSelectScalar = {
     id?: boolean
     phone?: boolean
+    name?: boolean
+    avatar?: boolean
     password_hash?: boolean
     role?: boolean
     status?: boolean
@@ -5871,7 +5893,7 @@ export namespace Prisma {
     updated_time?: boolean
   }
 
-  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phone" | "password_hash" | "role" | "status" | "last_login_ip" | "last_login_time" | "created_time" | "updated_time", ExtArgs["result"]["users"]>
+  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "phone" | "name" | "avatar" | "password_hash" | "role" | "status" | "last_login_ip" | "last_login_time" | "created_time" | "updated_time", ExtArgs["result"]["users"]>
 
   export type $usersPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "users"
@@ -5879,6 +5901,8 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       phone: string
+      name: string | null
+      avatar: string | null
       password_hash: string | null
       role: number | null
       status: number | null
@@ -6311,6 +6335,8 @@ export namespace Prisma {
   interface usersFieldRefs {
     readonly id: FieldRef<"users", 'String'>
     readonly phone: FieldRef<"users", 'String'>
+    readonly name: FieldRef<"users", 'String'>
+    readonly avatar: FieldRef<"users", 'String'>
     readonly password_hash: FieldRef<"users", 'String'>
     readonly role: FieldRef<"users", 'Int'>
     readonly status: FieldRef<"users", 'Int'>
@@ -6770,6 +6796,8 @@ export namespace Prisma {
   export const UsersScalarFieldEnum: {
     id: 'id',
     phone: 'phone',
+    name: 'name',
+    avatar: 'avatar',
     password_hash: 'password_hash',
     role: 'role',
     status: 'status',
@@ -7220,6 +7248,8 @@ export namespace Prisma {
     NOT?: usersWhereInput | usersWhereInput[]
     id?: UuidFilter<"users"> | string
     phone?: StringFilter<"users"> | string
+    name?: StringNullableFilter<"users"> | string | null
+    avatar?: StringNullableFilter<"users"> | string | null
     password_hash?: StringNullableFilter<"users"> | string | null
     role?: IntNullableFilter<"users"> | number | null
     status?: IntNullableFilter<"users"> | number | null
@@ -7232,6 +7262,8 @@ export namespace Prisma {
   export type usersOrderByWithRelationInput = {
     id?: SortOrder
     phone?: SortOrder
+    name?: SortOrderInput | SortOrder
+    avatar?: SortOrderInput | SortOrder
     password_hash?: SortOrderInput | SortOrder
     role?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
@@ -7247,6 +7279,8 @@ export namespace Prisma {
     AND?: usersWhereInput | usersWhereInput[]
     OR?: usersWhereInput[]
     NOT?: usersWhereInput | usersWhereInput[]
+    name?: StringNullableFilter<"users"> | string | null
+    avatar?: StringNullableFilter<"users"> | string | null
     password_hash?: StringNullableFilter<"users"> | string | null
     role?: IntNullableFilter<"users"> | number | null
     status?: IntNullableFilter<"users"> | number | null
@@ -7259,6 +7293,8 @@ export namespace Prisma {
   export type usersOrderByWithAggregationInput = {
     id?: SortOrder
     phone?: SortOrder
+    name?: SortOrderInput | SortOrder
+    avatar?: SortOrderInput | SortOrder
     password_hash?: SortOrderInput | SortOrder
     role?: SortOrderInput | SortOrder
     status?: SortOrderInput | SortOrder
@@ -7279,6 +7315,8 @@ export namespace Prisma {
     NOT?: usersScalarWhereWithAggregatesInput | usersScalarWhereWithAggregatesInput[]
     id?: UuidWithAggregatesFilter<"users"> | string
     phone?: StringWithAggregatesFilter<"users"> | string
+    name?: StringNullableWithAggregatesFilter<"users"> | string | null
+    avatar?: StringNullableWithAggregatesFilter<"users"> | string | null
     password_hash?: StringNullableWithAggregatesFilter<"users"> | string | null
     role?: IntNullableWithAggregatesFilter<"users"> | number | null
     status?: IntNullableWithAggregatesFilter<"users"> | number | null
@@ -7690,6 +7728,8 @@ export namespace Prisma {
   export type usersCreateInput = {
     id?: string
     phone: string
+    name?: string | null
+    avatar?: string | null
     password_hash?: string | null
     role?: number | null
     status?: number | null
@@ -7702,6 +7742,8 @@ export namespace Prisma {
   export type usersUncheckedCreateInput = {
     id?: string
     phone: string
+    name?: string | null
+    avatar?: string | null
     password_hash?: string | null
     role?: number | null
     status?: number | null
@@ -7714,6 +7756,8 @@ export namespace Prisma {
   export type usersUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: NullableIntFieldUpdateOperationsInput | number | null
     status?: NullableIntFieldUpdateOperationsInput | number | null
@@ -7726,6 +7770,8 @@ export namespace Prisma {
   export type usersUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: NullableIntFieldUpdateOperationsInput | number | null
     status?: NullableIntFieldUpdateOperationsInput | number | null
@@ -7738,6 +7784,8 @@ export namespace Prisma {
   export type usersCreateManyInput = {
     id?: string
     phone: string
+    name?: string | null
+    avatar?: string | null
     password_hash?: string | null
     role?: number | null
     status?: number | null
@@ -7750,6 +7798,8 @@ export namespace Prisma {
   export type usersUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: NullableIntFieldUpdateOperationsInput | number | null
     status?: NullableIntFieldUpdateOperationsInput | number | null
@@ -7762,6 +7812,8 @@ export namespace Prisma {
   export type usersUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
     password_hash?: NullableStringFieldUpdateOperationsInput | string | null
     role?: NullableIntFieldUpdateOperationsInput | number | null
     status?: NullableIntFieldUpdateOperationsInput | number | null
@@ -8151,6 +8203,8 @@ export namespace Prisma {
   export type usersCountOrderByAggregateInput = {
     id?: SortOrder
     phone?: SortOrder
+    name?: SortOrder
+    avatar?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
     status?: SortOrder
@@ -8168,6 +8222,8 @@ export namespace Prisma {
   export type usersMaxOrderByAggregateInput = {
     id?: SortOrder
     phone?: SortOrder
+    name?: SortOrder
+    avatar?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
     status?: SortOrder
@@ -8180,6 +8236,8 @@ export namespace Prisma {
   export type usersMinOrderByAggregateInput = {
     id?: SortOrder
     phone?: SortOrder
+    name?: SortOrder
+    avatar?: SortOrder
     password_hash?: SortOrder
     role?: SortOrder
     status?: SortOrder

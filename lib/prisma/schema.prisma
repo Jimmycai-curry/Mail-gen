@@ -80,9 +80,12 @@ model mail_histories {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 // Spec: /docs/specs/login-page.md
 // 说明: password_hash改为可选字段,支持新用户首次验证码登录后为空,后续强制设置密码
+// 新增: name和avatar字段用于用户个性化展示
 model users {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   phone           String    @unique @db.VarChar(20)
+  name            String?   @db.VarChar(100) // 用户昵称/显示名称（可选）
+  avatar          String?   @db.VarChar(500) // 用户头像URL（可选）
   password_hash   String? // 改为可选,新用户首次验证码登录时可为空,后续强制设置密码
   role            Int?      @default(1) @db.SmallInt
   status          Int?      @default(1) @db.SmallInt

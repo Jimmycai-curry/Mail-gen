@@ -76,6 +76,8 @@ export interface LoginResponse {
 export interface UserResponse {
   id: string
   phone: string
+  name?: string       // 用户昵称/显示名称（可选）
+  avatar?: string     // 用户头像URL（可选）
   role: number
   status: number
   lastLoginTime?: string
@@ -132,6 +134,8 @@ export interface LoginResult {
   user?: {
     id: string
     phone: string
+    name?: string    // 用户昵称/显示名称（可选）
+    avatar?: string  // 用户头像URL（可选）
     role: number
   }
   token?: string

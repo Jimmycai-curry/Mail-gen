@@ -6,6 +6,8 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     phone VARCHAR(20) UNIQUE NOT NULL,       -- 手机号（实名基础）
+    name VARCHAR(100),                       -- 用户昵称/显示名称
+    avatar VARCHAR(500),                     -- 用户头像 URL
     password_hash TEXT,                      -- 加密存储的密码（首次验证码登录可为空）
     role SMALLINT DEFAULT 1,                 -- 0: 管理员(admin), 1: 普通用户(user)
     status SMALLINT DEFAULT 1,               -- 0: 封禁(banned), 1: 正常(normal)
@@ -75,6 +77,8 @@ CREATE TABLE admin_operation_logs (
 COMMENT ON TABLE users IS '用户基本信息表';
 COMMENT ON COLUMN users.id IS '用户唯一标识 UUID';
 COMMENT ON COLUMN users.phone IS '用户实名认证手机号';
+COMMENT ON COLUMN users.name IS '用户昵称/显示名称';
+COMMENT ON COLUMN users.avatar IS '用户头像 URL（指向头像图片的完整链接）';
 COMMENT ON COLUMN users.password_hash IS '加密存储的密码哈希值';
 COMMENT ON COLUMN users.role IS '用户角色：0-管理员(Admin), 1-普通用户(User)';
 COMMENT ON COLUMN users.status IS '账户状态：0-封禁(Banned), 1-正常(Normal)';
