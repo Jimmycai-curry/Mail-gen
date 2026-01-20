@@ -18,9 +18,13 @@ export default function ForgotPasswordPage() {
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4">
       {/* Logo 和标题 */}
       <div className="mb-8 flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0052D9] text-white">
-          {/* 使用 Material Symbols 的邮件图标 */}
-          <span className="material-symbols-outlined text-2xl">mail</span>
+        <div className="flex items-center">
+          {/* 使用 logo SVG 替代原来的图标，宽度设置为 40px 保持视觉效果 */}
+          <img 
+            src="/fluentWJ_logo_svg_without_character.svg" 
+            alt="FluentWJ Logo" 
+            className="w-[40px] h-auto"
+          />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-[#0c0c1d] dark:text-white">
           FluentWJ

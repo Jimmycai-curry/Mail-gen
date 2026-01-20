@@ -88,10 +88,13 @@ export default function AdminSidebar() {
     <aside className="w-64 bg-[#0054db] dark:bg-sidebar-bg text-white flex flex-col fixed h-full z-50">
       {/* Logo 区域 */}
       <div className="p-6 flex items-center gap-3">
-        <div className="size-8 bg-white/20 rounded-lg flex items-center justify-center">
-          <span className="material-symbols-outlined text-white">
-            keyboard_command_key
-          </span>
+        <div className="flex items-center">
+          {/* 使用 logo SVG 替代原来的图标，size-8 等于 32px 宽 */}
+          <img 
+            src="/fluentWJ_logo_svg_without_character.svg" 
+            alt="FluentWJ Logo" 
+            className="size-8 h-auto"
+          />
         </div>
         <div>
           <h1 className="text-lg font-bold leading-none tracking-tight">

@@ -19,8 +19,13 @@ export default function AdminLoginPage() {
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-x-hidden admin-grid-pattern bg-white dark:bg-[#0f1723]">
       {/* Logo 区域 */}
       <div className="mb-8 flex flex-col items-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0054db] text-white shadow-lg shadow-[#0054db]/20">
-          <span className="material-symbols-outlined text-3xl">mail</span>
+        <div className="flex items-center">
+          {/* 使用 logo SVG 替代原来的图标，宽度设置为 48px 保持视觉效果 */}
+          <img 
+            src="/fluentWJ_logo_svg_without_character.svg" 
+            alt="FluentWJ Logo" 
+            className="w-[48px] h-auto"
+          />
         </div>
       </div>
 
