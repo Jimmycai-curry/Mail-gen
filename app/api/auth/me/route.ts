@@ -44,17 +44,26 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // 调试日志：打印完整的用户对象
+    console.log('[API /api/auth/me] 数据库返回的完整用户对象:', JSON.stringify(user, null, 2))
+    console.log('[API /api/auth/me] name 字段值:', user.name)
+    console.log('[API /api/auth/me] avatar 字段值:', user.avatar)
+
     const response: GetCurrentUserResponse = {
       success: true,
       user: {
         id: user.id,
         phone: user.phone,
+        name: user.name, // 返回用户名
+        avatar: user.avatar, // 返回头像 URL
         role: user.role ?? 1,
         status: user.status ?? 1,
         lastLoginTime: user.last_login_time?.toISOString(),
         createdAt: user.created_time?.toISOString()
       }
     }
+
+    console.log('[API /api/auth/me] API 返回的响应数据:', JSON.stringify(response, null, 2))
 
     return Response.json(response)
   })

@@ -239,6 +239,8 @@ export async function getUserById(userId: string) {
     select: {
       id: true,
       phone: true,
+      name: true,      // 新增 name 字段
+      avatar: true,    // 新增 avatar 字段
       role: true,
       status: true,
       last_login_ip: true,

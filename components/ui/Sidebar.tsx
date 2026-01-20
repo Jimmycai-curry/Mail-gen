@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react"; // 引入 useState 来管理收缩状态和弹窗状态
+"use client";
+
+import { useState, useEffect } from "react"; // 引入 useState 和 useEffect
 import { useRouter } from "next/navigation"; // 引入 useRouter 用于页面跳转
 import { Mail, PenSquare, History, ChevronLeft, ChevronRight, Heart, HeartOff, LogOut } from "lucide-react"; // 新增 LogOut 图标
 
@@ -15,6 +17,15 @@ interface SidebarProps {
   activeNav?: 'writing' | 'history';
 }
 
+// 用户信息接口
+interface UserInfo {
+  id: string;
+  name?: string;
+  avatar?: string;
+  phone: string;
+  role: number;
+}
+
 export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
   const router = useRouter(); // 初始化路由器
   
@@ -27,6 +38,38 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
   
   // 管理登出加载状态
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 获取用户信息
+  const fetchUserInfo = async () => {
+    try {
+      // 调用 /api/auth/me 接口获取当前用户信息
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[Sidebar] 获取到的用户数据:', data); // 调试：打印完整响应数据
+        console.log('[Sidebar] 用户名:', data.user?.name); // 调试：打印用户名
+        console.log('[Sidebar] 手机号:', data.user?.phone); // 调试：打印手机号
+        // 设置用户信息
+        setUserInfo(data.user);
+      } else {
+        console.error('[Sidebar] 获取用户信息失败');
+      }
+    } catch (error) {
+      console.error('[Sidebar] 获取用户信息错误:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始化时获取用户信息
+  useEffect(() => {
+    fetchUserInfo();
+  }, []);
 
   // 切换收缩状态的函数
   const toggleCollapse = () => {
@@ -86,7 +129,7 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-6 gap-3'}`}>
           {/* Logo 图标 */}
           <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            <Mail className="text-white" size={24} />
+          <img src="/FluentWJ_logo.png" alt="FluentWJ Logo" className="w-8 h-8" />
           </div>
           
           {/* Logo 文字 - 收缩时隐藏 */}
@@ -144,15 +187,25 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
           <div
             className="w-10 h-10 rounded-full bg-cover bg-center border border-white/20 shrink-0"
             style={{
-              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtomjlKAlPEzLdqqIEYZSFOMX_HIxMOjhyuSm72v0-CAZvtDAMTLXxj9FPEWQWLdweeh1wf7H0mpPqTZs7U6Oh7uLGtqlzQicd5uqlqpaPaQ9y6xAXweIyzsIdKCrYZEZAdZmMieV8eArCk_ZuIB30qdVXajfEcg0Qab8eawtX8wH4Ea8nqQVZsSyKV-JQBaOJxpkuatMnDEqMF6JAf-TIQWHYDXuxMKKHOxG3LJIl5e1RS_kGImuTSgmgnp0vgI3qExmbYTG6pUMI')`
+              backgroundImage: userInfo?.avatar 
+                ? `url('${userInfo.avatar}')`
+                : `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtomjlKAlPEzLdqqIEYZSFOMX_HIxMOjhyuSm72v0-CAZvtDAMTLXxj9FPEWQWLdweeh1wf7H0mpPqTZs7U6Oh7uLGtqlzQicd5uqlqpaPaQ9y6xAXweIyzsIdKCrYZEZAdZmMieV8eArCk_ZuIB30qdVXajfEcg0Qab8eawtX8wH4Ea8nqQVZsSyKV-JQBaOJxpkuatMnDEqMF6JAf-TIQWHYDXuxMKKHOxG3LJIl5e1RS_kGImuTSgmgnp0vgI3qExmbYTG6pUMI')`
             }}
           />
 
           {/* 用户信息 - 收缩时隐藏 */}
           {!isCollapsed && (
             <div className="flex flex-col overflow-hidden whitespace-nowrap">
-              <p className="text-sm font-medium truncate">企业管理员</p>
-              <p className="text-xs text-slate-400 truncate">Pro Account</p>
+              {/* 用户名：显示 name 字段，如果没有就不显示（不显示默认值） */}
+              {userInfo?.name && (
+                <p className="text-sm font-medium truncate">
+                  {userInfo.name}
+                </p>
+              )}
+              {/* 手机号：隐藏中间四位，例如 190****9907 */}
+              <p className="text-xs text-slate-400 truncate">
+                {userInfo?.phone ? `${userInfo.phone.substring(0, 3)}****${userInfo.phone.substring(7)}` : 'Pro Account'}
+              </p>
             </div>
           )}
         </div>
