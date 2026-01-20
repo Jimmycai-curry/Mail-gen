@@ -34,8 +34,13 @@ export default function Navbar() {
         <nav className="flex items-center justify-between whitespace-nowrap">
           {/* Logo区域 */}
           <div className="flex items-center gap-3">
-            <div className="text-primary flex items-center">
-              <span className="material-symbols-outlined text-3xl">mail</span>
+            <div className="flex items-center">
+              {/* 使用 logo SVG 替代图标,宽度设置为 30px 保持与 text-3xl 相同大小 */}
+              <img 
+                src="/fluentWJ_logo_svg_without_character.svg" 
+                alt="FluentWJ Logo" 
+                className="w-[30px] h-auto"
+              />
             </div>
             <h2 className="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-slate-100">
               FluentWJ

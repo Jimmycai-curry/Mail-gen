@@ -12,8 +12,13 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           {/* Logo区域 */}
           <div className="flex items-center gap-3">
-            <div className="text-primary/70 flex items-center">
-              <span className="material-symbols-outlined text-2xl">mail</span>
+            <div className="flex items-center opacity-70">
+              {/* 使用 logo SVG 替代图标,宽度设置为 24px 保持与 text-2xl 相同大小 */}
+              <img 
+                src="/fluentWJ_logo_svg_without_character.svg" 
+                alt="FluentWJ Logo" 
+                className="w-[24px] h-auto"
+              />
             </div>
             <span className="text-slate-900 dark:text-slate-100 font-bold tracking-tight">
               FluentWJ

@@ -128,8 +128,8 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
       <div className="flex flex-col gap-8">
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-6 gap-3'}`}>
           {/* Logo 图标 */}
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
-          <img src="/FluentWJ_logo.png" alt="FluentWJ Logo" className="w-8 h-8" />
+          <div className="w-12 h-12 rounded-full bg-white/10 dark:bg-white/5 flex items-center justify-center shrink-0 backdrop-blur-sm">
+          <img src="/fluentWJ_logo_svg_without_character.svg" alt="FluentWJ Logo" className="w-10 h-10" />
           </div>
           
           {/* Logo 文字 - 收缩时隐藏 */}
@@ -183,13 +183,13 @@ export function Sidebar({ activeNav = 'writing' }: SidebarProps) {
       <div className={`flex flex-col gap-3 ${isCollapsed ? 'px-2' : 'px-4'}`}>
         {/* 用户信息卡片 - 收缩时只显示头像 */}
         <div className="bg-white/5 rounded-xl p-4 flex items-center gap-3 overflow-hidden">
-          {/* 用户头像 */}
+          {/* 用户头像：如果有头像就用用户的，否则使用默认头像 */}
           <div
             className="w-10 h-10 rounded-full bg-cover bg-center border border-white/20 shrink-0"
             style={{
-              backgroundImage: userInfo?.avatar 
+              backgroundImage: userInfo?.avatar
                 ? `url('${userInfo.avatar}')`
-                : `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtomjlKAlPEzLdqqIEYZSFOMX_HIxMOjhyuSm72v0-CAZvtDAMTLXxj9FPEWQWLdweeh1wf7H0mpPqTZs7U6Oh7uLGtqlzQicd5uqlqpaPaQ9y6xAXweIyzsIdKCrYZEZAdZmMieV8eArCk_ZuIB30qdVXajfEcg0Qab8eawtX8wH4Ea8nqQVZsSyKV-JQBaOJxpkuatMnDEqMF6JAf-TIQWHYDXuxMKKHOxG3LJIl5e1RS_kGImuTSgmgnp0vgI3qExmbYTG6pUMI')`
+                : `url('/default-avatar.png')`
             }}
           />
 
