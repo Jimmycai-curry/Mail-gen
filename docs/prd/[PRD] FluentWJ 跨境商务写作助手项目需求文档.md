@@ -1,6 +1,6 @@
 [PRD] FluentWJ 跨境商务写作助手项目需求文档
-文档版本：v2.0 (Build 20260119)
-产品状态：MVP Development → Advanced Development
+文档版本：v2.1 (Build 20260122)
+产品状态：MVP Development → Advanced Development → Production Ready
 项目负责人：[Your Name]
 核心目标：合规性准入（算法备案） + 跨境 B 端外包展示 + C 端付费闭环 + 企业级管理后台
 
@@ -10,6 +10,7 @@
 
 | 版本 | 日期 | 主要变更 |
 |------|------|---------|
+| v2.1 | 2026-01-22 | 根据最新代码实现更新：技术栈版本升级、用户个性化字段、AI生成API完成、多语言支持 |
 | v2.0 | 2026-01-19 | 重大更新：根据实际代码实现重构PRD，新增历史记录、落地页、Dashboard等功能 |
 | v1.1 | 2025-01-07 | 初版发布，定义核心功能和数据库Schema |
 
@@ -102,9 +103,11 @@ FluentWJ 是一款针对跨境电商及外贸行业设计的智能商务写作�
 - **表单输入**：
   - 业务场景（Dropdown）：商务邮件、工作汇报、项目提案、正式公告
   - 语气选择（Button组）：正式、友好、紧急、幽默
-  - 收件人姓名（Input）
-  - 收件人身份（Input）：职位或背景（如：销售总监、技术合作伙伴）
-  - 核心要点（Textarea）：用户想表达的核心内容，多个要点分行输入
+  - 语言选择（Dropdown）：简体中文、英语、繁体中文、日语、韩语
+  - 收件人姓名（Input）：必填，最多100字符
+  - 收件人身份（Input）：职位或背景（如：销售总监、技术合作伙伴），必填，最多200字符
+  - 发件人姓名（Input）：可选，最多50字符
+  - 核心要点（Textarea）：用户想表达的核心内容，多个要点分行输入，最多2000字符
 - **禁止对话框**：前端不提供自由对话（Chat）接口，规避舆论属性风险
 - **生成结果展示**：
   - 工具栏：复制、点踩、点赞、重新生成
@@ -263,11 +266,15 @@ FluentWJ 是一款针对跨境电商及外贸行业设计的智能商务写作�
 ## 4. 数据架构与技术选型 (Technical Specification)
 
 ### 4.1 技术栈 (Tech Stack)
-- **Framework**: Next.js 15 (App Router)
-- **ORM**: Prisma
+- **Framework**: Next.js 16.1.1 (App Router)
+- **Frontend**: React 19.2.3, TypeScript 5
+- **ORM**: Prisma 7.2.0
 - **Database**: PostgreSQL (Docker-based)
-- **Auth**: 自定义 JWT（非 NextAuth.js）
-- **Styling**: Tailwind CSS + Shadcn/UI
+- **Cache**: Redis (ioredis 5.9.1)
+- **Auth**: 自定义 JWT (jose 6.1.3)，非 NextAuth.js
+- **Styling**: Tailwind CSS 4 + Shadcn/UI风格组件库
+- **Icons**: Material Symbols Outlined
+- **Fonts**: Inter, Noto Sans SC, IBM Plex Sans, Geist
 - **Infrastructure**: 华为云 Flexus X 实例 (Ubuntu 24.04)
 
 ### 4.2 数据库 Schema 概览 (Entity Relationship)
@@ -277,6 +284,8 @@ FluentWJ 是一款针对跨境电商及外贸行业设计的智能商务写作�
 model users {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   phone           String    @unique @db.VarChar(20)
+  name            String?   @db.VarChar(100)    // 用户昵称/显示名称（可选）
+  avatar          String?   @db.VarChar(500)    // 用户头像URL（可选）
   password_hash   String?   // 可选，首次验证码登录时可为空，后续强制设置密码
   role            Int?      @default(1) @db.SmallInt    // 0:Admin, 1:User
   status          Int?      @default(1) @db.SmallInt    // 0:Banned, 1:Normal
@@ -291,6 +300,8 @@ model users {
 ```
 
 **字段说明**：
+- `name`: 用户昵称/显示名称（可选，用于个性化展示）
+- `avatar`: 用户头像URL（可选，用于个性化展示）
 - `password_hash`: 加密存储的密码（首次验证码登录可为空）
 - `role`: 用户角色（0=管理员, 1=普通用户）
 - `status`: 账户状态（0=封禁, 1=正常）
@@ -355,7 +366,8 @@ model admin_operation_logs {
   id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   admin_id     String    @db.Uuid
   action_type  String    @db.VarChar(50)     // 'BAN_USER', 'UNBAN_USER', 'PROCESS_FEEDBACK', etc.
-  target_id    String?   @db.VarChar(50)
+  user_id      String?   @db.Uuid            // 操作目标用户ID（可选）
+  audit_id     String?   @db.Uuid            // 操作目标审计日志ID（可选）
   detail       String?
   ip           String?   @db.VarChar(45)
   created_time DateTime? @default(now()) @db.Timestamptz(6)
@@ -364,6 +376,8 @@ model admin_operation_logs {
 
 **字段说明**：
 - `action_type`: 操作类型（BAN_USER=封禁用户, UNBAN_USER=解封用户, PROCESS_FEEDBACK=处理反馈, etc.）
+- `user_id`: 操作目标用户ID（当操作对象是用户时记录）
+- `audit_id`: 操作目标审计日志ID（当操作对象是审计日志时记录）
 
 #### 4.2.5 mail_histories 表（邮件生成历史记录）⭐ 新增
 ```prisma
@@ -376,7 +390,8 @@ model mail_histories {
   scene          String?   @db.VarChar(50)     // 场景
   tone           String?   @db.VarChar(50)     // 语气
   recipient_name String?   @db.VarChar(100)    // 收件人姓名
-  sender_name    String?   @db.VarChar(100)    // 发件人姓名
+  recipient_role String?   @db.VarChar(200)    // 收件人身份/职位
+  sender_name    String?   @db.VarChar(100)    // 发件人姓名（可选）
   core_points    String?                       // 核心要点
 
   // AI 生成结果
@@ -396,8 +411,58 @@ model mail_histories {
 ```
 
 **字段说明**：
+- `recipient_role`: 收件人身份/职位（如：销售总监、技术合作伙伴等）
+- `sender_name`: 发件人姓名（可选字段）
 - `is_favorite`: 用户是否收藏该邮件
 - `is_deleted`: 软删除标记（用户侧已删除，后台仍可留存审计）
+
+#### 4.2.6 环境变量配置说明 ⭐ 新增
+
+系统运行依赖以下环境变量配置（需在 `.env` 文件中设置）：
+
+```bash
+# ========== 数据库配置 ==========
+DATABASE_URL="postgresql://user:password@host:5432/fluentwj"
+
+# ========== Redis配置 ==========
+REDIS_URL="redis://host:6379"
+
+# ========== DeepSeek AI 配置 ==========
+DEEPSEEK_API_KEY="sk-xxx"                    # DeepSeek API密钥
+DEEPSEEK_API_URL="https://api.deepseek.com/v1" # API地址
+DEEPSEEK_MODEL="deepseek-chat"               # 模型名称
+DEEPSEEK_TEMPERATURE="0.7"                   # 生成温度（0-1）
+DEEPSEEK_MAX_TOKENS="2000"                   # 最大生成token数
+DEEPSEEK_TIMEOUT="45000"                     # 请求超时时间（毫秒）
+
+# ========== 阿里云内容审核配置 ==========
+ALIYUN_ACCESS_KEY_ID="LTAI5xxx"             # 阿里云AccessKey ID
+ALIYUN_ACCESS_KEY_SECRET="xxx"               # 阿里云AccessKey Secret
+ALIYUN_MODERATION_ENDPOINT="https://green-cip.cn-shanghai.aliyuncs.com" # 内容审核端点
+ALIYUN_MODERATION_TIMEOUT="10000"            # 审核超时时间（毫秒）
+
+# ========== 华为云短信服务配置 ==========
+SMS_ACCESS_KEY="xxx"                         # 华为云AccessKey
+SMS_SECRET_KEY="xxx"                         # 华为云SecretKey
+SMS_TEMPLATE_ID="xxx"                        # 短信模板ID
+SMS_SIGN_NAME="FluentWJ"                     # 短信签名
+SMS_ENDPOINT="https://smsapi.cn-north-4.myhuaweicloud.com" # 短信端点
+
+# ========== JWT配置 ==========
+JWT_SECRET="your-super-secret-jwt-key"       # JWT签名密钥（生产环境必须更换）
+JWT_EXPIRES_IN="7d"                          # Token有效期
+
+# ========== Next.js配置 ==========
+NEXT_PUBLIC_APP_URL="http://localhost:3000"  # 应用地址
+NODE_ENV="development"                       # 运行环境（development/production）
+```
+
+**配置说明**：
+- DeepSeek API：用于AI内容生成
+- 阿里云内容审核：用于输入输出内容的安全审核
+- 华为云短信：用于发送验证码
+- Redis：用于存储验证码（5分钟过期）
+- JWT：用于用户会话管理
 
 ---
 
@@ -445,7 +510,44 @@ model mail_histories {
 | GET | `/api/auth/me` | 获取当前用户信息 | 已登录 |
 | POST | `/api/auth/logout` | 登出 | 已登录 |
 
-### 6.2 历史记录模块 (`/api/history`)
+### 6.2 AI 生成模块 (`/api/generate`) ⭐ 新增
+
+| 方法 | 路径 | 描述 | 权限 |
+|------|------|------|------|
+| POST | `/api/generate` | AI 邮件生成接口 | 已登录 |
+
+**请求参数**：
+```json
+{
+  "scenario": "email",           // 业务场景: email/report/proposal/notice
+  "tone": "formal",              // 语气: formal/friendly/urgent/humorous
+  "language": "zh-CN",           // 语言: zh-CN/en-US/zh-TW/ja-JP/ko-KR
+  "recipientName": "张三",       // 收件人姓名 (必填, 1-100字符)
+  "recipientRole": "销售总监",   // 收件人身份 (必填, 1-200字符)
+  "senderName": "李四",          // 发件人姓名 (可选, 最多50字符)
+  "keyPoints": "核心要点内容"    // 核心要点 (必填, 1-2000字符)
+}
+```
+
+**响应格式**：
+```json
+{
+  "success": true,
+  "data": {
+    "content": "AI生成的邮件内容",
+    "auditLogId": "uuid"         // 审计日志ID，用于溯源
+  }
+}
+```
+
+**错误码**：
+- `AUTH_EXPIRED`: 登录已过期
+- `ACCOUNT_BANNED`: 账户已被封禁
+- `VALIDATION_ERROR`: 参数校验失败
+- `MODERATION_FAILED`: 内容审核失败
+- `AI_GENERATION_FAILED`: AI生成失败
+
+### 6.3 历史记录模块 (`/api/history`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
@@ -455,7 +557,7 @@ model mail_histories {
 | PUT | `/api/history/:id/favorite` | 切换收藏状态 | 已登录 |
 | DELETE | `/api/history/:id` | 删除历史记录 | 已登录 |
 
-### 6.3 管理后台 - 用户管理 (`/api/admin/users`)
+### 6.4 管理后台 - 用户管理 (`/api/admin/users`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
@@ -464,7 +566,7 @@ model mail_histories {
 | PUT | `/api/admin/users/:id/status` | 更新用户状态 | 管理员 |
 | GET | `/api/admin/users/export` | 导出用户数据 | 管理员 |
 
-### 6.4 管理后台 - 审计日志 (`/api/admin/audit-logs`)
+### 6.5 管理后台 - 审计日志 (`/api/admin/audit-logs`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
@@ -474,7 +576,7 @@ model mail_histories {
 | POST | `/api/admin/audit-logs/:id/mark-violation` | 标记违规 | 管理员 |
 | POST | `/api/admin/audit-logs/:id/mark-passed` | 标记通过 | 管理员 |
 
-### 6.5 管理后台 - 反馈管理 (`/api/admin/feedbacks`)
+### 6.6 管理后台 - 反馈管理 (`/api/admin/feedbacks`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
@@ -483,14 +585,14 @@ model mail_histories {
 | POST | `/api/admin/feedbacks/:id/process` | 处理反馈 | 管理员 |
 | GET | `/api/admin/feedbacks/export` | 导出反馈数据 | 管理员 |
 
-### 6.6 管理后台 - 操作日志 (`/api/admin/operation-logs`)
+### 6.7 管理后台 - 操作日志 (`/api/admin/operation-logs`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
 | GET | `/api/admin/operation-logs` | 获取操作日志列表 | 管理员 |
 | GET | `/api/admin/operation-logs/export` | 导出操作日志 | 管理员 |
 
-### 6.7 管理后台 - Dashboard (`/api/admin/dashboard`)
+### 6.8 管理后台 - Dashboard (`/api/admin/dashboard`)
 
 | 方法 | 路径 | 描述 | 权限 |
 |------|------|------|------|
@@ -536,9 +638,9 @@ model mail_histories {
 - [x] Phase 2: 企业落地页、认证体系、管理后台基础架构
 - [x] Phase 3: Dashboard 撰写页面（前端UI）、历史记录管理（完整CRUD）
 - [x] Phase 4: 管理后台完整功能（用户管理、审计日志、反馈管理、操作日志、Dashboard统计）
+- [x] Phase 5: AI 生成核心逻辑（接入 DeepSeek API、阿里云内容审核、零宽水印植入）
 
 ### 待完成功能 🚧
-- [ ] Phase 5: AI 生成核心逻辑（接入 DeepSeek API、内容审核、水印植入）
 - [ ] Phase 6: 数据导出优化、性能调优、安全加固
 - [ ] Phase 7: 内部验收、部署至华为云生产环境、启动算法备案流程
 
